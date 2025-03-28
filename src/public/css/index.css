@@ -1,0 +1,193 @@
+body {
+    margin: 0 auto;
+}
+
+.container {
+ 
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===========================
+   🔝 ヘッダー
+   =========================== */
+.header {
+    background: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.header__logo img {
+    width: 20vw;
+    height: auto;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-form input[type='text'] {
+    padding: 10px;
+    padding-left: 30px;
+    width: 40vw;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 18px;
+    
+   
+}
+
+
+
+.header__menu .btn {
+    color: #fff;
+    padding: 10px 5px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    transition: color 0.3s ease;
+}
+
+
+.header__menu .btn-outlet {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    margin-left: 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.header__menu {
+    display: flex;
+    gap: 15px;
+}
+
+/* おすすめとマイリストのリンクを横並びにする */
+.title-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgb(124, 116, 116);
+    margin-top: 30px;
+}
+
+.title-links h2 {
+    margin: 0;
+    font-size: 18px;
+    margin-left: 10%;
+}
+
+.title-links a {
+    text-decoration: none;
+    color: red;
+    font-size: 18px;
+    padding: 10px 20px;
+}
+
+/* ===========================
+   🛍️ 商品リスト
+   =========================== */
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    
+}
+
+.product-item {
+    background-color: #fff;
+    padding: 15px;
+    position: relative;
+    transition: transform 0.3s ease;
+    
+    
+}
+
+.product-image {
+    width: 100%;
+    height: 0;
+    padding-top: 100%;
+    /* 高さを幅と同じ比率に保つ */
+    object-fit: cover;
+    /* 画像を正方形領域に収めつつ切り抜き */
+    background-color: #ccc;
+    /* 画像がない場合の背景色 */
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+
+.product-image span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: black;
+    font-size: 20px;
+    transform: translate(-50%, -100%);
+    /* 要素の中心を親要素の中央に配置 */
+}
+
+
+
+
+/* 商品名や説明文のスタイル */
+.product-item a {
+    font-size: 18px;
+    color: black;
+    margin-bottom: 5px;
+    text-decoration: none;
+    
+}
+
+.product-item p {
+    color: black;
+    font-size: 14px;
+    margin-bottom: 5px;
+    
+}
+
+/* Sold表示 */
+.sold {
+    color: #e53935;
+    font-weight: bold;
+}
+
+/* ===========================
+   📱 レスポンシブ対応
+   =========================== */
+@media (max-width: 600px) {
+    .search-form input[type='text'] {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .search-form button {
+        width: 100%;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header__menu .btn {
+        display: block;
+        margin: 5px 0;
+        width: 100%;
+    }
+
+    .search-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

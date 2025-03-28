@@ -1,0 +1,252 @@
+body {
+    margin: 0 auto;
+}
+
+/* ===========================
+   🔝 ヘッダー
+   =========================== */
+.header {
+    background: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.header__logo img {
+    width: 20vw;
+    height: auto;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: black;
+    width: 40vw;
+}
+
+.search-form input[type='text'] {
+    padding: 10px 30px;
+    width: 40vw;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+.header__menu {
+    display: flex;
+    gap: 15px;
+}
+
+.header__menu .btn {
+    color: #fff;
+    padding: 10px 5px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    transition: color 0.3s ease;
+}
+
+.header__menu .btn-outlet {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    margin-left: 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===========================
+   📸 プロフィール画像
+   =========================== */
+/* 横並びレイアウト */
+.form-group-row {
+    display: flex;
+    align-items: center;
+    /* 中央揃え */
+    gap: 15px;
+    /* 画像とファイル選択の間隔 */
+    margin: 0 auto;
+    width: 50%;
+}
+
+/* プロフィール画像 */
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    /* サイズを固定してレイアウト崩れ防止 */
+}
+
+/* 画像を枠いっぱいに収める */ .profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* ファイル選択ボタン */
+.file-input {
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
+    /* 画像との間隔 */
+}
+
+.file-input label {
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid red;
+    color: red;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+}
+
+.file-input input {
+    display: none;
+    /* input を非表示にし、label をボタン風に */
+}
+/* ===========================
+   📋 フォーム部分
+   =========================== */
+.container {
+   
+    margin: 0 auto;
+    padding: 20px;
+    
+    
+}
+
+h1 {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+form {
+    width: 100%;
+    
+    margin: 0 auto;
+   
+    background-color: white;
+    border-radius: 8px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    text-align: left;
+    margin: 30px auto;
+}
+
+.form-group label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+    
+}
+
+.form-group input {
+ margin: 0 auto;
+ width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #888b8f;
+    outline: none;
+}
+
+button[type="submit"] {
+    width: 50%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 auto;
+    display: block;
+}
+
+button[type="submit"]:hover {
+    background-color: darkred;
+}
+
+input[type="file"] {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fafafa;
+    margin-top: 10px;
+}
+
+/* ===========================
+   ⚠️ エラーメッセージ
+   =========================== */
+.form-group .error-message {
+    font-size: 12px;
+    color: red;
+    margin-top: 5px;
+}
+
+.form-group .error-message span {
+    color: red;
+}
+
+.btn-upload {
+    color: red;
+    border: 1px solid red;
+    padding-left: 10px;
+}
+
+/* ===========================
+   📱 レスポンシブ対応
+   =========================== */
+@media (max-width: 600px) {
+    .search-form input[type='text'] {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .search-form button {
+        width: 100%;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header__menu .btn {
+        display: block;
+        margin: 5px 0;
+        width: 100%;
+    }
+
+    .search-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

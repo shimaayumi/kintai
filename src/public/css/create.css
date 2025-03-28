@@ -1,0 +1,322 @@
+/* ===========================
+   グローバル設定
+=========================== */
+body {
+    margin: 0 auto;
+}
+
+/* ===========================
+   🔝 ヘッダー
+=========================== */
+.header {
+    background: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.header__logo img {
+    width: 20vw;
+    height: auto;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-form input[type='text'] {
+    padding: 10px;
+    padding-left: 30px;
+    width: 40vw;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+.header__menu {
+    display: flex;
+    gap: 15px;
+}
+
+.header__menu .btn {
+    color: #fff;
+    padding: 10px 5px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    transition: color 0.3s ease;
+}
+
+.header__menu .btn-outlet {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    margin-left: 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===========================
+   コンテナ
+=========================== */
+.container {
+    width: 50%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+}
+
+/* ===========================
+   フォームスタイル
+=========================== */
+h1 {
+    font-size: 2rem;
+    margin: 10px auto;
+    color: black;
+    text-align: center;
+   
+}
+
+
+h2 {
+    font-size: 2rem;
+    margin: 50px auto;
+    color: rgb(104, 106, 108);
+    border-bottom: 1px solid #746a6a;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: block;
+    margin-top: 30px;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #746a6a;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="file"] {
+    padding: 5px;
+}
+
+/* ===========================
+   ファイル選択ボタンのカスタマイズ
+=========================== */
+.custom-file-upload {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px dashed #746a6a;
+    border-radius: 5px;
+}
+
+
+
+image{
+    border: 1px dashed #746a6a;
+}
+
+.img-preview {
+    max-width: 200px;
+    /* 画像の最大幅を200pxに設定 */
+    max-height: 200px;
+    /* 画像の最大高さを150pxに設定 */
+    width: auto;
+    /* 幅を自動で調整 */
+    height: auto;
+    /* 高さを自動で調整 */
+    margin-top: 10px;
+    /* 画像とテキストの間に余白を追加 */
+    border: 1px solid #ddd;
+    /* 画像周りに薄い枠を追加 */
+    padding: 5px;
+    /* 枠の内側に余白を追加 */
+}
+
+
+
+
+.custom-file-upload input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 2;
+
+}
+
+.custom-file-upload input[type="text"] {
+   
+    opacity: 0;
+   
+
+}
+
+.custom-file-upload .btn-upload {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: red;
+    padding: 5px 15px;
+    border: 1px solid red;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1;
+}
+
+/* ===========================
+   ボタンスタイル
+=========================== */
+button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 100px auto;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: darkred;
+}
+
+/* ===========================
+   カテゴリーボタン
+=========================== */
+/* カテゴリーボタン */
+.category-btn {
+    background-color: white;
+    border: 1.5px solid red;
+    border-radius: 30px;
+    color: red;
+    cursor: pointer;
+    transition: 0.3s ease;
+    font-size: 12px;
+    padding: 3px 20px;
+    text-align: center;
+    margin: 15px 5px;
+}
+
+/* 選択されたボタンのスタイル */
+.category-btn.selected {
+    background-color: red;
+    color: white;
+    border-color: red;
+}
+/* ===========================
+   価格入力欄のスタイル
+=========================== */
+
+/* 価格入力欄のスタイル */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #746a6a;
+    border-radius: 5px;
+    box-sizing: border-box;
+    /* ボックスモデルを明確に */
+}
+
+/* 価格の入力欄だけ右寄せ */
+.form-control.price-input {
+    text-align: right;
+    /* 数字を右寄せに */
+    padding-left: 30px;
+    /* ¥マーク分のスペースを確保 */
+}
+
+/* ¥記号のスタイル */
+.currency-symbol {
+    position: absolute;
+    left: 10px;
+    /* ¥記号を入力フィールドの左端に配置 */
+    top: 70%;
+    transform: translateY(-50%);
+    /* 垂直方向の中央に配置 */
+    font-size: 1rem;
+    color: #333;
+    pointer-events: none;
+    /* ユーザーがクリックできないように */
+}
+
+
+
+
+
+/* 商品状態のセレクトボックスにのみ▼を追加 */
+.select-status {
+    -webkit-appearance: none; /* SafariとChromeの標準デザインを無効化 */
+    -moz-appearance: none; /* Firefoxの標準デザインを無効化 */
+    appearance: none; /* 他のブラウザの標準デザインを無効化 */
+    padding: 10px 30px 10px 10px; /* 右側にスペースを追加して、▼アイコンのスペース確保 */
+    border: 1px solid #746a6a;
+    border-radius: 5px;
+    background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 5"%3E%3Cpolygon points="0,0 8,0 4,5" fill="%23808080"%3E%3C/polygon%3E%3C/svg%3E') no-repeat right 10px center;
+    background-size: 16px 10px; /* ▼アイコンの大きさ調整 */
+    font-size: 1rem;
+}
+
+.select-status:focus {
+    outline: none;
+    border-color: #333; /* フォーカス時の枠線色 */
+}
+
+/* ===========================
+   レスポンシブ設定
+=========================== */
+@media (max-width: 768px) {
+    #category-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        /* 画面が小さい場合は2列に */
+    }
+}
+
+@media (max-width: 480px) {
+    #category-buttons {
+        grid-template-columns: 1fr;
+        /* さらに小さい画面で1列に */
+    }
+}
