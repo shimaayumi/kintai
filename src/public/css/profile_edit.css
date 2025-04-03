@@ -80,19 +80,30 @@ body {
     border-radius: 50%;
     overflow: hidden;
     background-color: #ddd;
+    /* 背景色 */
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    /* サイズを固定してレイアウト崩れ防止 */
+    position: relative;
+    /* 相対位置 */
 }
 
-/* 画像を枠いっぱいに収める */ .profile-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
+/* プロフィール画像 */
+.profile-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 50% !important;
+    display: block !important;
+    margin: 0 !important;
+    /* マージンをリセット */
+    max-width: none !important;
+    /* max-widthを無効にする */
 }
+
+
 
 /* ファイル選択ボタン */
 .file-input {

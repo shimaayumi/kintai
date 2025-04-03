@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -34,11 +35,12 @@ class User extends Authenticatable // 認証のためにAuthenticatableを継承
     }
 
     // いいね機能とのリレーション
+
+
     public function likes()
     {
-        return $this->belongsToMany(Item::class, 'item_likes', 'user_id', 'item_id');
+        return $this->hasMany(Like::class, 'user_id', 'id');
     }
-
     // コメントとのリレーション
     public function comments()
     {
@@ -49,4 +51,12 @@ class User extends Authenticatable // 認証のためにAuthenticatableを継承
     {
         return $this->hasOne(Address::class);
     }
+
+
+    public function purchasedItems()
+    {
+        return $this->belongsToMany(Item::class, 'purchases', 'user_id', 'item_id');
+    }
+
+  
 }

@@ -29,8 +29,14 @@ class Item extends Model
     {
         return $this->belongsTo(User::class); // 一つのアイテムは一人のユーザーに属する
     }
-
    
+
+    public function likeCount()
+    {
+        return $this->likes()->count();
+    }
+
+
 
     // カテゴリとのリレーション
     public function category()
@@ -38,10 +44,10 @@ class Item extends Model
         return $this->belongsTo(Category::class); // 一つのアイテムは一つのカテゴリに属する
     }
 
-    // 画像とのリレーション (ItemImageとの関連付け)
+ 
     public function images()
     {
-        return $this->hasMany(ItemImage::class); // アイテムは複数の画像を持つ
+        return $this->hasMany(\App\Models\ItemImage::class);
     }
 
     // 購入とのリレーション (Purchaseとの関連付け)
@@ -62,10 +68,7 @@ class Item extends Model
         return $statusLabels[$this->status] ?? '不明';
     }
 
-    public function likes()
-    {
-        return $this->belongsToMany(User::class, 'item_likes', 'item_id', 'user_id');
-    }
+ 
 
 
     public function comments()
@@ -73,6 +76,9 @@ class Item extends Model
         return $this->hasMany(Comment::class); // Itemは多くのコメントを持つ
     }
 
-   
+    public function likes()
+    {
+        return $this->hasMany(Like::class, 'item_id'); // 'likes' ではなく 'item_likes' を参照
+    }
     
 }

@@ -13,8 +13,7 @@ class ExhibitionRequest extends FormRequest
      */
     public function authorize()
     {
-        // 出品フォームのリクエストは、全てのユーザーに許可
-        return true;
+        return true; // 全ユーザーがリクエスト可能
     }
 
     /**
@@ -27,16 +26,16 @@ class ExhibitionRequest extends FormRequest
         return [
             'items_name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
-            'product_image' => 'required|mimes:jpeg,png|max:2048',
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|string',
             'price' => 'required|integer|min:1',
             'brand_name' => 'required|max:255',
 
-            'product_images' => 'required|array',
-            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'item_images' => 'required|array',
+            'item_images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
+
     /**
      * バリデーションエラーメッセージをカスタマイズする。
      *
@@ -49,9 +48,6 @@ class ExhibitionRequest extends FormRequest
             'items_name.max' => '商品名は255文字以内で入力してください。',
             'description.required' => '商品の説明を入力してください。',
             'description.max' => '商品の説明は1000文字以内で入力してください。',
-            'product_image.required' => '商品画像をアップロードしてください。',
-            'product_image.mimes' => '商品画像はJPEGまたはPNG形式でアップロードしてください。',
-            'product_image.max' => '商品画像は2MB以下にしてください。',
             'category_id.required' => 'カテゴリーを選択してください。',
             'category_id.exists' => '選択したカテゴリーが存在しません。',
             'status.required' => '商品の状態を選択してください。',
@@ -60,6 +56,12 @@ class ExhibitionRequest extends FormRequest
             'price.min' => '販売価格は1円以上で入力してください。',
             'brand_name.required' => 'ブランド名を入力してください。',
             'brand_name.max' => 'ブランド名は255文字以内で入力してください。',
+
+            'item_images.required' => '商品画像を最低1枚アップロードしてください。',
+            'item_images.array' => '商品画像は複数選択できます。',
+            'item_images.*.image' => 'アップロードするファイルは画像である必要があります。',
+            'item_images.*.mimes' => '商品画像は JPEG, PNG, JPG, GIF, SVG のいずれかの形式でアップロードしてください。',
+            'item_images.*.max' => '各画像のサイズは2MB以下にしてください。',
         ];
     }
 }

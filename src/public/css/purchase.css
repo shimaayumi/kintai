@@ -1,102 +1,133 @@
+body {
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+/* ===========================
+   🔝 ヘッダー
+   =========================== */
 .header {
     background: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
 }
 
-.header__inner {
-    margin: 0 auto;
-    padding: 20px 15px;
-    max-width: 1230px;
-}
-
-
-header img {
-    width: 150px;
-    /* 画像の幅を指定 */
+.header__logo img {
+    width: 20vw;
     height: auto;
-    /* 高さは自動調整 */
 }
 
-
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* 商品情報のスタイル */
-h1 {
-    text-align: center;
-    color: #333;
-    font-size: 24px;
+.search-form input[type='text'] {
+    padding: 10px;
+    padding-left: 30px;
+    width: 40vw;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+.header__menu {
+    display: flex;
+    gap: 15px;
+}
+
+.header__menu .btn {
+    color: #fff;
+    padding: 10px 5px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    transition: color 0.3s ease;
+}
+
+.header__menu .btn-outlet {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    margin-left: 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+/* ===========================
+   商品情報と購入ボタンのレイアウト
+   =========================== */
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    
+}
+
+.col-md-8 {
+    flex: 0 0 65%;
+    /* 左側：商品情報を占める */
+}
+
+.col-md-4 {
+    flex: 0 0 30%;
+    /* 右側：価格と購入ボタンを占める */
+}
+
+.item {
     margin-bottom: 20px;
 }
 
-h3 {
-    color: #007bff;
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-p {
-    font-size: 16px;
-    color: #555;
-}
-
-/* 商品画像のスタイル */
-img {
+.item img {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
 }
 
-/* 支払い方法の選択 */
+
+/* ボーダーを表示させるための設定 */
 .form-group {
     margin-bottom: 20px;
+    padding-bottom: 20px;
+    /* 余白を加える */
+    border-bottom: 1px solid #ddd;
+    /* ボーダーを薄い灰色で引く */
 }
 
-label {
-    font-weight: bold;
-    font-size: 16px;
+
+
+/* 支払い方法表示 */
+#payment_method_display {
+    margin-bottom: 20px;
+    /* 少し余白を追加 */
 }
 
-select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
 
+/* その他のスタイル */
 button {
     width: 100%;
     padding: 12px;
     font-size: 18px;
-    background-color: #28a745;
+    background-color: red;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: darkred;
 }
 
-/* ボタンのリンクスタイル */
-a.btn-primary {
-    display: block;
-    text-align: center;
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
+
+
+/* 右側の支払い方法表示 */
+#payment_method_display {
     margin-bottom: 20px;
+    /* 少し余白を追加 */
 }
 
-a.btn-primary:hover {
-    background-color: #0056b3;
-}

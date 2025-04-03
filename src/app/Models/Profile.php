@@ -13,7 +13,7 @@ class Profile extends Model
     protected $fillable = [
         'user_id',
         'bio',
-        'profile_picture',
+        'profile_image',  // ここを追加
     ];
 
     // リレーション: 1つのプロフィールは1人のユーザーに関連付けられている

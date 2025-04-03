@@ -28,7 +28,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-                <a href="{{ route('user.profile') }}" class="btn">マイページ</a>
+                <a href="{{ route('mypage.edit') }}" class="btn">マイページ</a>
                 <a href="{{ route('items.create') }}" class="btn btn-outlet">出品</a>
                 @else
                 <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
@@ -40,14 +40,25 @@
 
     <div class="container">
         <h1>プロフィール設定</h1>
-        <form action="{{ route('user.updateProfile') }}" method="POST" enctype="multipart/form-data">
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+        <form action="{{ route('mypage.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <div class="form-group-row">
                 <div class="profile-image">
-                    <img id="preview" src="default-avatar.png">
-                    <img src="{{ asset('storage/profiles/' . $user->profile_image) }}" alt="プロフィール画像">
+
+                    <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}" alt="画像プレビュー" style="max-width: 150px; margin-top: 10px;">
+
+
                 </div>
                 <div class="file-input">
                     <label for="profile_image" class="btn">ファイルを選択</label>
@@ -60,26 +71,26 @@
                 <input type="text" name="name" id="name" value="{{ $user->name }}" class="form-control" required>
             </div>
 
+
             <div class="form-group">
                 <label for="postal_code">郵便番号</label>
-                <input type="text" name="postal_code" id="postal_code" value="{{ $address ? $address->postal_code : '' }}" class="form-control" required>
+                <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code', $address ? $address->postal_code : '') }}" class="form-control" required>
             </div>
 
             <div class="form-group">
                 <label for="address">住所</label>
                 <input type="text" name="address" id="address" value="{{ $address ? $address->address : '' }}" class="form-control" required>
-                @if($address)
-    <p>{{ $address->address }}</p>
-@else
-    <p>住所情報はまだ登録されていません。</p>
-@endif
+
             </div>
-            
+
+
+
 
             <div class="form-group">
                 <label for="building">建物名</label>
-                <input type="text" name="building" id="building" value="{{ $address ? $address->building : '' }}" class="form-control">
+                <input type="text" name="building" id="building" value="{{ old('building', $address ? $address->building : '') }}" class="form-control">
             </div>
+
 
             <button type="submit" class="btn btn-success">更新する</button>
         </form>
@@ -91,9 +102,10 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    // FileReaderが読み込んだ画像データをプレビュー用の画像タグに設定
                     document.getElementById("preview").src = e.target.result;
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(file); // 画像ファイルをBase64に変換
             }
         });
     </script>

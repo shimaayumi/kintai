@@ -46,24 +46,27 @@
                 @if (Auth::id() !== $item->user_id)
                 <div class="border p-2 relative">
                     <!-- 商品画像 -->
-                    <img src="{{ $item->image_url }}" alt="{{ $item->name }}" class="w-full h-40 object-cover">
+                    <img id="preview" src="{{ asset('storage/images/' . $item->image_url) }}" alt="画像プレビュー" class="w-full h-auto object-cover rounded-md" style="max-width: 100%;">
 
                     <!-- 商品名 -->
                     <h3 class="mt-2 text-lg font-bold">{{ $item->name }}</h3>
+            
 
-                    <!-- SOLD表示 -->
-                    @if ($item->sold_flag)
-                    <div class="absolute top-0 left-0 bg-red-500 text-white px-2 py-1">Sold</div>
-                    @endif
+           
 
-                    <!-- 商品詳細へのリンク -->
-                    <a href="{{ route('items.show', $item->id) }}" class="mt-2 block bg-blue-500 text-white p-2 text-center">詳細を見る</a>
-                </div>
-                @endif
-                @empty
-                <p class="col-span-2 md:col-span-4 text-center text-gray-500">商品が見つかりませんでした。</p>
-                @endforelse
-            </div>
+            <!-- SOLD表示 -->
+            @if ($item->sold_flag)
+            <div class="absolute top-0 left-0 bg-red-500 text-white px-2 py-1">Sold</div>
+            @endif
+
+            <!-- 商品詳細へのリンク -->
+            <a href="{{ route('items.show', $item->id) }}" class="mt-2 block bg-blue-500 text-white p-2 text-center">詳細を見る</a>
+        </div>
+        @endif
+        @empty
+        <p class="col-span-2 md:col-span-4 text-center text-gray-500">商品が見つかりませんでした。</p>
+        @endforelse
+        </div>
         </div>
     </main>
 </body>

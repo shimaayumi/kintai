@@ -1,5 +1,6 @@
 body {
     margin: 0 auto;
+    
 }
 
 /* ===========================
@@ -31,12 +32,7 @@ body {
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 18px;
-
-
 }
-
-
-
 
 .header__menu .btn {
     color: #fff;
@@ -68,34 +64,80 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
 }
 
 h1 {
     font-size: 24px;
     color: #333;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
+    margin-top: 0;
+}
+
+
+h3 {
+    font-size: 24px;
+  
+}
+
+.brand-name {
+    font-size: 14px;
+    
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+.price {
+    font-size: 28px;
+    /* 商品価格のフォントサイズ */
+}
+
+
+/* --- 商品詳細ページレイアウト変更 --- */
+
+.no-image-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
 }
 
 .product-image {
-    width: 30%;
+    width: 40%;
     height: 0;
-    padding-top: 30%;
-    /* 高さを幅と同じ比率に保つ */
-    object-fit: cover;
-    /* 画像を正方形領域に収めつつ切り抜き */
+    padding-top: 40%;
+    /* 正方形の比率 */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
     background-color: #ccc;
-    /* 画像がない場合の背景色 */
     background-position: center;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
+.product-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 正方形に収めつつトリミング */
+}
+
+/* 右側の商品情報 */
 .product-info {
+    width: 50%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    justify-content: space-between;
+    padding-left: 80px;
     color: #555;
 }
 
@@ -103,22 +145,242 @@ h1 {
     font-weight: bold;
     color: #333;
 }
+/* 商品詳細のセクション */
+.product-detail {
+    display: flex;
+    align-items: flex-start;
+    max-width: 1200px;
+    background-color: white;
+    margin: 80px auto;
+    /* ここで外部余白を設定 */
+    padding-left: 80px;
+}
 
-/* --- いいねアイコン --- */
-.like-icon {
+.product-detail h1 {
+    font-size: 32px;
+    color: #333;
+}
+
+
+
+
+
+
+
+.currency,
+.tax-included {
+    font-size: 0.7em;
+    /* ¥と(税込)のサイズを小さくする */
+}
+
+
+.product-detail .btn {
+    display: inline-block;
+    background-color: red;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+   margin-top: 15px;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.product-detail .btn:hover {
+    background-color: #e14a4a;
+}
+
+
+.description {
+    font-size: 18px;
+  
+    line-height: 1.6;
+    margin: 10px 0;
+}
+
+
+.seller-profile {
+    display: flex;
+    align-items: center;
+    /* 画像と名前を中央揃え */
+    gap: 10px;
+    /* 画像と名前の間隔を調整 */
+}
+
+.seller-image {
+    width: 50px;
+    /* 画像の幅を小さく */
+    height: 50px;
+    /* 画像の高さを小さく */
+    border-radius: 50%;
+    /* 丸い画像にする */
+    object-fit: cover;
+    /* 画像の縦横比を崩さずトリミング */
+}
+
+.seller-name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+
+/* コメント一覧のスタイル */
+/* アイコンとカウントを縦に並べる */
+.interaction-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    /* アイコンとカウントの間隔 */
+}
+
+/* いいねとコメントセクション */
+.like-section,
+.comment-section {
+    display: flex;
+    flex-direction: column;
+    /* アイコンとカウントを縦に並べる */
+    align-items: center;
+    /* 中央揃え */
+}
+
+/* アイコンを大きく */
+.like-icon,
+.comment-icon {
+    font-size: 26px !important;
+    /* アイコンのフォントサイズを大きくする */
+    margin-left: 20px;
+}
+
+/* カウントを小さく */
+.like-count,
+.icon-comment-count {
+    font-size: 12px !important;
+    /* カウントのフォントサイズを小さく */
+   
+    /* アイコンとカウントの間隔 */
+    margin-left: 20px;
+}
+
+/* いいねボタンのスタイル */
+.like-button {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    font-size: 20px;
     cursor: pointer;
+}
+
+
+.item-container {
+    display: flex;
+    flex-direction: column;
+    /* 縦並びに配置 */
+    gap: 20px;
+    /* 各項目の間隔を調整 */
+}
+
+.category,
+.item-status {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.category span {
+    font-size: 18px;
+    padding: 5px 10px;
+    background-color: #d1cece;
+    border-radius: 20px;
+    margin-left: 10px;
+    /* 「カテゴリー」や「商品の状態」との間隔を調整 */
+}
+
+
+
+.item-status span {
+    font-size: 18px;
+   
+    margin-left: 30px;
+    /* 「カテゴリー」や「商品の状態」との間隔を調整 */
+}
+
+
+
+.comment-item {
+    display: none;
+}
+.comment {
+    background: rgb(214, 211, 211);
+    padding: 10px;
+    margin-top: 20px;
+   
+}
+
+.comment strong {
+    color: #333;
+    font-size: 14px;
+}
+
+ p {
+ 
+    color: #555;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* コメント投稿フォーム */
+.comment-form {
+    margin-top: 20px;
+  
+    background: white;
+    border-radius: 8px;
+  
+}
+
+.comment-count {
     font-size: 24px;
-    transition: transform 0.2s ease-in-out;
+  
 }
 
-.like-icon.liked {
-    color: #e74c3c;
-    transform: scale(1.2);
+
+textarea {
+    width: 100%;
+    height: 150px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: none;
 }
 
-.like-icon:hover {
-    transform: scale(1.1);
+.comment-form .error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
 }
+
+/* ボタンスタイル */
+.button-container {
+    text-align: right;
+    margin-top: 10px;
+}
+
+button {
+    background:red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+    padding: 5px 20px;
+    text-decoration: none;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+
 
 /* --- コメント欄 --- */
 .comments-section {
@@ -143,15 +405,19 @@ h1 {
 
 .comment-form textarea {
     width: 100%;
+    width: 100%;
+        height: 150px;
+        /* 高さを増やす */
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     resize: none;
     margin-top: 10px;
+    
 }
 
 .comment-form button {
-    background: #4caf50;
+    background: red;
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -166,136 +432,6 @@ h1 {
 
 
 
-/* 商品詳細のセクション */
-.product-detail {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-
-}
-
-.product-detail h1 {
-    font-size: 32px;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.product-detail img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 20px;
-    border-radius: 8px;
-}
-
-.product-detail p {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #555;
-}
-
-.product-detail .price {
-    font-size: 24px;
-    color: #e60000;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.product-detail .btn {
-    display: inline-block;
-    background-color:red;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
-}
-
-.product-detail .btn:hover {
-    background-color: #003d80;
-}
-
-/* コメントセクション */
-.product-detail h3 {
-    margin-top: 40px;
-    font-size: 24px;
-    color: #333;
-}
-
-.product-detail .comment {
-    margin-bottom: 15px;
-    background-color: #f1f1f1;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.product-detail .comment strong {
-    font-weight: bold;
-    color: #333;
-}
-
-.product-detail textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    resize: vertical;
-}
-
-.product-detail button {
-    background-color: red;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-
-
-.product-detail .error-message {
-    color: red;
-    font-size: 14px;
-    margin-top: 10px;
-}
-
-
-/* --- 商品詳細ページレイアウト変更 --- */
-.product-detail {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-}
-
-/* 左側の商品画像 */
-.product-detail .product-image {
-    flex: 0 0 40%;
-    /* 左側を40%の幅に固定 */
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-/* 右側の商品情報 */
-.product-detail .product-info {
-    flex: 1;
-    /* 残りのスペースを埋める */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
 
 /* レスポンシブ調整 */
 @media (max-width: 600px) {

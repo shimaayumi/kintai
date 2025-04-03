@@ -33,7 +33,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-                <a href="{{ route('user.profile') }}" class="btn">マイページ</a>
+                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
                 <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
                 @else
                 <!-- 未ログイン時のメニュー -->
@@ -49,34 +49,31 @@
         <h2>おすすめ</h2>
 
         <!-- 🛠️ マイリストリンク -->
+
         @if(Auth::check())
-        <a href="{{ url('/mypage?tab=sell') }}" class="btn">マイリスト</a>
+        <a href="{{ route('mylist') }}" class="btn">マイリスト</a>
         @else
-        <a href="{{ route('auth.login') }}" class="btn">ログインしてマイリストを見る</a>
+        <a href="{{ route('login') }}" class="btn">ログインしてマイリストを見る</a>
         @endif
     </div>
 
     <!-- 🛠️ 商品リスト表示 -->
-    <div class="container">
-        <div class="product-list">
-            @forelse($items as $item)
-            <div class="product-item {{ !$item->image_url ? 'no-image' : '' }}">
-                <a href="{{ route('items.show', $item->id) }}" class="product-link">
-                    <div class="product-image">
-                        @if($item->image_url)
-                        <img src="{{ $item->image_url }}" alt="{{ $item->name }}" />
-                        @else
-                        <span>商品画像</span>
-                        @endif
-                    </div>
-                    <h3>{{ $item->name }}</h3>
-                    <p>{{ $item->description }}</p>
-                </a>
-            </div>
-            @empty
-            <p>{{ request('page') === 'mylist' ? 'マイリストに商品がありません。' : '表示できる商品がありません。' }}</p>
-            @endforelse
+    <!-- 🛠️ 商品リスト表示 -->
+    <div class="item-list">
+        @isset($item)
+        <div class="item-image">
+            @if(!empty($item->image))
+            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}">
+            @else
+            <img src="{{ asset('images/no_image_available.png') }}" alt="No Image">
+            @endif
         </div>
+
+        <h3>{{ $item->name }}</h3>
+        <p>{{ $item->description }}</p>
+        @else
+        <p>出品した商品はありません。</p>
+        @endisset
     </div>
 </body>
 

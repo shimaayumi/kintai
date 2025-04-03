@@ -78,22 +78,34 @@ body {
         
 }
 
+/* プロフィール画像 */
 .profile-image {
     width: 120px;
     height: 120px;
     border-radius: 50%;
     overflow: hidden;
     background-color: #ddd;
+    /* 背景色 */
     display: flex;
     justify-content: center;
     align-items: center;
-    
+    flex-shrink: 0;
+    position: relative;
+    /* 相対位置 */
 }
 
+/* プロフィール画像 */
 .profile-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 50% !important;
+    display: block !important;
+    margin: 0 !important;
+    /* マージンをリセット */
+    max-width: none !important;
+    /* max-widthを無効にする */
 }
 
 /* ユーザー名と編集ボタンを横並び */
@@ -152,105 +164,81 @@ body {
     color: #625e5e;
 }
 
-/* ===========================
-   🛍️ 商品リスト
-   =========================== */
-.product-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+/* 商品リストのスタイル */
+.item-list {
+    display: flex;
+    flex-wrap: wrap;
+    /* アイテムが画面幅に合わせて折り返す */
     gap: 20px;
-    margin: 50px 50px;
-
+    /* 商品間のスペース */
+    justify-content: flex-start;
+    /* 左詰め */
+    margin: 50px;
 }
 
-.product-item {
+/* 商品アイテム */
+.item {
+    width: calc(33.333% - 20px);
+    /* 3列表示（幅の割合） */
+    max-width: 300px;
+    /* 最大幅 */
     background-color: #fff;
-    padding: 15px;
-    position: relative;
+
+    overflow: hidden;
+   
+    text-align: center;
     transition: transform 0.3s ease;
-
-
 }
 
-.product-image {
+.item-image {
     width: 100%;
-    height: 0;
-    padding-top: 100%;
-    /* 高さを幅と同じ比率に保つ */
-    object-fit: cover;
-    /* 画像を正方形領域に収めつつ切り抜き */
-    background-color: #ccc;
-    /* 画像がない場合の背景色 */
-    background-position: center;
+    height: auto;
+    /* 高さを自動調整 */
+    min-height: 100px;
+    /* 最低でも100pxの高さを確保 */
+    background-color: #f3f3f3;
     display: flex;
     justify-content: center;
     align-items: center;
-    
-
+    overflow: hidden;
+    position: relative;
 }
 
-
-.product-image span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    color: black;
-    font-size: 20px;
-    transform: translate(-50%, -100%);
-    /* 要素の中心を親要素の中央に配置 */
+.item-image img {
+    width: 100%;
+    height: auto;
+    /* 高さを自動調整 */
+    object-fit: contain;
+    /* 画像全体を表示 */
+    max-height: 300px;
+    /* 画像の最大高さを制限 */
 }
 
-
-
-
-/* 商品名や説明文のスタイル */
-.product-item a {
+/* 商品名 */
+.item h3 {
     font-size: 18px;
-    color: black;
-    margin-bottom: 5px;
-    text-decoration: none;
-
+    margin-top: 10px;
+    text-align: left;
 }
 
-.product-item p {
-    color: black;
+/* 商品説明 */
+.item p {
     font-size: 14px;
-    margin-bottom: 5px;
-
+    color: #555;
+    margin-bottom: 10px;
 }
 
-/* Sold表示 */
-.sold {
-    color: #e53935;
-    font-weight: bold;
+/* 📱 レスポンシブ対応 */
+@media (max-width: 900px) {
+    .item {
+        width: calc(50% - 20px);
+        /* タブレットで2列表示 */
+    }
 }
 
-/* ===========================
-   📱 レスポンシブ対応
-   =========================== */
 @media (max-width: 600px) {
-    .search-form input[type='text'] {
+    .item {
         width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .search-form button {
-        width: 100%;
-    }
-
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header__menu .btn {
-        display: block;
-        margin: 5px 0;
-        width: 100%;
-    }
-
-    .search-form {
-        flex-direction: column;
-        gap: 10px;
+        /* スマホで1列表示 */
     }
 }

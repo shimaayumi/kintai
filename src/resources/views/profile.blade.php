@@ -33,7 +33,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-                <a href="{{ route('user.profile') }}" class="btn">マイページ</a>
+                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
                 <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
                 @else
                 <!-- 未ログイン時のメニュー -->
@@ -45,7 +45,6 @@
     </header>
     <div class="container">
 
-
         @php
         $user = auth()->user(); // ログインユーザーを取得
         @endphp
@@ -53,7 +52,8 @@
         <div class="profile-card">
             <div class="profile-image">
                 @if($user->profile && $user->profile->profile_image)
-                <img src="{{ asset('storage/' . $user->profile->profile_image) }}" alt="プロフィール画像">
+                <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}" alt="画像プレビュー" style="max-width: 150px; margin-top: 10px;">
+
                 @else
                 <img src="{{ asset('images/default_profile.png') }}">
                 @endif
@@ -62,35 +62,35 @@
             <div class="profile-info">
                 <div class="profile-header">
                     <h2 class="profile-name">{{ $user->name }}</h2>
-                    <a href="{{ route('user.editProfile') }}" class="btn btn-primary edit-button">プロフィールを編集</a>
+                    <a href="{{ route('Profile.edit') }}" class="btn btn-primary edit-button">プロフィールを編集</a>
                 </div>
             </div>
         </div>
 
-       
+
 
         <!-- タブの切り替え -->
         <div class="tabs">
-            <a href="{{ route('user.profile', ['tab' => 'sell']) }}" class="btn {{ $tab === 'sell' ? 'active' : '' }}">出品した商品</a>
-            <a href="{{ route('user.profile', ['tab' => 'purchased']) }}" class="btn {{ $tab === 'purchased' ? 'active' : '' }}">購入した商品</a>
+            <a href="{{ route('mypage.show', ['tab' => 'sell']) }}" class="btn {{ $tab === 'sell' ? 'active' : '' }}">出品した商品</a>
+            <a href="{{ route('mypage.show', ['tab' => 'purchased']) }}" class="btn {{ $tab === 'purchased' ? 'active' : '' }}">購入した商品</a>
         </div>
 
-        <!-- タブに基づいて表示する内容を変更 -->
-        <div class="product-list">
+        <div class="item-list">
             @if($tab === 'sell')
-
             @forelse($listedItems as $item)
+            <div class="item">
+                <div class="item-image">
+                    @php
+                    $imagePath = optional($item->images->first())->item_image;
+                    @endphp
 
-            <div class="product-item">
-                <div class="product-image">
-                    @if($item->image)
-                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}">
+                    @if($imagePath && Storage::exists('public/images/' . $imagePath))
+                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->items_name }}">
                     @else
-                    <img src="{{ asset('images/no_image_available.png') }}" alt="No Image">
+                    <span>商品画像</span>
                     @endif
                 </div>
-                <h3>{{ $item->name }}</h3>
-                <p>{{ $item->description }}</p>
+                <h3>{{ $item->items_name }}</h3>
             </div>
             @empty
             <p>出品した商品はありません。</p>
@@ -99,24 +99,25 @@
             @elseif($tab === 'purchased')
             <h2>購入した商品</h2>
             @forelse($purchasedItems as $item)
-            <div class="product-item">
-                <div class="product-image">
-                    @if($item->image)
-                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}">
+            <div class="item">
+                <div class="item-image">
+                    @php
+                    $imagePath = optional($item->images->first())->item_image;
+                    @endphp
+
+                    @if($imagePath && Storage::exists('public/images/' . $imagePath))
+                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->items_name }}">
                     @else
-                    <img src="{{ asset('images/no_image_available.png') }}" alt="No Image">
+                    <span>商品画像</span>
                     @endif
                 </div>
-                <h3>{{ $item->name }}</h3>
-                <p>{{ $item->description }}</p>
+                <h3>{{ $item->items_name }}</h3>
             </div>
             @empty
             <p>購入した商品はありません。</p>
             @endforelse
             @endif
-            </ul>
         </div>
-    </div>
 </body>
 
 </html>

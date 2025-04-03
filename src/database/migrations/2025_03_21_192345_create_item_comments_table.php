@@ -16,13 +16,9 @@ class CreateItemCommentsTable extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id(); // id カラム (unsigned bigint, primary key)
             $table->foreignId('user_id')->constrained('users'); // usersテーブルのidを外部キーとして参照
-            $table->foreignId('item_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('items'); // itemsテーブルのidを外部キーとして参照
-            $table->text('comment_text'); // comment_text (text)
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade'); // itemsテーブルのidを外部キーとして参照
+            $table->text('comment_text'); // コメントは必須にするため、nullable() を削除
             $table->timestamps(); // created_at, updated_at
-
-         
-           
         });
     }
 

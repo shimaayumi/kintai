@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\ItemImage;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ExhibitionRequest;
+use App\Models\Comment;
 
 class ItemController extends Controller
 {
@@ -27,13 +28,13 @@ class ItemController extends Controller
 
         // 🔍 検索機能
         if ($keyword) {
-            $query->where('items_name', 'LIKE', '%' . $keyword . '%');
+            $query->where('name', 'LIKE', '%' . $keyword . '%');
         }
 
-        // ❤️ マイリスト or すべての商品
+        //  マイリスト or すべての商品
         if ($tab === 'mylist') {
             if (Auth::check()) {
-                $items = Auth::user()->likes()->with('item')->get()->pluck('item');
+                $items = Auth::user()->likes()->with(['item'])->get()->pluck('item');
             } else {
                 return redirect()->route('auth.login')->with('message', 'マイリストを表示するにはログインが必要です');
             }
@@ -55,13 +56,20 @@ class ItemController extends Controller
     // --- 商品出品画面表示 ---
     public function create()
     {
-        return view('create', ['categories' => $this->getCategories()]);
+
+        $item = new Item();
+        return view('create', [
+            'categories' => $this->getCategories(),
+            'item' => $item // 追加: 新しい商品インスタンスをビューに渡す
+        ]);
     }
 
-    // --- 商品登録処理 ---
+    // --- 商品を保存 ---
     public function store(ExhibitionRequest $request)
     {
-        // 商品登録処理
+        // バリデーション（すでに `ExhibitionRequest` でチェック済み）
+
+        // 商品の情報を保存
         $item = Item::create([
             'user_id' => Auth::id(),
             'items_name' => $request->items_name,
@@ -72,29 +80,39 @@ class ItemController extends Controller
             'sold_flag' => false,
         ]);
 
-        // 画像がアップロードされている場合
-        if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $image) {
-                // 画像をストレージに保存
-                $path = $image->store('product_images', 'public'); // product_imagesに保存
+        // 商品画像を保存
+        if ($request->hasFile('item_images')) {
+            foreach ($request->file('item_images') as $file) {
+                // ファイル名を生成
+                $fileName = time() . '_' . $file->getClientOriginalName();
 
-                // ItemImageとして保存
+                // 画像を storage/app/public/images に保存
+                $filePath = $file->storeAs('public/images', $fileName);
+
+                // データベースに保存
                 ItemImage::create([
-                    'item_id' => $item->id,  // 関連するアイテムIDを指定
-                    'image_url' => str_replace('public/', 'storage/', $path) // 'public' -> 'storage'に変換
+                    'item_id' => $item->id,
+                    'item_image' =>  $fileName, // フロントエンド用のパス
                 ]);
             }
         }
 
-        return redirect()->route('items.index')->with('success', '商品を出品しました！');
+        // 成功メッセージと共に商品一覧ページにリダイレクト
+        return redirect()->route('items.index')->with('success', '商品が正常に登録されました');
     }
 
     // --- 商品詳細表示 ---
     public function show($id)
     {
         $item = Item::findOrFail($id);
-        return view('show', compact('item'));
+        $comments = $item->comments()->with('user')->get(); // 商品に関連するコメントとユーザー情報を取得
+        $images = $item->images; // 商品に紐づく画像を取得
+        $user = auth()->user(); // 現在ログインしているユーザーを取得
+       
+        return view('show', compact('item', 'comments', 'images'));
     }
+
+   
 
     // --- マイリスト取得・表示 ---
     public function myList()
@@ -104,7 +122,29 @@ class ItemController extends Controller
             return redirect()->route('auth.login')->with('message', 'ログインしてください');
         }
 
-        $likedItems = $user->likes()->with('item')->get()->pluck('item');
-        return view('mylist', compact('likedItems'));
+        $likedItems = $user->likes()->with(['item'])->get()->pluck('item');
+        
+        return redirect()->route('mylist');
     }
+
+    // --- コメント保存処理 ---
+    public function storeComment(Request $request, $itemId)
+    {
+        // コメントのバリデーション
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        // コメントの保存
+        Comment::create([
+            'user_id' => auth()->id(),
+            'item_id' => $itemId,
+            'comment_text' => $request->input('content'),
+        ]);
+
+        // 商品詳細ページへリダイレクト
+        return redirect()->route('items.show', ['id' => $itemId])->with('success', 'コメントが送信されました！');
+    }
+
+  
 }
