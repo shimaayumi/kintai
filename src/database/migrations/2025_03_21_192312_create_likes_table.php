@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateItemLikesTable extends Migration
+class CreateLikesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateItemLikesTable extends Migration
      */
     public function up()
     {
-        Schema::create('item_likes', function (Blueprint $table) {
+        Schema::create('likes', function (Blueprint $table) {
             $table->id(); // id カラム (unsigned bigint, primary key)
             $table->foreignId('user_id')->constrained('users'); // usersテーブルのidを外部キーとして参照
             $table->foreignId('item_id')->constrained('items'); // itemsテーブルのidを外部キーとして参照
@@ -30,6 +30,6 @@ class CreateItemLikesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('item_likes');
+        Schema::dropIfExists('likes'); // テーブル名を 'likes' に修正
     }
 }

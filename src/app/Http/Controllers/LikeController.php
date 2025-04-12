@@ -13,8 +13,6 @@ class LikeController extends Controller
 {
     public function store(Item $item)
     {
-
-
         // ログインユーザー
         $user = Auth::user();
 
@@ -26,10 +24,9 @@ class LikeController extends Controller
         // 新規いいね
         $user->likes()->create(['item_id' => $item->id]);
 
+        // いいね数を返す
         return response()->json(['like_count' => $item->likeCount()]);
     }
-
-    
 
     public function destroy(Item $item)
     {
@@ -39,12 +36,14 @@ class LikeController extends Controller
         // いいねを解除
         $user->likes()->where('item_id', $item->id)->delete();
 
-        return response()->json(['like_count' => $item->likeCount()]);
+        // いいね数を返す
+        return response()->json(['like_count' => $item->likes->count()]);
     }
 
     public function toggleLike(Item $item)
     {
         $user = auth()->user();
+
         // すでにいいねをしているかどうか
         $like = $user->likes()->where('item_id', $item->id)->first();
 
@@ -52,13 +51,13 @@ class LikeController extends Controller
             // いいねを削除
             $like->delete();
             $message = 'Success';
-            $likeCount = $item->likes()->count(); // いいねの数を更新
+            $likeCount = $item->likeCount(); // いいねの数を更新
             $isLiked = false; // いいねを削除したので、likedの状態はfalse
         } else {
             // いいねを追加
             $user->likes()->create(['item_id' => $item->id]);
             $message = 'Success';
-            $likeCount = $item->likes()->count(); // いいねの数を更新
+            $likeCount = $item->likeCount(); // いいねの数を更新
             $isLiked = true; // いいねを追加したので、likedの状態はtrue
         }
 
@@ -68,42 +67,5 @@ class LikeController extends Controller
             'isLiked' => $isLiked, // 状態を返す
         ]);
     }
-
-    public function likeItem(Request $request, $id)
-    {
-        // ユーザーがログインしていない場合はエラーレスポンスを返す
-        if (!auth()->check()) {
-            return response()->json(['message' => 'ログインが必要です'], 401);
-        }
-
-        // アイテムが存在するか確認
-        $item = Item::find($id);
-        if (!$item) {
-            return response()->json(['message' => 'アイテムが見つかりません'], 404);
-        }
-
-        // いいね処理
-        $user = auth()->user();
-
-        // ユーザーがすでにそのアイテムに「いいね」をしているか確認
-        $like = $user->likes()->where('item_id', $id)->first();
-
-        if ($like) {
-            // 既に「いいね」をしている場合、解除する
-            $like->delete();
-            $message = 'いいねを解除しました';
-        } else {
-            // 「いいね」を追加する
-            $user->likes()->create(['item_id' => $id]);
-            $message = 'いいねしました';
-        }
-
-        // アイテムの「いいね」数を更新して返す
-        $likeCount = $item->likes()->count();
-
-        return response()->json([
-            'message' => $message,
-            'likeCount' => $likeCount
-        ]);
-    }
+    
 }

@@ -85,7 +85,7 @@ h1 {
 
 
 h2 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     margin: 50px auto;
     color: rgb(104, 106, 108);
     border-bottom: 1px solid #746a6a;
@@ -130,78 +130,71 @@ input[type="file"] {
     position: relative;
     width: 100%;
     height: 150px;
+    /* 親要素の高さを指定 */
     display: flex;
     justify-content: center;
     align-items: center;
     border: 1px dashed #746a6a;
     border-radius: 5px;
+    overflow: hidden;
+    
 }
 
-
-
-image{
-    border: 1px dashed #746a6a;
-}
-
-.img-preview {
-    max-width: 200px;
-    /* 画像の最大幅を200pxに設定 */
-    max-height: 200px;
-    /* 画像の最大高さを150pxに設定 */
-    width: auto;
-    /* 幅を自動で調整 */
-    height: auto;
-    /* 高さを自動で調整 */
-    margin-top: 10px;
-    /* 画像とテキストの間に余白を追加 */
-    border: 1px solid #ddd;
-    /* 画像周りに薄い枠を追加 */
-    padding: 5px;
-    /* 枠の内側に余白を追加 */
-}
-
-
-
-
-.custom-file-upload input[type="file"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    z-index: 2;
-
-}
-
-.custom-file-upload input[type="text"] {
-   
-    opacity: 0;
-   
-
-}
-
-.custom-file-upload .btn-upload {
+/* カスタムボタン（画像やテキスト） */
+.item-image_ttl {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
     color: red;
-    padding: 5px 15px;
+    font-size: 16px;
     border: 1px solid red;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 10px;
     z-index: 1;
+    text-align: center;
 }
+
+/* 画像プレビュー */
+.img-preview {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+  
+    border: 1px solid #ddd;
+    padding: 5px;
+    display: none;
+    /* 初期状態では非表示 */
+
+    z-index: 5;
+}
+
+/* ファイル選択ボタンを透明にして、カスタムボタンの上に配置 */
+.file-input {
+    position: absolute;
+    top: 35%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 親要素いっぱいに広がる */
+    opacity: 0;
+    /* 完全に透明化 */
+    z-index: 2;
+    /* カスタムボタンの上に配置 */
+  
+}
+
+
+
+
 
 /* ===========================
    ボタンスタイル
 =========================== */
 button[type="submit"] {
     width: 100%;
-    padding: 15px;
+    padding: 5px;
     font-size: 1.2rem;
     background-color: red;
     color: white;

@@ -12,7 +12,7 @@ class Comment extends Model
     protected $fillable = [
         'user_id',    // ユーザーID
         'item_id',    // 商品ID
-        'comment_text'     // コメント内容
+        'comment'     // コメント内容
     ];
 
     /**

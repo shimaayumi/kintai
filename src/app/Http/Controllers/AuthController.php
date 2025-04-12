@@ -45,11 +45,15 @@ class AuthController extends Controller
     // ログイン処理
     public function login(LoginRequest $request)
     {
+
+        // 入力されたメールアドレスとパスワードで認証を試みる
+        $credentials = $request->only('email', 'password');
+
         if (Auth::attempt($request->only('email', 'password'))) {
             return redirect('/')->with('success', 'ログインしました');
         }
 
-        return back()->withErrors(['email' => 'メールアドレスまたはパスワードが間違っています']);
+        return back()->withErrors(['email' => 'ログイン情報が登録されていません']);
     }
 
     // ログアウト処理

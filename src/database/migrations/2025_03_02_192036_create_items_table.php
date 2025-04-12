@@ -16,24 +16,17 @@ class CreateItemsTable extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id(); // id カラム (unsigned bigint, primary key)
             $table->foreignId('user_id')->constrained('users'); // usersテーブルのidを外部キーとして参照
-            $table->foreignId('category_id')->constrained('categories'); // categoriesテーブルのidを外部キーとして参照
-            $table->string('items_name'); // items_name (string)
+            $table->string('item_name')->nullable();
             $table->string('brand_name')->nullable(); // brand_name (nullable string)
             $table->text('description'); // description (text)
             $table->unsignedInteger('price'); // price (unsigned integer)
-            $table->enum('status', ['new', 'used', 'refurbished']); // status (enum)
+            $table->enum('status', ['良好', '目立った傷や汚れなし', 'やや傷や汚れあり', '状態が悪い']); // status (enum)
             $table->boolean('sold_flag')->default(0); // sold_flag (boolean)
+            $table->json('categories')->nullable(); // 複数カテゴリを格納するJSONカラム
             $table->timestamps(); // created_at, updated_at
-
-           
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('items');

@@ -37,8 +37,8 @@ class CommentRequest extends FormRequest
     public function messages()
     {
         return [
-            'comment.required' => '商品コメントは必須です。',
-            'comment.max' => '商品コメントは255文字以内で入力してください。',
+            'comment.required' => 'コメントを入力してください',
+            'comment.max' => 'コメントは255文字以内で入力してください',
         ];
     }
 

@@ -16,12 +16,17 @@ class Item extends Model
     protected $fillable = [
         'user_id',
         'category_id',
-        'items_name',
+        'item_name',
         'brand_name',
         'description',
         'price',
         'status',
-        'sold_flag',
+        'sold_flag' 
+    ];
+
+    protected $casts = [
+        'sold_flag' => 'boolean',
+        'categories' => 'array', // categoriesカラムを配列としてキャスト
     ];
 
     // ユーザーとのリレーション
@@ -39,15 +44,15 @@ class Item extends Model
 
 
     // カテゴリとのリレーション
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class); // 一つのアイテムは一つのカテゴリに属する
+        return $this->belongsToMany(Category::class);
     }
 
- 
-    public function images()
+
+    public function Images()
     {
-        return $this->hasMany(\App\Models\ItemImage::class);
+        return $this->hasMany(ItemImage::class, 'item_id');
     }
 
     // 購入とのリレーション (Purchaseとの関連付け)
@@ -60,9 +65,10 @@ class Item extends Model
     public function getStatusLabel()
     {
         $statusLabels = [
-            'new' => '新品',
-            'used' => '中古',
-            'refurbished' => 'リファービッシュ'
+            'good' => '良好',
+            'no_damage' => '目立った傷や汚れなし',
+            'slight_damage' => 'やや傷や汚れあり',
+            'bad_condition' => '状態が悪い',
         ];
 
         return $statusLabels[$this->status] ?? '不明';
@@ -79,6 +85,11 @@ class Item extends Model
     public function likes()
     {
         return $this->hasMany(Like::class, 'item_id'); // 'likes' ではなく 'item_likes' を参照
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'favorites');
     }
     
 }

@@ -33,7 +33,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-                <a href="{{ route('profile.show') }}" class="btn">マイページ</a>
+                <a href="{{ route('mypage.show', ['id' => auth()->user()->id]) }}" class="btn">マイページ</a>
                 <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
                 @else
                 <!-- 未ログイン時のメニュー -->

@@ -12,54 +12,7 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    // プロフィール画面
-    public function showProfile(Request $request)
-    {
-        $user = auth()->user()->load('address');
-
-        // ログインしていない場合
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'ログインが必要です');
-        }
-
-        // タブの種類を取得（デフォルトは "sell"）
-        $tab = $request->query('tab', 'sell');
-
-        // ログインしているユーザーの出品した商品を取得（画像も一緒に取得）
-        $listedItems = Item::with('images')->where('user_id', $user->id)->get();
-
-        // 購入した商品があればそれも取得（画像も一緒に取得）
-        $purchasedItems = Item::with('images')->whereHas('purchases', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->get();
-
-        // ビューを返す
-        return view('profile', compact('user', 'listedItems', 'purchasedItems', 'tab'));
-    }
-
-
-    // プロフィール編集画面
-    public function editProfile()
-    {
-        $user = auth()->user();
-        $address = $user->address ? $user->address : null;  // 住所情報の取得
-        
-
-        return view('profile_edit', compact('user', 'address'));
-    }
-
-    public function edit()
-    {
-        $user = auth()->user(); // ログインしているユーザー情報を取得
-        return view('mypage.edit', compact('user'));
-    }
-
-    // 購入履歴表示
-    public function purchaseHistory()
-    {
-        $purchasedItems = Item::where('buyer_id', auth()->id())->get();
-        return view('user.purchaseHistory', compact('purchasedItems'));
-    }
+   
 
     // 出品した商品一覧を表示するメソッド
   
@@ -109,4 +62,38 @@ class UserController extends Controller
 
         return redirect()->route('mypage.edit')->with('success', 'プロフィールが更新されました');
     }
+
+    public function showMyList()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+
+        // ユーザーのお気に入り商品を取得（item と item_images を同時にロード）
+        $favoriteItems = $user->likes()->with('item.images')->get()->pluck('item');
+
+        return view('index', compact('favoriteItems'));
+    }
+    public function mypage()
+    {
+        $tab = request()->get('tab', 'sell');
+        $user = auth()->user();
+
+        $purchasedItems = $user->purchasedItems()->with('images')->get(); // ここ修正
+        $likedItems = $user->likes()->with('item')->get();
+        $sellItems = $user->items()->with('images')->get();
+
+        return view('profile', compact('tab', 'user', 'purchasedItems', 'likedItems', 'sellItems'));
+    }
+    public function editProfile()
+    {
+        $user = auth()->user();
+        $address = $user->address;  // アドレス情報を取得（適宜修正）
+
+        return view('profile_edit', compact('user', 'address'));  // ビューに渡す
+    }
+
+    
     }

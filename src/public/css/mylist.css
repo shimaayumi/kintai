@@ -71,37 +71,47 @@ body {
 /* おすすめとマイリストのリンクを横並びにする */
 .title-links {
     display: flex;
-    gap: 30px;
+    gap: 40px;
     align-items: center;
     margin-bottom: 20px;
     border-bottom: 1px solid rgb(124, 116, 116);
     margin-top: 30px;
 }
 
-.title-links h2 {
+.title-links a {
     margin: 0;
     font-size: 18px;
     margin-left: 10%;
+    text-decoration: none;
+    color: black;
     font-weight: normal;
+   
 }
 
-.title-links a {
+
+.title-links h2:nth-child(2) {
     text-decoration: none;
     color: red;
     font-size: 18px;
-    padding: 10px 20px;
+    font-weight: normal;
+    
+   
 }
 /* ===========================
    🛍️ 商品リスト（横並び調整）
    =========================== */
 .item-list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    /* ⭐️ 常に4カラム固定 */
+    grid-template-columns: repeat(4, 310px);
+    /* PCでは1行に4つの商品 */
     gap: 20px;
-    margin: 50px auto;
-    max-width: 1200px;
+    /* アイテム間のスペース */
+    margin: 50px;
+    /* アイテムリスト全体の余白 */
+
 }
+
+
 
 /* 商品アイテム */
 .item {
@@ -112,7 +122,6 @@ body {
     /* アイテムを中央揃え */
     justify-content: center;
     text-align: center;
-
 }
 
 /* 商品画像 */
@@ -121,11 +130,12 @@ body {
     transition: transform 0.3s ease;
     text-align: center;
     border: 1px solid #ddd;
+    /* 画像の境界線 */
     border-radius: 5px;
     /* 画像の角を丸く */
     width: 90%;
     margin: 0 auto;
-    /* 中央に配置 */
+    /* 画像を中央に配置 */
     aspect-ratio: 1 / 1;
     /* 正方形に設定 */
     display: flex;
@@ -141,7 +151,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* 画像の比率を維持しつつ枠内に収める */
+    /* 画像を枠内に収める */
 }
 
 /* 商品リンク */
@@ -149,10 +159,7 @@ body {
     text-decoration: none;
     color: black;
     /* リンク色 */
-
 }
-
-
 
 /* 商品名 */
 .item-name {
@@ -163,55 +170,47 @@ body {
     font-weight: normal;
     /* 商品名を細くする */
     color: black;
-   margin-left: 20px;
-margin-top: 5px;
+    margin-top: 10px;
+    /* 画像と商品名の間にスペース */
     text-decoration: none;
+    margin-left: 20px;
 }
 
 /* Sold表示 */
-.sold-label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-top: 80px solid rgba(255, 0, 0, 0.8);
-    border-right: 80px solid transparent;
-    z-index: 10;
-}
-
-.sold-label::after {
-    content: "SOLD";
-    position: absolute;
-    top: -63px;
-    /* 位置調整 */
-    left: 5px;
-    /* 位置調整 */
-    color: white;
-    font-size: 16px;
+.sold {
+    color: #e53935;
     font-weight: bold;
-    transform: rotate(-45deg);
-    white-space: nowrap;
+    margin-top: 5px;
+    /* Soldと商品名の間に少しスペース */
 }
-
 
 /* ===========================
    📱 レスポンシブ対応（スマホ用）
    =========================== */
-@media (max-width: 1200px) {
+@media (max-width: 600px) {
     .item-list {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        /* スマホでは自動でアイテムを並べる */
+        gap: 10px;
+        /* アイテム間のスペース */
+        margin: 10px;
+        /* アイテムリスト全体の余白 */
     }
-}
 
-@media (max-width: 800px) {
-    .item-list {
-        grid-template-columns: repeat(2, 1fr);
+    .item-image {
+        width: 100%;
+        /* 画像の幅を100%に */
+        height: auto;
+        /* 高さを自動調整 */
     }
-}
 
-@media (max-width: 500px) {
-    .item-list {
-        grid-template-columns: 1fr;
+    .item-name {
+        font-size: 14px;
+        /* 商品名のフォントサイズを小さく */
+    }
+
+    .item {
+        padding: 10px;
+        /* アイテム全体に余白を追加 */
     }
 }

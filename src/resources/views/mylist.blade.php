@@ -5,70 +5,82 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fleamarket</title>
+    <title>マイリスト</title>
     <link rel="stylesheet" href="{{ asset('css/sanitize.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/index.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/mylist.css') }}" />
 </head>
 
 <body>
-    <header class="header">
-        <div class="header__inner">
-            <a class="header__logo" href="/">
-                <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" />
-            </a>
-        </div>
-    </header>
-
-    <main>
-        <div class="container mx-auto px-4">
-            <!-- 検索フォーム -->
-            <form action="{{ route('index') }}" method="GET" class="mb-4">
-                <input
-                    type="text"
-                    name="keyword"
-                    value="{{ request('keyword') }}"
-                    placeholder="商品名を検索"
-                    class="border p-2 w-full" />
-                <button type="submit" class="mt-2 bg-blue-500 text-white p-2 w-full">検索</button>
-            </form>
-
-            <!-- タブ切り替え -->
-            <div class="mb-4 flex justify-center space-x-4">
-                <a href="{{ route('index') }}" class="p-2 {{ request('tab') == 'mylist' ? '' : 'bg-blue-500 text-white' }}">商品一覧</a>
-                @auth
-                <a href="{{ route('items.mylist') }}" class="p-2 {{ request('tab') == 'mylist' ? 'bg-blue-500 text-white' : '' }}">マイリスト</a>
-                @endauth
+    <header>
+        <div class="header">
+            <div class="header__inner">
+                <a class="header__logo" href="/">
+                    <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" />
+                </a>
             </div>
 
-            <!-- 商品一覧 -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                @forelse ($items as $item)
-                @if (Auth::id() !== $item->user_id)
-                <div class="border p-2 relative">
-                    <!-- 商品画像 -->
-                    <img id="preview" src="{{ asset('storage/images/' . $item->image_url) }}" alt="画像プレビュー" class="w-full h-auto object-cover rounded-md" style="max-width: 100%;">
+            <!-- 🛠️ 検索フォーム -->
+            <form action="{{ route('items.index') }}" method="GET" class="search-form">
+                <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
+                <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
+            </form>
 
-                    <!-- 商品名 -->
-                    <h3 class="mt-2 text-lg font-bold">{{ $item->name }}</h3>
-            
+            <!-- 🛠️ ヘッダーメニュー -->
+            <div class="header__menu">
+                @if(Auth::check())
+                <!-- ログイン時のメニュー -->
+                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
+                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
+                @else
+                <!-- 未ログイン時のメニュー -->
+                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
+                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
+                @endif
+            </div>
+        </div>
+    </header>
+    <!-- 🛠️ ページタイトル -->
+    <div class="title-links">
+        <a href="/" class="tab" data-tab="recommended">おすすめ</a>
+        <h2 class="tab" data-tab="mylist">マイリスト</h2>
+    </div>
 
-           
+    <!-- タブの内容 -->
+    <div class="tab-content" id="recommended">
+     
+    </div>
+    <div class="tab-content" id="mylist" >
+     
+    </div>
 
-            <!-- SOLD表示 -->
-            @if ($item->sold_flag)
-            <div class="absolute top-0 left-0 bg-red-500 text-white px-2 py-1">Sold</div>
+    <!-- 🛠️ マイリスト表示 -->
+    <div class="item-list">
+        @foreach ($likedItems as $item)
+        <div class="item">
+            <a href="{{ route('items.show', ['item' => $item->id]) }}" class="item-link">
+                <div class="item-image">
+                    @if($item->images && $item->images->isNotEmpty()) {{-- 画像が存在する場合 --}}
+                    <img src="{{ asset('storage/images/' . $item->images->first()->item_image) }}" alt="{{ $item->item_name }}">
+                    @else {{-- 画像がない場合 --}}
+                    <div class="no-image">商品画像</div>
+                    @endif
+                </div>
+
+                <h3 class="item-name">{{ $item->item_name }}</h3>
+            </a>
+            <!-- Sold表示 -->
+            @if ($item->sold_flag == 1)
+            <div class="sold">Sold</div>
+            @else
+            <div class="available"></div>
             @endif
-
-            <!-- 商品詳細へのリンク -->
-            <a href="{{ route('items.show', $item->id) }}" class="mt-2 block bg-blue-500 text-white p-2 text-center">詳細を見る</a>
         </div>
-        @endif
-        @empty
-        <p class="col-span-2 md:col-span-4 text-center text-gray-500">商品が見つかりませんでした。</p>
-        @endforelse
-        </div>
-        </div>
-    </main>
+        @endforeach
+    </div>
 </body>
 
 </html>

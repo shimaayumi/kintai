@@ -13,8 +13,11 @@ class Purchase extends Model
         'user_id',    // ユーザーID
         'item_id',    // 商品ID
         'address_id', // 住所ID
-        'quantity',   // 購入数
-        'total_price' // 合計金額
+        'payment_method', // 支払い方法
+        'price', // 合計金額
+        'shipping_postal_code',
+        'shipping_address',
+        'shipping_building',
     ];
 
     /**
@@ -22,7 +25,7 @@ class Purchase extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -41,8 +44,5 @@ class Purchase extends Model
         return $this->belongsTo(Address::class);
     }
 
-    public function failed()
-    {
-        return view('purchase.failed'); // エラー用のビューを表示
-    }
+
 }

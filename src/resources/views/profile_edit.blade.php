@@ -28,8 +28,8 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-                <a href="{{ route('mypage.edit') }}" class="btn">マイページ</a>
-                <a href="{{ route('items.create') }}" class="btn btn-outlet">出品</a>
+                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
+                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
                 @else
                 <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
                 <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
@@ -51,12 +51,12 @@
         @endif
         <form action="{{ route('mypage.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            @method('PUT')
+            
 
             <div class="form-group-row">
                 <div class="profile-image">
 
-                    <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}" alt="画像プレビュー" style="max-width: 150px; margin-top: 10px;">
+                    <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}" >
 
 
                 </div>

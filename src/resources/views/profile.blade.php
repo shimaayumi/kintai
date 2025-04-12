@@ -45,14 +45,12 @@
     </header>
     <div class="container">
 
-        @php
-        $user = auth()->user(); // ログインユーザーを取得
-        @endphp
+
 
         <div class="profile-card">
             <div class="profile-image">
                 @if($user->profile && $user->profile->profile_image)
-                <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}" alt="画像プレビュー" style="max-width: 150px; margin-top: 10px;">
+                <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}">
 
                 @else
                 <img src="{{ asset('images/default_profile.png') }}">
@@ -62,7 +60,7 @@
             <div class="profile-info">
                 <div class="profile-header">
                     <h2 class="profile-name">{{ $user->name }}</h2>
-                    <a href="{{ route('Profile.edit') }}" class="btn btn-primary edit-button">プロフィールを編集</a>
+                    <a href="{{ route('profile.edit') }}" class="btn btn-primary edit-button">プロフィールを編集</a>
                 </div>
             </div>
         </div>
@@ -71,13 +69,13 @@
 
         <!-- タブの切り替え -->
         <div class="tabs">
-            <a href="{{ route('mypage.show', ['tab' => 'sell']) }}" class="btn {{ $tab === 'sell' ? 'active' : '' }}">出品した商品</a>
-            <a href="{{ route('mypage.show', ['tab' => 'purchased']) }}" class="btn {{ $tab === 'purchased' ? 'active' : '' }}">購入した商品</a>
+            <a href="{{ url('/mypage?page=sell') }}" class="btn {{ $page === 'sell' ? 'active' : '' }}">出品した商品</a>
+            <a href="{{ url('/mypage?page=buy') }}" class="btn {{ $page === 'buy' ? 'active' : '' }}">購入した商品</a>
         </div>
 
         <div class="item-list">
-            @if($tab === 'sell')
-            @forelse($listedItems as $item)
+            @if($page === 'sell')
+            @forelse($items ?? [] as $item)
             <div class="item">
                 <div class="item-image">
                     @php
@@ -85,20 +83,18 @@
                     @endphp
 
                     @if($imagePath && Storage::exists('public/images/' . $imagePath))
-                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->items_name }}">
+                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->item_name }}">
                     @else
                     <span>商品画像</span>
                     @endif
                 </div>
-                <h3>{{ $item->items_name }}</h3>
+                <h3 class="item-name">{{ $item->item_name }}</h3>
             </div>
             @empty
-            <p>出品した商品はありません。</p>
+            <p>出品した商品がありません。</p>
             @endforelse
-
-            @elseif($tab === 'purchased')
-            <h2>購入した商品</h2>
-            @forelse($purchasedItems as $item)
+            @elseif($page === 'buy')
+            @forelse($items ?? [] as $item)
             <div class="item">
                 <div class="item-image">
                     @php
@@ -106,18 +102,23 @@
                     @endphp
 
                     @if($imagePath && Storage::exists('public/images/' . $imagePath))
-                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->items_name }}">
+                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->item_name }}">
                     @else
                     <span>商品画像</span>
                     @endif
+                    {{-- SOLD 表示 --}}
+                    @if ($item->purchases->isNotEmpty())
+                    <div class="sold-label"></div>
+                    @endif
                 </div>
-                <h3>{{ $item->items_name }}</h3>
+                <h3 class="item-name">{{ $item->item_name }}</h3>
             </div>
             @empty
             <p>購入した商品はありません。</p>
             @endforelse
             @endif
         </div>
+
 </body>
 
 </html>

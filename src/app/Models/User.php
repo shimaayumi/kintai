@@ -37,9 +37,11 @@ class User extends Authenticatable // 認証のためにAuthenticatableを継承
     // いいね機能とのリレーション
 
 
+
+
     public function likes()
     {
-        return $this->hasMany(Like::class, 'user_id', 'id');
+        return $this->hasMany(Like::class);
     }
     // コメントとのリレーション
     public function comments()
@@ -57,6 +59,23 @@ class User extends Authenticatable // 認証のためにAuthenticatableを継承
     {
         return $this->belongsToMany(Item::class, 'purchases', 'user_id', 'item_id');
     }
+    public function favoriteItems()
+    {
+        return $this->belongsToMany(Item::class, 'favorites');
+    }
 
+    // マイページの表示
+    public function showMypage(Request $request)
+    {
+        // 'page' パラメータが 'buy' の場合、購入した商品一覧を表示
+        if ($request->get('page') === 'buy') {
+            $purchases = Purchase::where('user_id', auth()->id())->get();
+            return view('mypage', compact('purchases'));
+        }
+
+        // 他のページの場合の処理（必要であれば）
+        return view('mypage');
+    }
+    
   
 }

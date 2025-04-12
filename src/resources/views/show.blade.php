@@ -34,8 +34,8 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-                <a href="{{ route('profile.show') }}" class="btn">マイページ</a>
-                <a href="{{ route('items.create') }}" class="btn btn-outlet">出品</a>
+                <a href="{{ route('show', ['item_id' => $item->id]) }}" class="btn">マイページ</a>
+                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
                 @else
                 <!-- 未ログイン時のメニュー -->
                 <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
@@ -46,25 +46,25 @@
     </header>
 
     <!-- 商品詳細 -->
-    <div class="product-detail">
+    <div class="item-detail">
         <!-- 商品詳細ページ -->
         <div class="item-details">
-            <h1>{{ $item->items_name }}</h1>
-            <p>{{ $item->description }}</p>
-
-            <h2>商品画像</h2>
-            <div class="item-images">
+            <div class="item-image">
                 @foreach($images as $image)
-                <img src="{{ asset('storage/images/' . $image->item_image) }}" alt="{{ $item->items_name }}" />
+                <div>
+                    <p>{{ $image->item_image }}</p> <!-- 画像ファイル名を出す -->
+                    <img src="{{ asset('storage/images/' . $image->item_image) }}" alt="{{ $item->item_name }}" />
+                </div>
                 @endforeach
+
                 @if($images->isEmpty())
-                <span>商品画像</span>
+                <span>商品画像なし</span>
                 @endif
             </div>
 
             <!-- 右側 商品情報 -->
-            <div class="product-info">
-                <h1>{{ $item->items_name }}</h1>
+            <div class="item-info">
+                <h1>{{ $item->item_name }}</h1>
                 <p class="brand-name">{{ $item->brand_name }}</p>
 
 
@@ -88,7 +88,7 @@
                             ☆
                             @endauth
                         </span>
-                        <span id="like-count-{{ $item->id }}" class="like-count">{{ $item->likes()->count() }}</span>
+                        <span id="like-count-{{ $item->id }}" class="like-count">{{ $item->likes->count() }}</span>
                     </div>
 
                     <!-- コメントアイコン -->
@@ -101,7 +101,7 @@
 
 
 
-                <form action="{{ route('purchase.show', ['id' => $item->id]) }}" method="GET">
+                <form action="{{ route('purchase.show', ['id' => $item->id]) }}" method="get">
                     @csrf
                     <button type="submit" class="btn btn-primary">購入手続きへ</button>
                 </form>
@@ -113,7 +113,11 @@
                 <h3>商品の情報</h3>
                 <!-- カテゴリー表示 -->
                 <div class="item-container">
-                    <div class="category">カテゴリー <span>{{ $item->category->category_name }}</span></div>
+                    <div class="category">カテゴリー
+                        @foreach($categories as $category)
+                        <span>{{ $category->category_name }}</span>
+                        @endforeach
+                    </div>
                     <div class="item-status">商品の状態 <span>{{ $item->status }}</span></div>
                 </div>
 
@@ -128,39 +132,46 @@
 
 
                     <div class="seller-profile">
-                        @auth
-                        <p>ログインユーザー: {{ auth()->user()->name }}</p>
-                        @endauth
-                        @if($user->address && $user->profile->profile_image)
-                        <img id="preview" src="{{ asset('storage/profiles/' . ($item->user->profile->profile_image ?? 'default.png')) }}" alt="画像プレビュー" style="max-width: 150px; margin-top: 10px;">
-
+                        @if($item->user && $item->user->profile)
+                        @if($item->user->address && $item->user->profile->profile_image)
+                        <img id="preview" class="seller-image" src="{{ asset('storage/profiles/' . ($item->user->profile->profile_image ?? 'default.png')) }}" alt="画像プレビュー">
                         @else
-                        <img src="{{ asset('images/default_profile.png') }}">
+                        <!-- 画像がない場合でも枠だけ表示 -->
+                        <div class="seller-image no-image"></div>
                         @endif
                         <p class="seller-name"><strong>{{ $item->user->name }}</strong></p>
+                        @else
+                        <p>ユーザー情報がありません。</p> <!-- ユーザーが存在しない場合のフォールバック -->
+                        @endif
                     </div>
 
 
                     @foreach($item->comments as $comment)
                     <div class="comment-item">
                         <span class="comment-user">{{ $comment->user->name }}</span>
-                        <p class="comment-text">{{ $comment->comment_text }}</p>
+                        <p class="comment">{{ $comment->comment }}</p>
                     </div>
                     @endforeach
                 </div>
                 @foreach($comments as $comment)
                 <div class="comment">
                     <strong>{{ $comment->user->name }}</strong>
-                    <p>{{ $comment->comment_text }}</p> <!-- 'content' を 'comment_text' に変更 -->
+                    <p>{{ $comment->comment }}</p> <!-- 'content' を 'comment_text' に変更 -->
                 </div>
                 @endforeach
+
 
 
 
                 <form action="{{ route('items.comment', $item->id) }}" method="POST">
                     @csrf
                     <h3>商品へのコメント</h3>
-                    <textarea name="comment_text" required></textarea> <!-- name属性を確認 -->
+                    <textarea name="comment">{{ old('comment') }}</textarea>
+                    @if ($errors->has('comment'))
+                    <div class="alert-danger">
+                        {{ $errors->first('comment') }}
+                    </div>
+                    @endif
                     <button type="submit">コメントを送信する</button>
 
 
@@ -183,7 +194,6 @@
                     .then(data => {
                         console.log("Server Response:", data); // ここでサーバーのレスポンスを確認
                         if (data.message === 'Success') {
-                            const likeButton = document.getElementById(`like-btn-${itemId}`);
                             const likeIcon = document.getElementById(`like-icon-${itemId}`);
                             const likeCount = document.getElementById(`like-count-${itemId}`);
 
@@ -194,12 +204,11 @@
                                 likeIcon.innerText = '☆'; // いいねしていない状態
                             }
 
-
                             // いいね数の更新
                             likeCount.innerText = data.likeCount;
                         }
                     })
-                    .catch(error => console.error('Error:', error));
+                body: JSON.stringify({}) // ボディに空のオブジェクトを送信
             }
 
             function updateCommentCount(itemId) {
@@ -210,6 +219,8 @@
                     })
                     .catch(error => console.error('Error:', error));
             }
+
+
             // 画像プレビュー用のJavaScript
             function previewImage(event) {
                 const preview = document.getElementById('preview');

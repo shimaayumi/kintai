@@ -58,130 +58,149 @@
         <form action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-
             <div class="form-group-row">
+                <label for="item_image">商品画像</label>
+                <div class="custom-file-upload">
+                    <div class="item-image_ttl">画像を選択する</div>
 
-                <div class="item-image">
-                    <img id="preview"
-                        src=""
-                        alt="画像プレビュー"
-                        style="max-width: 150px; margin-top: 10px; display: none;">
-
-                    <div class="no-image-text">商品画像</div>
-
-                    <!-- 画像アップロード用の入力フィールド (プレビューと出品用を統一) -->
                     <div class="file-input">
-                        <input type="file" name="item_images[]" id="item_image" class="form-control" accept="image/*" multiple>
+                        <!-- multiple 属性を削除して1枚だけ選択 -->
+                        <input type="file" name="item_image" id="item_image" class="form-control" accept="image/*">
                     </div>
+
+                    <!-- プレビュー画像 -->
+                    <img id="preview" src="" alt="画像プレビュー" class="img-preview" style="display: none;">
+                </div>
+            </div>
+
+            <!-- 商品の詳細 -->
+            <h2>商品の詳細</h2>
+
+            <!-- カテゴリ選択 -->
+
+            <div class="form-group">
+                <label for="category_id">カテゴリ</label>
+                <div id="category-buttons">
+                    @foreach(['ファッション', '家電', 'インテリア', 'レディース', 'メンズ', 'コスメ', '本', 'ゲーム', 'スポーツ', 'キッチン', 'ハンドメイド', 'アクセサリー', 'おもちゃ', 'ベビー・キッズ'] as $index => $category)
+                    <button type="button" class="category-btn" data-category-id="{{ $index + 1 }}">
+                        {{ $category }}
+                    </button>
+                    @endforeach
                 </div>
 
+                <!-- 選択したカテゴリを非表示のinputフィールドとして表示 -->
+                <div id="selected-categories"></div>
 
-
-
-
-                <!-- 商品の詳細 -->
-                <h2>商品の詳細</h2>
-
-                <!-- カテゴリ選択 -->
-                <div class="form-group">
-                    <label for="category_id">カテゴリ</label>
-                    <div id="category-buttons">
-                        @foreach(['ファッション', '家電', 'インテリア', 'レディース', 'メンズ', 'コスメ', '本', 'ゲーム', 'スポーツ', 'キッチン', 'ハンドメイド', 'アクセサリー', 'おもちゃ', 'ベビー・キッズ'] as $index => $category)
-                        <button type="button" class="category-btn" data-category-id="{{ $index + 1 }}">
-                            {{ $category }}
-                        </button>
-                        @endforeach
-                    </div>
-                    <input type="hidden" name="category_id" id="category-id" value="{{ old('category_id') }}">
-                    @error('category_id')
-                    <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <!-- 商品の状態 -->
-                <div class="form-group">
-                    <label for="status">商品状態</label>
-                    <select class="form-control" id="status" name="status" required>
-                        <option value="" disabled selected>選択してください</option>
-                        <option value="new" {{ old('status') == 'new' ? 'selected' : '' }}>新品</option>
-                        <option value="used" {{ old('status') == 'used' ? 'selected' : '' }}>中古</option>
-                    </select>
-                    @error('status')
-                    <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <!-- 商品名 -->
-                <label for="items_name">商品名</label>
-                <input type="text" class="form-control" id="items_name" name="items_name" value="{{ old('items_name') }}" required>
-                @error('items_name')
+                @error('category_id')
                 <div class="error-message">{{ $message }}</div>
                 @enderror
+            </div>
 
-                <!-- ブランド名 -->
-                <label for="brand_name">ブランド名</label>
-                <input type="text" class="form-control" id="brand_name" name="brand_name" value="{{ old('brand_name') }}" required>
-                @error('brand_name')
+
+
+            <!-- 商品の状態 -->
+            <div class="form-group">
+                <label for="status">商品状態</label>
+                <select class="select-status" id="status" name="status" required>
+                    <option value="" disabled selected>選択してください</option>
+                    <option value="good" {{ old('status') == 'good' ? 'selected' : '' }}>良好</option>
+                    <option value="no_damage" {{ old('status') == 'no_damage' ? 'selected' : '' }}>目立った傷や汚れなし</option>
+                    <option value="slight_damage" {{ old('status') == 'slight_damage' ? 'selected' : '' }}>やや傷や汚れあり</option>
+                    <option value="bad_condition" {{ old('status') == 'bad_condition' ? 'selected' : '' }}>状態が悪い</option>
+                </select>
+                @error('status')
                 <div class="error-message">{{ $message }}</div>
                 @enderror
+            </div>
 
-                <!-- 商品説明 -->
-                <div class="form-group">
-                    <label for="description">商品の説明</label>
-                    <textarea class="form-control" id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
-                    @error('description')
-                    <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
+            <h2>商品名と説明</h2>
 
-                <!-- 価格 -->
-                <div class="input-wrapper">
-                    <label for="price">商品価格</label>
+            <!-- 商品名 -->
+            <label for="item_name">商品名</label>
+            <input type="text" class="form-control" id="item_name" name="item_name" value="{{ old('item_name') }}" required>
+
+            @error('item_name')
+            <div class="error-message">{{ $message }}</div>
+            @enderror
+
+            <!-- ブランド名 -->
+            <label for="brand_name">ブランド名</label>
+            <input type="text" class="form-control" id="brand_name" name="brand_name" value="{{ old('brand_name') }}" required>
+            @error('brand_name')
+            <div class="error-message">{{ $message }}</div>
+            @enderror
+
+            <!-- 商品説明 -->
+            <div class="form-group">
+                <label for="description">商品の説明</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
+                @error('description')
+                <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- 価格 -->
+            <div class="input-wrapper">
+                <label for="price">商品価格</label>
+                <div class="input-with-symbol">
                     <span class="currency-symbol">¥</span>
                     <input type="number" class="form-control price-input" id="price" name="price" value="{{ old('price') }}" required>
-                    @error('price')
-                    <div class="error-message">{{ $message }}</div>
-                    @enderror
                 </div>
+                @error('price')
+                <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
 
-                <button type="submit" class="btn btn-primary">出品する</button>
+
+            <button type="submit" class="btn btn-primary">出品する</button>
         </form>
     </div>
 
     <script>
-        document.getElementById("item_image").addEventListener("change", function(event) {
-            let file = event.target.files[0]; // 最初の画像のみプレビュー
-            let preview = document.getElementById("preview");
-            let noImageText = document.querySelector(".no-image-text");
-
+        document.getElementById('item_image').addEventListener('change', function(event) {
+            const file = event.target.files[0];
             if (file) {
-                let reader = new FileReader();
+                const reader = new FileReader();
+
                 reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
                     preview.src = e.target.result;
-                    preview.style.display = "block";
-                    noImageText.style.display = "none"; // 「商品画像」のテキストを非表示
+                    preview.style.display = 'block';
                 };
+
                 reader.readAsDataURL(file);
-            } else {
-                preview.src = "";
-                preview.style.display = "none";
-                noImageText.style.display = "block"; // 画像が選択されていない場合、テキストを表示
             }
         });
 
+        document.addEventListener("DOMContentLoaded", function() {
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            const selectedCategoriesContainer = document.getElementById('selected-categories');
 
-        // カテゴリボタンのクリックイベント処理
-        document.querySelectorAll('.category-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                // すべてのボタンの選択状態をリセット
-                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-category-id');
 
-                // クリックされたボタンに「選択済み」のクラスを追加
-                this.classList.add('selected');
+                    // categoryId が 0 の場合は処理しない
+                    if (categoryId === "0") {
+                        return; // 無視する
+                    }
 
-                // 隠し入力フィールドに選択されたカテゴリIDをセット
-                const categoryId = this.getAttribute('data-category-id');
-                document.getElementById('category-id').value = categoryId;
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        const input = selectedCategoriesContainer.querySelector(`#category-${categoryId}`);
+                        if (input) {
+                            selectedCategoriesContainer.removeChild(input);
+                        }
+                    } else {
+                        this.classList.add('selected');
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'category_id[]'; // 配列として送信
+                        input.id = `category-${categoryId}`;
+                        input.value = categoryId;
+                        selectedCategoriesContainer.appendChild(input);
+                    }
+                });
             });
         });
     </script>

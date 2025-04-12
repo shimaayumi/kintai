@@ -78,7 +78,7 @@ body {
 }
 
 .register-form__input:focus {
-  border-color: red;
+  border-color: black;
   outline: none;
 }
 

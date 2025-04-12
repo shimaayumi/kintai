@@ -80,8 +80,8 @@ body {
 
 /* プロフィール画像 */
 .profile-image {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     overflow: hidden;
     background-color: #ddd;
@@ -108,11 +108,12 @@ body {
     /* max-widthを無効にする */
 }
 
+
 /* ユーザー名と編集ボタンを横並び */
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 300px;
+    gap: 200px;
     justify-content: space-between;
 }
 
@@ -120,6 +121,8 @@ body {
     font-size: 30px;
     font-weight: bold;
     margin: 0;
+    margin-left: 50px;
+    width: 90%;
 }
 
 .edit-button {
@@ -131,7 +134,10 @@ body {
     text-decoration: none;
     transition: background-color 0.3s ease;
     font-size: 20px;
-    font-weight: 500;
+    font-weight: bold;
+    width: 500px;
+    text-align: center;
+
 }
 
 .edit-button:hover {
@@ -147,6 +153,7 @@ body {
 
 .tabs {
     border-bottom: 1.5px solid #999696;
+    font-size: 20px;
     
 
 }
@@ -164,81 +171,126 @@ body {
     color: #625e5e;
 }
 
-/* 商品リストのスタイル */
+
+
+/* ===========================
+   🛍️ 商品リスト（横並び調整）
+   =========================== */
 .item-list {
-    display: flex;
-    flex-wrap: wrap;
-    /* アイテムが画面幅に合わせて折り返す */
-    gap: 20px;
-    /* 商品間のスペース */
-    justify-content: flex-start;
-    /* 左詰め */
+    display: grid;
+    grid-template-columns: repeat(4, 260px);
+    gap: 50px;
     margin: 50px;
 }
 
 /* 商品アイテム */
 .item {
-    width: calc(33.333% - 20px);
-    /* 3列表示（幅の割合） */
-    max-width: 300px;
-    /* 最大幅 */
-    background-color: #fff;
-
-    overflow: hidden;
-   
+    display: flex;
+    flex-direction: column;
+    /* アイテム内の要素を縦に配置 */
+    align-items: center;
+    /* アイテムを中央揃え */
+    justify-content: center;
     text-align: center;
-    transition: transform 0.3s ease;
+    
 }
 
+/* 商品画像 */
 .item-image {
+    position: relative;
+    transition: transform 0.3s ease;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     width: 100%;
-    height: auto;
-    /* 高さを自動調整 */
-    min-height: 100px;
-    /* 最低でも100pxの高さを確保 */
-    background-color: #f3f3f3;
+    /* 画像の幅を100%に設定 */
+    margin: 0 auto;
+    aspect-ratio: 1 / 1;
+    /* 正方形に設定 */
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: #ccc;
+    /* 画像がない場合の背景色 */
     overflow: hidden;
-    position: relative;
+    display: inline-block;
 }
 
+
+
+/* 商品画像内の画像 */
 .item-image img {
     width: 100%;
-    height: auto;
-    /* 高さを自動調整 */
-    object-fit: contain;
-    /* 画像全体を表示 */
-    max-height: 300px;
-    /* 画像の最大高さを制限 */
+    /* 画像が親要素の幅に合わせて伸縮 */
+    height: 100%;
+    /* 高さも同様に親要素の高さに合わせる */
+object-fit: cover;
+    object-position: center;
+}
+/* 商品リンク */
+.item-link {
+    text-decoration: none;
+    color: black;
+    /* リンク色 */
 }
 
 /* 商品名 */
-.item h3 {
-    font-size: 18px;
-    margin-top: 10px;
+.item-name {
+    width: 90%;
     text-align: left;
+    font-size: 20px;
+    /* 商品名を大きく */
+    font-weight: normal;
+    /* 商品名を細くする */
+    color: black;
+    margin-top: 10px;
+    /* 画像と商品名の間にスペース */
+    text-decoration: none;
 }
 
-/* 商品説明 */
-.item p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 10px;
+/* Sold表示 */
+.sold-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 80px solid rgba(255, 0, 0, 1);
+    border-right: 80px solid transparent;
+    z-index: 10;
 }
 
-/* 📱 レスポンシブ対応 */
-@media (max-width: 900px) {
-    .item {
-        width: calc(50% - 20px);
-        /* タブレットで2列表示 */
+.sold-label::after {
+    content: "SOLD";
+    position: absolute;
+    top: -63px;
+    /* 位置調整 */
+    left: 5px;
+    /* 位置調整 */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transform: rotate(-45deg);
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 1200px) {
+    .item-list {
+        grid-template-columns: repeat(3, 260px);
     }
 }
 
-@media (max-width: 600px) {
-    .item {
-        width: 100%;
-        /* スマホで1列表示 */
+@media screen and (max-width: 900px) {
+    .item-list {
+        grid-template-columns: repeat(2, 260px);
     }
 }
+
+@media screen and (max-width: 600px) {
+    .item-list {
+        grid-template-columns: 1fr;
+    }
+      }
+
+  
+    
