@@ -19,7 +19,7 @@ class CommentController extends Controller
         $user = Auth::user();
 
         if (!$user) {
-            return redirect()->route('auth.login'); // ログインしていない場合はログインページにリダイレクト
+            return redirect()->route('show.login'); // ログインしていない場合はログインページにリダイレクト
         }
 
         $validated = $request->validated(); // ← これが必要！
@@ -32,7 +32,7 @@ class CommentController extends Controller
         ]);
 
       
-        return redirect()->route('items.show', $item_id)->with('success', 'コメントを投稿しました！');
+        return redirect()->route('show', $item_id)->with('success', 'コメントを投稿しました！');
     }
 
     // コメント数をカウントするAPI

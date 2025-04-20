@@ -23,7 +23,12 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                // もしユーザーが認証済みなら、メール認証画面へリダイレクト
+                if (Auth::user()->hasVerifiedEmail()) {
+                    return redirect(RouteServiceProvider::HOME);
+                }
+                // メール認証が未完了なら、メール認証画面にリダイレクト
+                return redirect()->route('verification.notice');
             }
         }
 

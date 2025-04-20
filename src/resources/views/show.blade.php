@@ -20,28 +20,23 @@
             </div>
 
             <!-- 🛠️ 検索フォーム -->
-            <form action="{{ route('items.index') }}" method="GET" class="search-form">
-                @csrf
+            <form action="{{ route('index') }}" method="GET" class="search-form">
                 <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
                 <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
             </form>
 
             <!-- 🛠️ ヘッダーメニュー -->
-            <div class="header__menu">
-                @if(Auth::check())
-                <!-- ログイン時のメニュー -->
-                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-                <a href="{{ route('show', ['item_id' => $item->id]) }}" class="btn">マイページ</a>
-                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
-                @else
-                <!-- 未ログイン時のメニュー -->
-                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
-                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
-                @endif
-            </div>
+
+            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+            <a href="{{ route('sell') }}" class="btn btn-outlet">
+                <span class="btn-text">出品</span>
+            </a>
+
+
         </div>
     </header>
 
@@ -64,8 +59,8 @@
 
             <!-- 右側 商品情報 -->
             <div class="item-info">
-                <h1>{{ $item->item_name }}</h1>
-                <p class="brand-name">{{ $item->brand_name }}</p>
+                <h1 class="item-title">{{ $item->item_name }}</h1>
+                <p class="brand-name">ブランド名{{ $item->brand_name }}</p>
 
 
                 <div class="price">
@@ -107,10 +102,10 @@
                 </form>
 
 
-                <h3>商品説明</h3>
+                <h3 class="section-title">商品説明</h3>
                 <p class="description">{{ $item->description }}</p>
 
-                <h3>商品の情報</h3>
+                <h3 class="section-title">商品の情報</h3>
                 <!-- カテゴリー表示 -->
                 <div class="item-container">
                     <div class="category">カテゴリー
@@ -127,7 +122,7 @@
 
 
                 <div class="comments-section">
-                    <h3>コメント <span class="comment-count"> ({{ count($item->comments) }})</span></h3>
+                    <h3 class="comment-title">コメント <span class="comment-count"> ({{ count($item->comments) }})</span></h3>
 
 
 
@@ -165,51 +160,50 @@
 
                 <form action="{{ route('items.comment', $item->id) }}" method="POST">
                     @csrf
-                    <h3>商品へのコメント</h3>
+
+                    <h3 class="section-comment_title">商品へのコメント</h3>
                     <textarea name="comment">{{ old('comment') }}</textarea>
                     @if ($errors->has('comment'))
                     <div class="alert-danger">
                         {{ $errors->first('comment') }}
                     </div>
                     @endif
-                    <button type="submit">コメントを送信する</button>
-
-
-
-
-
+                    <button type="submit" class="btn btn-primary">コメントを送信する</button>
                 </form>
             </div>
         </div>
         <script>
+            const isLoggedIn = @json(auth()->check());
+        </script>
+        <script>
             function toggleLike(itemId) {
+                if (!isLoggedIn) {
+                    // 未ログインならログインページにリダイレクト
+                    window.location.href = '/login';
+                    return;
+                }
+
                 fetch(`/toggle-like/${itemId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         },
+                        body: JSON.stringify({}) // ← ここ正しい位置に！
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log("Server Response:", data); // ここでサーバーのレスポンスを確認
+                        console.log("Server Response:", data);
                         if (data.message === 'Success') {
                             const likeIcon = document.getElementById(`like-icon-${itemId}`);
                             const likeCount = document.getElementById(`like-count-${itemId}`);
-
-                            // いいねアイコンの状態を切り替え
-                            if (data.isLiked) {
-                                likeIcon.innerText = '★'; // いいね状態
-                            } else {
-                                likeIcon.innerText = '☆'; // いいねしていない状態
-                            }
-
-                            // いいね数の更新
+                            likeIcon.innerText = data.isLiked ? '★' : '☆';
                             likeCount.innerText = data.likeCount;
                         }
                     })
-                body: JSON.stringify({}) // ボディに空のオブジェクトを送信
+                    .catch(error => console.error('Error:', error));
             }
+
 
             function updateCommentCount(itemId) {
                 fetch(`/item/${itemId}/comments/count`)

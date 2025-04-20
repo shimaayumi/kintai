@@ -5,24 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\AddressRequest;
 
 use App\Models\User;
 
 class AddressController extends Controller
 {
-    public function store(Request $request)
+    public function store(AddressRequest $request)
     {
         // ユーザーがログインしているか確認
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'ログインしてください');
         }
 
-        // バリデーション
-        $validated = $request->validate([
-            'address' => 'required|string|max:255',
-            'postal_code' => ['required', 'string', 'regex:/^\d{3}-\d{4}$/'], // 郵便番号の形式をチェック
-            'building' => 'nullable|string|max:255',
-        ]);
+      
 
         // 住所を保存（すでにある場合は更新）
         $user = Auth::user();

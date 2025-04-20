@@ -16,6 +16,8 @@ class PurchaseController extends Controller
 {
     public function purchaseConfirm(Request $request, $itemId)
     {
+
+
         // 商品情報を取得
         $item = Item::findOrFail($itemId);
 
@@ -61,7 +63,7 @@ class PurchaseController extends Controller
 
             // 購入情報をDBに登録する
             $addressId = $user->address->id;
-            $address = $user->address; 
+            $address = $user->address;
 
             Purchase::create([
                 'user_id' => $user->id,
@@ -70,16 +72,15 @@ class PurchaseController extends Controller
                 'amount' => $item->price,
                 'status' => 'pending',
                 'address_id' => $addressId,
-                 'price' => $item->price, 
+                'price' => $item->price,
                 'shipping_postal_code' => $address->postal_code,
                 'shipping_address' => $address->address,
                 'shipping_building' => $address->building,
-                
+
             ]);
 
             // セッションURLをJSONで返す
             return response()->json(['url' => $session->url]);
-            
         } catch (\Exception $e) {
             return response()->json(['error' => 'エラーが発生しました: ' . $e->getMessage()], 500);
         }
@@ -169,7 +170,7 @@ class PurchaseController extends Controller
             $user->address()->update([
                 'postal_code' => $request->postal_code,
                 'address' => $request->address,
-               
+
                 'building' => $request->building,
             ]);
         } else {
@@ -191,16 +192,23 @@ class PurchaseController extends Controller
         return view('purchase', compact('item', 'user')); // item と user をビューに渡す
     }
 
-    
 
-    // プロフィールページの表示
-    public function showProfile()
+
+    public function show($item_id)
     {
-        $user = Auth::user()->load('address');
-        return view('profile.show', compact('user'));
+        // 例: 現在ログイン中のユーザーを取得
+        $user = auth()->user();
+
+        // ユーザーの住所情報を取得
+        $address = $user->address;
+
+        // アイテム情報を取得
+        $item = Item::find($item_id);
+
+        // ビューに住所情報とアイテム情報を渡す
+        return view('purchase', compact('item', 'address', 'user'));
     }
 
-    
 
     public function cancel()
     {
@@ -212,10 +220,10 @@ class PurchaseController extends Controller
     {
         // $request を利用して支払い方法を取得
         $paymentMethod = $request->input('payment_method');
-        
+
         // 支払い方法が正しいか再確認
         if ($paymentMethod !== 'convenience_store' && $paymentMethod !== 'credit_card') {
-           
+
             return redirect()->route('items.index')->with('error', '無効な支払い方法が選択されました。');
         }
 
@@ -293,6 +301,4 @@ class PurchaseController extends Controller
 
         return response()->json(['status' => 'success']);
     }
-
- 
 }

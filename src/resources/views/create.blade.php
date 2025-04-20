@@ -18,42 +18,31 @@
                     <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" />
                 </a>
             </div>
+
             <!-- 🛠️ 検索フォーム -->
-            <form action="{{ route('items.index') }}" method="GET" class="search-form">
+            <form action="{{ route('index') }}" method="GET" class="search-form">
                 <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
                 <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
             </form>
+
             <!-- 🛠️ ヘッダーメニュー -->
-            <div class="header__menu">
-                @if(Auth::check())
-                <!-- ログイン時のメニュー -->
-                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
-                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
-                @else
-                <!-- 未ログイン時のメニュー -->
-                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
-                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
-                @endif
-            </div>
+
+            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+            <a href="{{ route('sell') }}" class="btn btn-outlet">
+                <span class="btn-text">出品</span>
+            </a>
+
+
         </div>
     </header>
     <div class="container">
-        <h1>商品の出品</h1>
+        <h1 class="page-title">商品の出品</h1>
 
-        <!-- バリデーションエラーの表示 -->
-        @if ($errors->any())
-        <div>
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
+
 
         <form action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -70,11 +59,16 @@
 
                     <!-- プレビュー画像 -->
                     <img id="preview" src="" alt="画像プレビュー" class="img-preview" style="display: none;">
+                    
                 </div>
+
+                @error('item_image')
+                <div class="error-message">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- 商品の詳細 -->
-            <h2>商品の詳細</h2>
+            <h2 class="section-title">商品の詳細</h2>
 
             <!-- カテゴリ選択 -->
 
@@ -82,7 +76,9 @@
                 <label for="category_id">カテゴリ</label>
                 <div id="category-buttons">
                     @foreach(['ファッション', '家電', 'インテリア', 'レディース', 'メンズ', 'コスメ', '本', 'ゲーム', 'スポーツ', 'キッチン', 'ハンドメイド', 'アクセサリー', 'おもちゃ', 'ベビー・キッズ'] as $index => $category)
-                    <button type="button" class="category-btn" data-category-id="{{ $index + 1 }}">
+                    <button type="button"
+                        class="category-btn {{ old('category_id') == $index + 1 ? 'selected' : '' }}"
+                        data-category-id="{{ $index + 1 }}">
                         {{ $category }}
                     </button>
                     @endforeach
@@ -101,7 +97,7 @@
             <!-- 商品の状態 -->
             <div class="form-group">
                 <label for="status">商品状態</label>
-                <select class="select-status" id="status" name="status" required>
+                <select class="select-status" id="status" name="status">
                     <option value="" disabled selected>選択してください</option>
                     <option value="good" {{ old('status') == 'good' ? 'selected' : '' }}>良好</option>
                     <option value="no_damage" {{ old('status') == 'no_damage' ? 'selected' : '' }}>目立った傷や汚れなし</option>
@@ -113,11 +109,11 @@
                 @enderror
             </div>
 
-            <h2>商品名と説明</h2>
+            <h2 class="section-title">商品名と説明</h2>
 
             <!-- 商品名 -->
             <label for="item_name">商品名</label>
-            <input type="text" class="form-control" id="item_name" name="item_name" value="{{ old('item_name') }}" required>
+            <input type="text" class="form-control" id="item_name" name="item_name" value="{{ old('item_name') }}">
 
             @error('item_name')
             <div class="error-message">{{ $message }}</div>
@@ -125,7 +121,7 @@
 
             <!-- ブランド名 -->
             <label for="brand_name">ブランド名</label>
-            <input type="text" class="form-control" id="brand_name" name="brand_name" value="{{ old('brand_name') }}" required>
+            <input type="text" class="form-control" id="brand_name" name="brand_name" value="{{ old('brand_name') }}">
             @error('brand_name')
             <div class="error-message">{{ $message }}</div>
             @enderror
@@ -133,7 +129,7 @@
             <!-- 商品説明 -->
             <div class="form-group">
                 <label for="description">商品の説明</label>
-                <textarea class="form-control" id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
+                <textarea class="form-control" id="description" name="description" rows="4">{{ old('description') }}</textarea>
                 @error('description')
                 <div class="error-message">{{ $message }}</div>
                 @enderror
@@ -144,7 +140,7 @@
                 <label for="price">商品価格</label>
                 <div class="input-with-symbol">
                     <span class="currency-symbol">¥</span>
-                    <input type="number" class="form-control price-input" id="price" name="price" value="{{ old('price') }}" required>
+                    <input type="number" class="form-control price-input" id="price" name="price" value="{{ old('price') }}">
                 </div>
                 @error('price')
                 <div class="error-message">{{ $message }}</div>
@@ -202,6 +198,15 @@
                     }
                 });
             });
+        });
+
+        document.getElementById('item_image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const preview = document.getElementById('preview');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
         });
     </script>
 </body>

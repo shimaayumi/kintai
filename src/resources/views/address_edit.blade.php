@@ -20,34 +20,31 @@
             </div>
 
             <!-- 🛠️ 検索フォーム -->
-            <form action="{{ route('items.index') }}" method="GET" class="search-form">
+            <form action="{{ route('index') }}" method="GET" class="search-form">
                 <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
                 <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
             </form>
 
             <!-- 🛠️ ヘッダーメニュー -->
-            <div class="header__menu">
-                @if(Auth::check())
-                <!-- ログイン時のメニュー -->
-                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-                <a href="{{ route('mypage.show', ['id' => auth()->user()->id]) }}" class="btn">マイページ</a>
-                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
-                @else
-                <!-- 未ログイン時のメニュー -->
-                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
-                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
-                @endif
-            </div>
+
+            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+
+            <a href="{{ route('sell') }}" class="btn btn-outlet">
+                <span class="btn-text">出品</span>
+            </a>
+
+
         </div>
     </header>
 
     <div class="container">
         <h1>住所の変更</h1>
 
-        <form action="{{ route('Address.update', $item->id) }}" method="POST">
+        <form action="{{ route('edit.Profile') }}" method="POST">
             @csrf
             <!-- 住所変更フォーム -->
             <div class="form-group">

@@ -26,8 +26,8 @@ class ExhibitionRequest extends FormRequest
         return [
             'item_name' => 'required|string',
             'description' => 'required|string|max:255',
-            'item_images' => 'required',
-            'item_images.*' => 'image|mimes:jpeg,png',
+            'item_image' => 'required',
+            'item_image.*' => 'image|mimes:jpeg,png',
             'category_id' => 'required',
             'status' => 'required|string',
             'price' => 'required|integer|min:0',
@@ -50,9 +50,9 @@ class ExhibitionRequest extends FormRequest
             'status.required' => '商品の状態を選択してください。',
             'price.required' => '販売価格を入力してください',
             'price.min' => '販売価格は0円以上で入力してください。',
-            'item_images.required' => '商品画像をアップロードしてください',
-            'item_images.*.image' => 'アップロードするファイルは画像である必要があります。',
-            'item_images.*.mimes' => '商品画像は JPEG,PNGの形式でアップロードしてください',
+            'item_image.required' => '商品画像をアップロードしてください',
+            'item_image.*.image' => 'アップロードするファイルは画像である必要があります。',
+            'item_image.*.mimes' => '商品画像は JPEG,PNGの形式でアップロードしてください',
 
         ];
     }

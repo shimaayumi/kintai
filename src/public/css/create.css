@@ -1,13 +1,15 @@
-/* ===========================
-   グローバル設定
-=========================== */
 body {
     margin: 0 auto;
+    padding: 0;
+    width: 100%;
+
 }
+
+
 
 /* ===========================
    🔝 ヘッダー
-=========================== */
+   =========================== */
 .header {
     background: #000;
     display: flex;
@@ -17,50 +19,69 @@ body {
 }
 
 .header__logo img {
-    width: 20vw;
+    width: 23vw;
     height: auto;
+    margin-left: 10px;
+    margin-right: 30px;
 }
 
 .search-form {
     display: flex;
     align-items: center;
     gap: 10px;
+
 }
 
 .search-form input[type='text'] {
     padding: 10px;
     padding-left: 30px;
-    width: 40vw;
+    width: 35vw;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 18px;
+    margin-right: 60px;
 }
 
-.header__menu {
-    display: flex;
-    gap: 15px;
-}
 
-.header__menu .btn {
+.btn {
     color: #fff;
-    padding: 10px 5px;
     text-decoration: none;
     background: none;
     border: none;
     border-radius: 5px;
     transition: color 0.3s ease;
+    width: 7vw;
+    align-items: center;
+    font-size: 1.4vw;
+
 }
 
-.header__menu .btn-outlet {
+
+.btn-outlet {
     background-color: white;
     color: black;
-    padding: 10px 20px;
-    margin-left: 15px;
+    height: 40px;
+    padding: 0 10px;
     border-radius: 5px;
     text-decoration: none;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 
+.btn-text {
+    font-size: 1.4vw;
+
+}
+
+
+.header__menu {
+    display: flex;
+    gap: 3px
+
+}
 /* ===========================
    コンテナ
 =========================== */
@@ -75,7 +96,7 @@ body {
 /* ===========================
    フォームスタイル
 =========================== */
-h1 {
+.page-title  {
     font-size: 2rem;
     margin: 10px auto;
     color: black;
@@ -84,7 +105,7 @@ h1 {
 }
 
 
-h2 {
+.section-title {
     font-size: 1.5rem;
     margin: 50px auto;
     color: rgb(104, 106, 108);
@@ -97,7 +118,7 @@ h2 {
 }
 
 label {
-    font-size: 1.2rem;
+    font-size: 20px;
     font-weight: bold;
     display: block;
     margin-top: 30px;
@@ -111,18 +132,24 @@ select {
     padding: 10px;
     font-size: 1rem;
     border: 1px solid #746a6a;
-    border-radius: 5px;
+    border-radius: 3px;
     box-sizing: border-box;
+   
 }
 
 textarea {
     resize: vertical;
+    height: 100px;
 }
 
 input[type="file"] {
     padding: 5px;
 }
 
+input,textarea:focus {
+    outline: none;
+    border-color: #000;
+}
 /* ===========================
    ファイル選択ボタンのカスタマイズ
 =========================== */
@@ -135,7 +162,7 @@ input[type="file"] {
     justify-content: center;
     align-items: center;
     border: 1px dashed #746a6a;
-    border-radius: 5px;
+    border-radius: 3px;
     overflow: hidden;
     
 }
@@ -194,16 +221,17 @@ input[type="file"] {
 =========================== */
 button[type="submit"] {
     width: 100%;
-    padding: 5px;
-    font-size: 1.2rem;
+    padding: 8px;
+    font-size: 20px;
     background-color: red;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 3px;
     cursor: pointer;
     margin: 100px auto;
     display: block;
     transition: background-color 0.3s ease;
+    font-weight: bold;
 }
 
 button[type="submit"]:hover {
@@ -248,7 +276,7 @@ button[type="submit"]:hover {
     padding: 10px;
     font-size: 1rem;
     border: 1px solid #746a6a;
-    border-radius: 5px;
+    border-radius: 3px;
     box-sizing: border-box;
     /* ボックスモデルを明確に */
 }
@@ -264,19 +292,32 @@ button[type="submit"]:hover {
 /* ¥記号のスタイル */
 .currency-symbol {
     position: absolute;
+    top: 50%;
     left: 10px;
-    /* ¥記号を入力フィールドの左端に配置 */
-    top: 70%;
     transform: translateY(-50%);
-    /* 垂直方向の中央に配置 */
+    font-weight: bold;
     font-size: 1rem;
     color: #333;
     pointer-events: none;
-    /* ユーザーがクリックできないように */
+    z-index: 1;
 }
 
+.input-with-symbol {
+    position: relative;
+    width: 100%;
+}
 
-
+.price-input {
+    width: 100%;
+    padding: 10px;
+    padding-left: 30px;
+    /* ¥マーク分のスペース */
+    font-size: 1rem;
+    border: 1px solid #746a6a;
+    border-radius: 5px;
+    box-sizing: border-box;
+    text-align: right;
+}
 
 
 /* 商品状態のセレクトボックスにのみ▼を追加 */
@@ -294,22 +335,11 @@ button[type="submit"]:hover {
 
 .select-status:focus {
     outline: none;
-    border-color: #333; /* フォーカス時の枠線色 */
+    border-color: #000 ;
 }
 
-/* ===========================
-   レスポンシブ設定
-=========================== */
-@media (max-width: 768px) {
-    #category-buttons {
-        grid-template-columns: repeat(2, 1fr);
-        /* 画面が小さい場合は2列に */
-    }
-}
-
-@media (max-width: 480px) {
-    #category-buttons {
-        grid-template-columns: 1fr;
-        /* さらに小さい画面で1列に */
-    }
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 5px;
 }

@@ -7,28 +7,40 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Fortify;
-use App\Http\Controllers\AddressController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use Illuminate\Http\Request;
+use PHPUnit\Framework\Constraint\LogicalXor;
 
 
+Route::post('/register', [RegisterController::class, 'store']);
+// メール認証ページの表示
+Route::get('/email/verify', [EmailVerificationController::class, 'show'])->middleware('auth')->name('verification.notice');
+
+// メール認証処理
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+    ->middleware(['auth', 'signed'])
+    ->name('verification.verify');
+
+// メール認証再送信
+Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.send');
 
 
-use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\MailController;
-
-Route::get('/send-test-email', [MailController::class, 'sendTestEmail']);
-
-
-// メール認証の誘導ページ
-Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
-
-// メール認証の再送信
-Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
 // --- 商品関連 ---
-Route::get('/', [ItemController::class, 'index'])->name('items.index'); // 商品一覧
-Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('show'); // 商品詳細
+
+Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('item.show'); // 商品詳細
+Route::match(['get', 'post'], '/', [ItemController::class, 'index'])->name('index');
+
+Route::post('/mylist', [ItemController::class, 'showMyList']);
+
+
+
 
 // 商品出品・編集・削除（認証ユーザー専用）
 Route::middleware('auth')->group(function () {
@@ -39,85 +51,93 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/{item_id}/delete', [ItemController::class, 'destroy'])->name('items.delete'); // 商品削除
     
     
-    Route::get('/item/{item}', [ItemController::class, 'show'])->name('items.show');
-    Route::get('/mylist', [ItemController::class, 'showMyList'])->name('mylist.index');
+    
     
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/mypage', [UserController::class, 'mypage'])->name('mypage.show');
-    Route::get('/mypage/edit', [UserController::class, 'editProfile'])->name('mypage.edit');
-    Route::post('/mypage/update', [UserController::class, 'updateProfile'])->name('mypage.update');
-   
-  
-  
-
-   
 
 
-    Route::post('/address/store', [AddressController::class, 'store'])->name('address.store');
-    Route::get('/address/edit/{id}', [AddressController::class, 'edit'])->name('address.edit');
-    Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
-});
 
-// --- 購入関連 ---
-Route::prefix('purchase')->name('purchase.')->group(function () {
-      
-        Route::post('/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('confirm'); // 購入確認
-        Route::get('/complete', [PurchaseController::class, 'complete'])->name('complete'); // 購入完了ページ
-        
-        Route::get('/', [PurchaseController::class, 'index'])->name('index'); // 購入一覧ページ
-        Route::get('{item_id}', [PurchaseController::class, 'purchase'])->name('show');
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/', [LoginController::class, 'logout'])->name('logout');
 
-        // --- 住所変更関連（購入の一部として扱う） ---
-
-    
-        
-    });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/purchase/address/{item_id}', [PurchaseController::class, 'changeAddress'])->name('address.change'); // 住所変更ページ
-    Route::post('/address/{item_id}/update', [PurchaseController::class, 'updateAddress'])->name('Address.update'); // 住所更新処理
-    Route::post('/purchase/{item_id}', [PurchaseController::class, 'purchaseConfirm'])->name('purchase.confirm');
-    Route::post('/purchase/{itemId}', [PurchaseController::class, 'store'])->name('purchase.store');
-    Route::get('/purchase/success', [PurchaseController::class, 'success'])->name('purchase.success');
-    Route::get('/purchase/cancel', [PurchaseController::class, 'cancel'])->name('purchase.cancel');
-    Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
-   
-});
+    // マイページ表示
+    Route::get('/mypage', [UserController::class, 'mypage'])->name('mypage');
 
-
-
-
-
-
-
-
-// ログインページを指定
-Fortify::loginView(fn() => view('auth.login'));
-
-// 認証関連
-Route::get('register', [AuthController::class, 'showRegister'])->name('auth.register');
-Route::post('register', [AuthController::class, 'register'])->name('register');
-Route::get('login', [AuthController::class, 'showLogin'])->name('auth.login');
-Route::post('login', [AuthController::class, 'login'])->name('login');
-Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-
-Route::middleware(['auth'])->group(function () {
-    // プロフィール編集ページ
-    Route::get('/mypage/profile', [ProfileController::class, 'editProfile'])->name('profile.edit');
+    // プロフィール編集フォーム表示
+    Route::get('/mypage/profile', [UserController::class, 'edit'])->name('edit');
 
     // プロフィール更新処理
-    Route::post('/mypage/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/mypage/profile', [UserController::class, 'editProfile'])->name('edit.Profile');
 
-    // プロフィール詳細（例：購入画面で使われるユーザープロフィール）
-    Route::get('/mypage', [ProfileController::class, 'showMypage'])->name('mypage.show');
+    // 住所保存
+    Route::post('/address/store', [UserController::class, 'store'])->name('address.store');
 
-  
-  
+    // 住所編集フォーム
+    Route::get('/address/edit/{id}', [UserController::class, 'edit'])->name('address.edit');
+
+    // 新規住所作成フォーム
+    Route::get('/address/create', [UserController::class, 'create'])->name('address.create');
    
-   
+
+
+
+
+
+    // 購入確認
+    Route::post('purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('confirm');
+
+    // 購入完了ページ
+    Route::get('purchase/complete', [PurchaseController::class, 'complete'])->name('complete');
+
+    
 });
+
+Route::middleware(['auth'])->group(function () {
+    // 住所変更ページ
+    Route::get('/purchase/address/{item_id}', [PurchaseController::class, 'changeAddress'])->name('address.change');
+    Route::post('/address/{item_id}/update', [PurchaseController::class, 'updateAddress'])->name('Address.update');
+
+    // 購入成功・キャンセルページ
+    Route::get('/purchase/success', [PurchaseController::class, 'success'])->name('purchase.success');
+    Route::get('/purchase/cancel', [PurchaseController::class, 'cancel'])->name('purchase.cancel');
+    Route::post('/purchase/{itemId}', [PurchaseController::class, 'purchaseConfirm'])->name('purchase.confirm');
+
+    // 購入詳細表示ページ
+    Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
+});
+   
+
+   
+
+    // 購入処理（POSTメソッド）
+    Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
+    Route::post('/purchase/{item_id}', [PurchaseController::class, 'confirmPurchase'])->name('confirmPurchase');
+
+    // 購入詳細表示ページ
+    Route::get('/purchase/{item_id}', [PurchaseController::class, 'purchase'])->name('show');
+    Route::get('/purchase/{item_id}', [PurchaseController::class, 'failed'])->name('purchase.failed');
+    
+
+  
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Route::middleware('auth')->get('/mylist', [ItemController::class, 'showMyList'])->name('mylist');
@@ -141,7 +161,8 @@ Route::middleware(['auth'])->group(function () {
 
     // ユーザーの「いいね」状態をトグルする
     Route::post('/toggle-like/{item}', [LikeController::class, 'toggleLike'])->name('items.toggleLike');
-}); 
 
+  
+});
 
 

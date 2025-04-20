@@ -15,72 +15,80 @@
         <div class="header">
             <div class="header__inner">
                 <a class="header__logo" href="/">
-                    <img src="{{ asset('images/logo.svg') }}" alt="ロゴ">
+                    <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" />
                 </a>
             </div>
-            <form action="{{ route('items.index') }}" method="GET" class="search-form">
-                <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？">
-                <input type="hidden" name="page" value="{{ request('page', 'all') }}">
+
+            <!-- 🛠️ 検索フォーム -->
+            <form action="{{ route('index') }}" method="GET" class="search-form">
+                <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
+                <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
             </form>
-            <div class="header__menu">
-                @if(Auth::check())
-                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
-                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
-                @else
-                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
-                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
-                @endif
-            </div>
+
+            <!-- 🛠️ ヘッダーメニュー -->
+
+            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+            <a href="{{ route('sell') }}" class="btn btn-outlet">
+                <span class="btn-text">出品</span>
+            </a>
+
+
         </div>
     </header>
 
     <div class="container">
-        <h1>プロフィール設定</h1>
-        @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-        <form action="{{ route('mypage.update') }}" method="POST" enctype="multipart/form-data">
+        <h1 class="profile-header">プロフィール設定</h1>
+
+
+        <form action="{{ route('address.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            
+
+
 
             <div class="form-group-row">
                 <div class="profile-image">
 
-                    <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}" >
+                    <img id="preview" src="{{ asset('storage/profiles/' . ($user->profile->profile_image ?? 'default.png')) }}">
 
 
                 </div>
                 <div class="file-input">
-                    <label for="profile_image" class="btn">ファイルを選択</label>
+                    <label for="profile_image" class="btn">画像を選択する</label>
                     <input type="file" name="profile_image" id="profile_image" class="form-control">
+                    @error('profile_image')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
+
             <div class="form-group">
                 <label for="name">ユーザー名</label>
-                <input type="text" name="name" id="name" value="{{ $user->name }}" class="form-control" required>
+                <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="form-control">
+                @error('name')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
 
             <div class="form-group">
                 <label for="postal_code">郵便番号</label>
-                <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code', $address ? $address->postal_code : '') }}" class="form-control" required>
+                <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code', $address ? $address->postal_code : '') }}" class="form-control">
+                @error('postal_code')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="address">住所</label>
-                <input type="text" name="address" id="address" value="{{ $address ? $address->address : '' }}" class="form-control" required>
-
+                <input type="text" name="address" id="address" value="{{ old('address', $address ? $address->address : '') }}" class="form-control">
+                @error('address')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
 
@@ -89,10 +97,14 @@
             <div class="form-group">
                 <label for="building">建物名</label>
                 <input type="text" name="building" id="building" value="{{ old('building', $address ? $address->building : '') }}" class="form-control">
+                @error('building')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
 
-            <button type="submit" class="btn btn-success">更新する</button>
+
+            <button type="submit" class="btn-success">更新する</button>
         </form>
     </div>
 

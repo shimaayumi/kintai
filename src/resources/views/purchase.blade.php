@@ -17,31 +17,30 @@
         <div class="header">
             <div class="header__inner">
                 <a class="header__logo" href="/">
-                    <img src="{{ asset('images/logo.svg') }}" alt="ロゴ">
+                    <img src="{{ asset('images/logo.svg') }}" alt="ロゴ" />
                 </a>
             </div>
-            <form action="{{ route('items.index') }}" method="GET" class="search-form">
+
+            <!-- 🛠️ 検索フォーム -->
+            <form action="{{ route('index') }}" method="GET" class="search-form">
                 @csrf
-                <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？">
-                <input type="hidden" name="page" value="{{ request('page', 'all') }}">
+                <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
+                <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
             </form>
-            <div class="header__menu">
-                @if(Auth::check())
-                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-                @if(isset($item) && $item->user)
-                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
-                @else
-                <p>商品情報がありません。</p>
-                @endif
-                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
-                @else
-                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
-                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
-                @endif
-            </div>
+
+            <!-- 🛠️ ヘッダーメニュー -->
+
+            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+
+            <a href="{{ route('sell') }}" class="btn btn-outlet">
+                <span class="btn-text">出品</span>
+            </a>
+
+
         </div>
     </header>
 
@@ -64,7 +63,8 @@
                                 {{ $item->item_name ?? '商品名がありません' }}
                             </div>
                             <div class="item-price">
-                                <strong></strong>¥ {{ isset($item) ? number_format($item->price)  : '価格情報がありません' }}
+                                <strong><span class="currency">¥</span></strong>
+                                {{ isset($item) ? number_format($item->price)  : '価格情報がありません' }}
                             </div>
                         </div>
 
@@ -93,7 +93,7 @@
                     <!-- 住所変更ボタン -->
                     <div class="address-method__button">
                         @if(isset($item))
-                        <a href="{{ route('address.change', $item->id) }}" class="btn btn-primary">変更する</a>
+                        <a href="{{ route('address.change', ['item_id' => $item->id]) }}" class="btn-change-address">変更する</a>
                         @endif
                     </div>
                 </div>
@@ -131,7 +131,7 @@
 
 
             <!-- 購入確認フォーム -->
-            <button id="checkout-button" class="btn btn-primary" onclick="return checkPaymentMethod()">購入する</button>
+            <button id="checkout-button" class="btn btn-primary">購入する</button>
 
         </div>
 
@@ -149,121 +149,84 @@
 
 
 
-
-
-
-
     <script>
+        // 支払い方法表示用関数
+        function displaySelectedPaymentMethod() {
+            const select = document.getElementById('payment_method');
+            const selectedValue = select.value;
+            let displayText = '';
+
+            if (selectedValue === 'convenience_store') {
+                displayText = 'コンビニ支払い';
+            } else if (selectedValue === 'credit_card') {
+                displayText = 'カード支払い';
+            }
+
+            // 選択された支払い方法を表示
+            const displayElement = document.getElementById('payment_method_display');
+            if (displayElement) {
+                displayElement.textContent = displayText;
+            }
+
+            console.log('選択された支払い方法:', displayText);
+        }
+
+        // 購入ボタン押下時の処理
         document.getElementById('checkout-button').addEventListener('click', function(event) {
-            // 支払い方法をチェック
             const paymentMethod = document.getElementById('payment_method').value;
-            console.log("選択された支払い方法:", paymentMethod); // ここで確認
+
             if (!paymentMethod) {
                 alert('支払い方法を選択してください。');
-                event.preventDefault(); // フォームの送信（またはイベントのデフォルト動作）をキャンセル
+                event.preventDefault();
                 return;
             }
 
-            // 住所情報を取得
             const address = {
                 postal_code: '{{ $user->address->postal_code ?? "" }}',
                 address: '{{ $user->address->address ?? "" }}',
                 building: '{{ $user->address->building ?? "" }}',
             };
 
-            // 住所情報が空の場合、エラーメッセージを表示
             if (!address.postal_code || !address.address || !address.building) {
                 alert('住所情報が不足しています。すべての項目を入力してください。');
+                event.preventDefault();
                 return;
             }
 
-            // 送信するデータを作成
-            var dataToSend = {
+            const dataToSend = {
                 payment_method: paymentMethod,
                 address: address,
-                name: '{{ $item->item_name }}' // 商品名など、必要なパラメータを追加
+                name: '{{ $item->item_name }}'
             };
 
-            // item_id をURLに渡す
-            const itemId = '{{ $item->id }}'; // 商品IDを取得
+            const itemId = '{{ $item->id }}';
 
-            // データが正しいか確認
             console.log('送信するデータ:', dataToSend);
 
-            // fetchでPOSTリクエストを送る
             fetch(`/purchase/${itemId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}', // CSRFトークンをヘッダーに追加
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
-                    body: JSON.stringify(dataToSend) // 定義したdataToSendを送信
+                    body: JSON.stringify(dataToSend)
                 })
-                .then(response => response.json()) // レスポンスをJSONとして処理
+                .then(response => response.json())
                 .then(data => {
-                    console.log(data); // レスポンス内容をコンソールに表示
+                    console.log(data);
                     if (data.url) {
-                        window.location.href = data.url; // 成功時にCheckout画面にリダイレクト
+                        window.location.href = data.url;
                     } else {
-                        alert(data.error || 'エラーが発生しました'); // エラーメッセージ表示
+                        alert(data.error || 'エラーが発生しました');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('ネットワークエラーが発生しました。');
                 });
-
-
-            function displaySelectedPaymentMethod() {
-                const paymentMethod = document.getElementById('payment_method').value;
-                const displayElement = document.getElementById('payment_method_display');
-
-                let methodText = '';
-                if (paymentMethod === 'convenience_store') {
-                    methodText = 'コンビニ支払い';
-                } else if (paymentMethod === 'credit_card') {
-                    methodText = 'カード支払い';
-                }
-
-                displayElement.textContent = methodText;
-            }
-
-            function checkPaymentMethod() {
-                const paymentMethod = document.getElementById('payment_method').value;
-                if (!paymentMethod) {
-                    alert('支払い方法を選択してください。');
-                    return false;
-                }
-
-                const address = {
-                    postal_code: '{{ $user->address->postal_code ?? "" }}',
-                    address: '{{ $user->address->address ?? "" }}',
-                    building: '{{ $user->address->building ?? "" }}'
-                };
-
-                if (!address.postal_code || !address.address) {
-                    alert('配送先情報を入力してください。');
-                    return false;
-                }
-
-
-                return true;
-            }
         });
-
-        function displaySelectedPaymentMethod() {
-            const selectElement = document.getElementById('payment_method');
-            const selectedOption = selectElement.options[selectElement.selectedIndex].text;
-
-            // 選択された支払い方法を画面に表示する場合（任意）
-            const displayElement = document.getElementById('selected-payment-method');
-            if (displayElement) {
-                displayElement.textContent = selectedOption;
-            }
-
-            console.log('選択された支払い方法:', selectedOption);
-        }
     </script>
+    
 </body>
 
 

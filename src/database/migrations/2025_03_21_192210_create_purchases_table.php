@@ -22,9 +22,6 @@ class CreatePurchasesTable extends Migration
     
             $table->enum('payment_method', ['credit_card', 'convenience_store']); // payment_method (enum)
             $table->integer('price');
-            $table->string('stripe_session_id')->nullable();
-            $table->integer('amount')->nullable();
-            $table->string('status')->default('pending');
            
             $table->string('shipping_postal_code');
             $table->string('shipping_address');

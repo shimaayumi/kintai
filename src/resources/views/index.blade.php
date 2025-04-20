@@ -20,71 +20,89 @@
             </div>
 
             <!-- 🛠️ 検索フォーム -->
-            <form action="{{ route('items.index') }}" method="GET" class="search-form">
+            <form action="{{ route('index') }}" method="GET" class="search-form">
+                @csrf
                 <input type="text" name="keyword" value="{{ old('keyword', request('keyword')) }}" placeholder="なにをお探しですか？" />
                 <input type="hidden" name="page" value="{{ request('page', 'all') }}" />
             </form>
 
             <!-- 🛠️ ヘッダーメニュー -->
-            <div class="header__menu">
-                @if(Auth::check())
-                <!-- ログイン時のメニュー -->
-                <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-                <a href="{{ route('mypage.show') }}" class="btn">マイページ</a>
-                <a href="{{ route('sell') }}" class="btn btn-outlet">出品</a>
-                @else
-                <!-- 未ログイン時のメニュー -->
-                <a href="{{ route('auth.login') }}" class="btn">ログイン</a>
-                <a href="{{ route('auth.register') }}" class="btn">会員登録</a>
-                @endif
-            </div>
+
+            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+
+            <a href="{{ route('sell') }}" class="btn btn-outlet">
+                <span class="btn-text">出品</span>
+            </a>
+
+
         </div>
     </header>
 
     <!-- 🛠️ ページタイトル -->
     <div class="title-links">
-        <h2>おすすめ</h2>
-
-        <!-- 🛠️ マイリストリンク -->
-
-        @if(Auth::check())
-        <a href="{{ route('mylist') }}" class="btn">マイリスト</a>
-        @else
-        <a href="{{ route('login') }}" class="btn">マイリスト</a>
-        @endif
+        <a href="{{ route('index') }}" class="tab tab-recommended {{ request()->is('/') ? 'active' : '' }}">おすすめ</a>
+        <a href="{{ url('/?page=mylist') }}" class="tab tab-mylist {{ request()->is('mylist') ? 'active' : '' }}">マイリスト</a>
     </div>
 
 
 
-    <!-- 🛠️ 商品リスト表示 -->
+    <!-- 🛠️ 商品リスト表示 - おすすめ -->
+    @if(request()->is('/'))
     <div class="item-list">
         @forelse($items as $item)
         <div class="item">
-            <a href="{{ route('items.show', ['item' => $item->id]) }}" class="item-link">
+            <a href="{{ route('item.show', ['item_id' => $item->id]) }}" class="item-link">
                 <div class="item-image">
-                    @if($item->images && $item->images->isNotEmpty()) {{-- 画像が存在する場合 --}}
+                    @if($item->images && $item->images->isNotEmpty())
                     <img src="{{ asset('storage/images/' . $item->images->first()->item_image) }}" alt="{{ $item->item_name }}">
-                    @else {{-- 画像がない場合 --}}
+                    @else
                     <div class="no-image">商品画像</div>
                     @endif
 
                     {{-- SOLD 表示 --}}
                     @if ($item->purchases->isNotEmpty())
-                    <div class="sold-label"></div>
+                    <div class="sold-label">SOLD</div>
                     @endif
                 </div>
-
                 <h3 class="item-name">{{ $item->item_name }}</h3>
             </a>
-            
         </div>
         @empty
-        <p>出品された商品はありません。</p>
+
         @endforelse
     </div>
+    @endif
+
+
+    <!-- 🛠️ 商品リスト表示 - マイリスト -->
+    @if(request()->is('mylist'))
+    <div class="item-list">
+        @forelse($items as $item) {{-- ← $likedItems から $items に変更 --}}
+        <div class="item">
+            <a href="{{ route('show', ['item_id' => $item->id]) }}" class="item-link">
+                <div class="item-image">
+                    @if($item->images && $item->images->isNotEmpty())
+                    <img src="{{ asset('storage/images/' . $item->images->first()->item_image) }}" alt="{{ $item->item_name }}">
+                    @else
+                    <div class="no-image">商品画像</div>
+                    @endif
+                    @if ($item->sold_flag)
+                    <div class="sold-label">SOLD</div>
+                    @endif
+                </div>
+                <h3 class="item-name">{{ $item->item_name }}</h3>
+            </a>
+        </div>
+        @empty
+
+        @endforelse
+    </div>
+    @endif
+
 </body>
 
 </html>

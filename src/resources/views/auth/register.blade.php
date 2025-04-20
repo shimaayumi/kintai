@@ -23,8 +23,8 @@
   <div class="register-form">
     <h2 class="register-form__heading content__heading">会員登録</h2>
     <div class="register-form__inner">
-      <!-- ここでフォームを1回だけ開きます -->
-      <form action="{{ route('register') }}" method="POST">
+
+      <form action="{{ route('register') }}" method="post">
         @csrf
         <div class="register-form__group">
           <label class="register-form__label" for="name">ユーザー名</label>
@@ -66,7 +66,7 @@
         <input class="register-form__btn btn" type="submit" value="登録する">
       </form>
       <div class="register-form__login-link">
-        <a class="login__link" href="{{ route('auth.login') }}">ログインはこちら</a>
+        <a class="login__link" href="{{ route('login') }}">ログインはこちら</a>
       </div>
     </div>
   </div>

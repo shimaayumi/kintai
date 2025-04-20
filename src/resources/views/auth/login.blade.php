@@ -24,11 +24,11 @@
   <div class="login-form">
     <h2 class="login-form__heading content__heading">ログイン</h2>
     <div class="login-form__inner">
-      <form method="POST" action="{{ route('auth.login') }}">
+      <form method="POST" action="{{ route('login') }}">
         @csrf
         <div class="login-form__group">
           <label class="login-form__label" for="email">メールアドレス</label>
-          <input class="login-form__input" type="email" name="email" id="email" >
+          <input class="login-form__input" type="email" name="email" id="email">
           <p class="register-form__error-message">
             @error('email')
             <span>{{ $message }}</span>
@@ -37,7 +37,7 @@
         </div>
         <div class="login-form__group">
           <label class="login-form__label" for="password">パスワード</label>
-          <input class="login-form__input" type="password" name="password" id="password" >
+          <input class="login-form__input" type="password" name="password" id="password">
           <p class="register-form__error-message">
             @error('password')
             <span>{{ $message }}</span>
@@ -47,7 +47,7 @@
         <input class="login-form__btn btn" type="submit" value="ログインする">
 
         <div class="login-form__register-link">
-          <a class="register__link" href="{{ route('auth.register') }}">会員登録はこちら</a>
+          <a class="register__link" href="{{ route('register') }}">会員登録はこちら</a>
         </div>
       </form>
 

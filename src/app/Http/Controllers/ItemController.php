@@ -8,9 +8,9 @@ use App\Models\Item;
 use App\Models\Category;
 use App\Models\ItemImage;
 use App\Models\Comment;
-use App\Models\Purchase; // 追加
+use App\Models\Purchase; 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log; // 追加
+use Illuminate\Support\Facades\Log; 
 use App\Http\Requests\ExhibitionRequest;
 use Illuminate\Support\Facades\DB;
 
@@ -30,53 +30,57 @@ class ItemController extends Controller
         return $categories;
     }
 
-    // --- 商品一覧表示 ---
     public function index(Request $request)
     {
+        
         $keyword = $request->input('keyword');
         $tab = $request->input('page', 'all');
 
-        // 商品データを取得
-        $query = Item::query();
-
-        // ログインユーザーが出品した商品を除外
-        $query->where('user_id', '!=', auth()->id());
-
-        // 🔍 検索機能
-        if ($keyword) {
-            $query->where('item_name', 'LIKE', '%' . $keyword . '%');
-        }
-
-        // すべての商品を表示
-        if ($tab === 'all') {
-            $items = $query->with('images')->orderBy('created_at', 'desc')->get();
-        } else {
-            $items = []; // 他のタブがあれば追加の処理を行う
-        }
-
-        // 商品ごとの状態を判定し、表示用に画像パスを追加
-        foreach ($items as $item) {
-            if ($item->sold_flag) {
-                $item->sold_image = asset('images/sold.png'); // 売れた商品には「sold.png」を表示
-            } else {
-                $item->sold_image = asset('images/available.png'); // 売れていない商品には「available.png」を表示
+        if ($tab === 'mylist') {
+            if (!Auth::check()) {
+                return redirect()->route('login');
             }
-        }
 
-        // ビューにデータを渡す
-        return view('index', [
-            'items' => $items,
-            'categories' => $this->getCategories($request), // 修正：$requestを渡す
-            'tab' => $tab,
-            'keyword' => $keyword,
-        ]);
+            $user = Auth::user();
+            $likedItems = $user->likes()->with('item.images')->get()->pluck('item')->unique('id');
+
+            foreach ($likedItems as $item) {
+                $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
+            }
+
+            // ✅ ビューに items を渡してる
+            return view('index', [
+                'items' => $likedItems,
+                'categories' => $this->getCategories($request),
+                'tab' => $tab,
+                'keyword' => $keyword,
+            ]);
+        } else {
+            // ✅ 通常表示用の items をここで定義！
+            $query = Item::query();
+
+            if ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+            }
+
+            $items = $query->with('images')->get();
+
+            foreach ($items as $item) {
+                $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
+            }
+
+            // ✅ ビューに渡す
+            return view('index', [
+                'items' => $items,
+                'categories' => $this->getCategories($request),
+                'tab' => $tab,
+                'keyword' => $keyword,
+            ]);
+        }
     }
 
-   
-
-
     // --- 商品詳細表示 ---
-   
+
     public function show($id)
     {
         // 商品情報をIDで取得、存在しない場合は404エラーを返す
@@ -131,9 +135,9 @@ class ItemController extends Controller
         return redirect()->route('items.show', ['id' => $itemId])->with('success', 'コメントが送信されました！');
     }
 
-   
 
-    
+
+
     // --- マイリスト表示 ---
     public function showMyList(Request $request)
     {
@@ -147,7 +151,12 @@ class ItemController extends Controller
 
         // ユーザーの「いいね」した商品を取得（likes を使って、item と item_images を同時にロード）
         $likedItems = $user->likes()->with('item.images')->get()->pluck('item')->unique('id'); // 重複を排除
-        
+
+        // フォームからの送信データを取得（例: ソートの選択）
+        $sortBy = $request->input('sort_by', 'created_at'); // デフォルトは 'created_at' でソート
+
+        // 商品の並べ替え（例: created_at または price で並べ替え）
+        $likedItems = $likedItems->sortByDesc($sortBy);
 
         // 購入された商品は "Sold" と表示
         foreach ($likedItems as $item) {
@@ -159,30 +168,25 @@ class ItemController extends Controller
         }
 
         // URL パラメータでページが指定されている場合、そのページをビュー名として使う
-        $page = $request->query('page', 'mylist'); // デフォルトは 'mylist.index'
+        $page = $request->query('page', 'mylist'); // デフォルトは 'mylist'
 
-        // ビューに渡す変数名を$itemsに統一
-        return view($page, compact('likedItems'));
+        return view('index', [
+            'items' => $likedItems, // ← likedItems を items として渡す
+            'categories' => $this->getCategories($request), // 他と合わせるならこれも追加
+            'tab' => $page,
+            'keyword' => '', // キーワード検索していないので空でOK
+        ]);
     }
-
-
     
 
 
 
     // --- 商品出品画面表示 ---
-    public function store(Request $request)
+    public function store(ExhibitionRequest $request)
     {
         // リクエストのバリデーション
         $validated = $request->validate([
-            'item_name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'category_id' => 'required|array|min:1', // 少なくとも1つのカテゴリが選択されているか
-            'category_id.*' => 'exists:categories,id', // 存在するカテゴリIDであることを確認
-            'description' => 'nullable|string',
-            'brand_name' => 'nullable|string|max:255',
-
-            'item_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 画像のバリデーション（1枚のみ）
+           
         ]);
 
         DB::transaction(function () use ($request) {
