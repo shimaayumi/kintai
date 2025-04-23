@@ -74,18 +74,20 @@
             @if(($page ?? '') === 'sell')
             @forelse(($page === 'sell' ? $sellItems : $purchasedItems) as $item)
             <div class="item">
-                <div class="item-image">
-                    @php
-                    $imagePath = optional($item->images->first())->item_image;
-                    @endphp
+                <a href="{{ route('item.show', ['item_id' => $item->id]) }}" class="item-link">
+                    <div class="item-image">
+                        @php
+                        $imagePath = optional($item->images->first())->item_image;
+                        @endphp
 
-                    @if($imagePath && Storage::exists('public/images/' . $imagePath))
-                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->item_name }}">
-                    @else
-                    <span>商品画像</span>
-                    @endif
-                </div>
-                <h3 class="item-name">{{ $item->item_name }}</h3>
+                        @if($imagePath && Storage::exists('public/images/' . $imagePath))
+                        <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->item_name }}">
+                        @else
+                        <span>商品画像</span>
+                        @endif
+                    </div>
+                    <h3 class="item-name">{{ $item->item_name }}</h3>
+                </a>
             </div>
             @empty
             <p>出品した商品がありません。</p>
@@ -93,23 +95,26 @@
             @elseif(($page ?? '') === 'buy')
             @forelse($purchasedItems ?? [] as $item)
             <div class="item">
-                <div class="item-image">
-                    @php
-                    $imagePath = optional($item->images->first())->item_image;
-                    @endphp
+                <a href="{{ route('item.show', ['item_id' => $item->id]) }}" class="item-link">
+                    <div class="item-image">
+                        @php
+                        $imagePath = optional($item->images->first())->item_image;
+                        @endphp
 
-                    @if($imagePath && Storage::exists('public/images/' . $imagePath))
-                    <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->item_name }}">
-                    @else
-                    <span>商品画像</span>
-                    @endif
-                    {{-- SOLD 表示 --}}
-                    @if ($item->purchases->isNotEmpty())
-                    <div class="sold-label"></div>
-                    @endif
-                </div>
-                <h3 class="item-name">{{ $item->item_name }}</h3>
+                        @if($imagePath && Storage::exists('public/images/' . $imagePath))
+                        <img src="{{ asset('storage/images/' . $imagePath) }}" alt="{{ $item->item_name }}">
+                        @else
+                        <span>商品画像</span>
+                        @endif
+
+                        @if ($item->purchases->isNotEmpty())
+                        <div class="sold-label"></div>
+                        @endif
+                    </div>
+                    <h3 class="item-name">{{ $item->item_name }}</h3>
+                </a>
             </div>
+
             @empty
             <p>購入した商品はありません。</p>
             @endforelse

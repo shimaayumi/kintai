@@ -35,10 +35,16 @@ body {
     border-radius: 5px;
     font-size: 18px;
     margin-right: 60px;
+    outline: none;
+    /* デフォルトの青枠を消す */
 
 
 }
 
+.search-form input[type="text"]:focus {
+    border: 2px solid #000;
+    /* フォーカス時にも黒枠 */
+}
 
 
 .btn {
@@ -184,7 +190,7 @@ body {
 }
 
 .item-detail h1 {
-    font-size: 44px;
+    font-size: 40px;
   
 }
 
@@ -314,15 +320,40 @@ body {
     font-weight: bold;
 }
 
-.category span {
-    font-size: 18px;
-    padding: 5px 10px;
-    background-color:rgb(218, 218, 218);;
-    border-radius: 20px;
-    margin-left: 40px;
-    /* 「カテゴリー」や「商品の状態」との間隔を調整 */
-    font-weight: normal;
+
+
+.category-block {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
 }
+
+/* 左側の「カテゴリー」 */
+.category-label {
+    width: 140px;
+    font-weight: bold;
+    flex-shrink: 0;
+    font-size: 22px;
+}
+
+/* カテゴリバッジたち */
+.category-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* 各カテゴリバッジ */
+.category-item {
+    font-size: 16px;
+    padding: 2px 10px;
+    background-color: rgb(218, 218, 218);
+    border-radius: 20px;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+
 
 
 
@@ -335,46 +366,9 @@ body {
 
 
 
-.comment-item {
-    display: none;
-}
-.comment {
-    background: rgb(218, 218, 218);
-    padding: 10px;
-    margin-top: 20px;
-   
-}
-
-.comment strong {
-    color: #333;
-    font-size: 14px;
-}
-
-
 
 /* コメント投稿フォーム */
-.comment-form {
-    margin-top: 20px;
-  
-    background: white;
-    border-radius: 8px;
-  
-}
-
-.comment-title{
-font-size: 30px;
-color: #5b5858;
-}
-
-.comment-count {
-    font-size: 30px;
-    color: #5b5858;
-    }
-  
-
-
-
-textarea {
+.form-control {
     width: 100%;
     height: 200px;
     padding: 8px;
@@ -382,7 +376,62 @@ textarea {
     border-radius: 5px;
     font-size: 14px;
     resize: none;
+    font-size: 18px;
+   
+  
+}
 
+.comment-title {
+    font-size: 30px;
+    color: #5b5858;
+}
+
+
+.comment-item {
+    display: none;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    color: #444;
+}
+
+
+.comment {
+    background: rgb(218, 218, 218);
+    padding: 10px;
+    margin-top: 20px;
+
+}
+
+
+
+
+
+.comment-user {
+    font-weight: bold;
+    color: #333;
+}
+
+.comment-text {
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+
+
+.comment-count {
+    font-size: 30px;
+    color: #5b5858;
+}
+
+.comment-form button {
+    background: red;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s ease;
 }
 
 .alert-danger {
@@ -414,52 +463,6 @@ textarea {
 }
 
 
-/* --- コメント欄 --- */
-.comments-section {
-    margin-top: 20px;
-}
-
-.comment-item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    color: #444;
-}
-
-.comment-user {
-    font-weight: bold;
-    color: #333;
-}
-
-.comment-text {
-    margin-top: 5px;
-    line-height: 1.4;
-}
-
-.comment-form textarea {
-    width: 100%;
-    width: 100%;
-        height: 150px;
-        /* 高さを増やす */
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    resize: none;
-    margin-top: 10px;
-    
-}
-
-.comment-form button {
-    background: red;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: 0.2s ease;
-}
-
-
 
 input:focus,
 textarea:focus {
@@ -467,6 +470,32 @@ textarea:focus {
     /* デフォルトの青い枠を消す */
     border: 1px solid black;
     /* 枠線を黒にする */
+}
+
+/* Sold表示 */
+.sold-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 120px solid rgba(255, 0, 0, 0.8);
+    border-right: 120px solid transparent;
+    z-index: 10;
+}
+
+.sold-label::after {
+    content: "SOLD";
+    position: absolute;
+    top: -90px;
+    /* 位置調整 */
+    left: 5px;
+    /* 位置調整 */
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    transform: rotate(-45deg);
+    white-space: nowrap;
 }
 
 @media screen and (max-width: 850px)  {

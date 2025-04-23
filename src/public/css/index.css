@@ -33,6 +33,7 @@ body {
     
 }
 
+
 .search-form input[type='text'] {
     padding: 10px;
     padding-left: 30px;
@@ -40,12 +41,17 @@ body {
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 18px;
-  margin-right: 60px;
+    margin-right: 60px;
+    outline: none;
+    /* デフォルトの青枠を消す */
     
    
 }
 
-
+.search-form input[type="text"]:focus {
+    border: 2px solid #000;
+    /* フォーカス時にも黒枠 */
+}
 
 .btn {
     

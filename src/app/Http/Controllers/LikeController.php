@@ -13,7 +13,7 @@ class LikeController extends Controller
 {
     public function store(Item $item)
     {
-        // ログインユーザー
+      
         $user = Auth::user();
 
         // すでにいいねしている場合は何もしない
@@ -30,7 +30,7 @@ class LikeController extends Controller
 
     public function destroy(Item $item)
     {
-        // ログインユーザー
+       
         $user = Auth::user();
 
         // いいねを解除
@@ -44,27 +44,27 @@ class LikeController extends Controller
     {
         $user = auth()->user();
 
-        // すでにいいねをしているかどうか
+      
         $like = $user->likes()->where('item_id', $item->id)->first();
 
         if ($like) {
-            // いいねを削除
+           
             $like->delete();
             $message = 'Success';
-            $likeCount = $item->likeCount(); // いいねの数を更新
-            $isLiked = false; // いいねを削除したので、likedの状態はfalse
+            $likeCount = $item->likeCount(); 
+            $isLiked = false; 
         } else {
-            // いいねを追加
+           
             $user->likes()->create(['item_id' => $item->id]);
             $message = 'Success';
-            $likeCount = $item->likeCount(); // いいねの数を更新
-            $isLiked = true; // いいねを追加したので、likedの状態はtrue
+            $likeCount = $item->likeCount(); 
+            $isLiked = true; 
         }
 
         return response()->json([
             'message' => $message,
             'likeCount' => $likeCount,
-            'isLiked' => $isLiked, // 状態を返す
+            'isLiked' => $isLiked, 
         ]);
     }
     

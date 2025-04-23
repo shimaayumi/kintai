@@ -14,12 +14,12 @@ class CommentController extends Controller
 
     public function store(CommentRequest $request, $item_id)
     {
-
+     
         // ログインユーザーを取得
         $user = Auth::user();
 
         if (!$user) {
-            return redirect()->route('show.login'); // ログインしていない場合はログインページにリダイレクト
+            return redirect()->route('login'); // ログインしていない場合はログインページにリダイレクト
         }
 
         $validated = $request->validated(); // ← これが必要！
@@ -31,8 +31,8 @@ class CommentController extends Controller
             'comment' => $validated['comment'],
         ]);
 
-      
-        return redirect()->route('show', $item_id)->with('success', 'コメントを投稿しました！');
+
+        return redirect()->route('item.show', $item_id)->with('success', 'コメントを投稿しました！');
     }
 
     // コメント数をカウントするAPI

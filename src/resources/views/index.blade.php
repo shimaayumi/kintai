@@ -45,13 +45,12 @@
     <!-- 🛠️ ページタイトル -->
     <div class="title-links">
         <a href="{{ route('index') }}" class="tab tab-recommended {{ request()->is('/') ? 'active' : '' }}">おすすめ</a>
-        <a href="{{ url('/?page=mylist') }}" class="tab tab-mylist {{ request()->is('mylist') ? 'active' : '' }}">マイリスト</a>
+        <a href="{{ url('/?page=mylist' . (request('keyword') ? '&keyword=' . request('keyword') : '')) }}" class="tab tab-mylist {{ request()->get('page') === 'mylist' ? 'active' : '' }}">マイリスト</a>
     </div>
 
 
-
-    <!-- 🛠️ 商品リスト表示 - おすすめ -->
-    @if(request()->is('/'))
+    {{-- 🛠️ 商品リスト表示（マイリストの場合はログイン中のみ表示） --}}
+    @if($tab !== 'mylist' || Auth::check())
     <div class="item-list">
         @forelse($items as $item)
         <div class="item">
@@ -62,47 +61,17 @@
                     @else
                     <div class="no-image">商品画像</div>
                     @endif
-
-                    {{-- SOLD 表示 --}}
-                    @if ($item->purchases->isNotEmpty())
-                    <div class="sold-label">SOLD</div>
-                    @endif
-                </div>
-                <h3 class="item-name">{{ $item->item_name }}</h3>
-            </a>
-        </div>
-        @empty
-
-        @endforelse
-    </div>
-    @endif
-
-
-    <!-- 🛠️ 商品リスト表示 - マイリスト -->
-    @if(request()->is('mylist'))
-    <div class="item-list">
-        @forelse($items as $item) {{-- ← $likedItems から $items に変更 --}}
-        <div class="item">
-            <a href="{{ route('show', ['item_id' => $item->id]) }}" class="item-link">
-                <div class="item-image">
-                    @if($item->images && $item->images->isNotEmpty())
-                    <img src="{{ asset('storage/images/' . $item->images->first()->item_image) }}" alt="{{ $item->item_name }}">
-                    @else
-                    <div class="no-image">商品画像</div>
-                    @endif
                     @if ($item->sold_flag)
-                    <div class="sold-label">SOLD</div>
+                    <div class="sold-label"></div>
                     @endif
                 </div>
                 <h3 class="item-name">{{ $item->item_name }}</h3>
             </a>
         </div>
         @empty
-
+        <p>マイリストに商品がありません。</p>
         @endforelse
     </div>
+    @else
+    <p></p>
     @endif
-
-</body>
-
-</html>

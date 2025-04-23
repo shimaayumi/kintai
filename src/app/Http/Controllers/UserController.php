@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-   
 
     // 出品した商品一覧を表示するメソッド
   
@@ -31,64 +30,7 @@ class UserController extends Controller
         return view('mypage', ['items' => $items]);
     }
 
-
-
-
-    //プロフィール編集画面を表示
-    public function edit()
-    {
-        $user = auth()->user(); // 現在ログイン中のユーザーを取得
-        $address = $user->address;
-
-        return view('profile_edit', compact('user', 'address'));
-    }
-
-    public function editProfile(Request $request)
-    {
-        $user = auth()->user();
-
-        // 1. AddressRequestのバリデーションを実行
-        $addressValidator = Validator::make($request->all(), (new AddressRequest)->rules(), (new AddressRequest)->messages());
-        if ($addressValidator->fails()) {
-            return back()->withErrors($addressValidator)->withInput();
-        }
-
-        // 2. ProfileRequestのバリデーションを実行
-        $profileValidator = Validator::make($request->all(), (new ProfileRequest)->rules(), (new ProfileRequest)->messages());
-        if ($profileValidator->fails()) {
-            return back()->withErrors($profileValidator)->withInput();
-        }
-
-        // バリデーション通過後、値を取得
-        $validated = array_merge($addressValidator->validated(), $profileValidator->validated());
-
-        // プロフィール画像の処理
-        if ($request->hasFile('profile_image')) {
-            $filename = $request->file('profile_image')->store('public/profiles');
-            $profileImage = basename($filename);
-        } else {
-            $profileImage = $user->profile ? $user->profile->profile_image : 'default.png';
-        }
-
-        // 名前の更新
-        $user->name = $validated['name'];
-        $user->save();
-
-        // プロフィール画像の保存または更新
-        $user->profile()->updateOrCreate(
-            ['user_id' => $user->id],
-            ['profile_image' => $profileImage]
-        );
-
-        // 住所情報の保存または更新
-        $user->address()->updateOrCreate([], [
-            'postal_code' => $validated['postal_code'],
-            'address' => $validated['address'],
-            'building' => $validated['building'],
-        ]);
-
-        return redirect()->route('edit.Profile')->with('success', 'プロフィールが更新されました');
-    }
+    
 
     public function showMyList()
     {
@@ -120,47 +62,63 @@ class UserController extends Controller
     }
 
 
-    public function store(Request $request)
+
+    //プロフィール編集画面を表示
+    public function edit()
     {
-        $user = Auth::user();
+        $user = auth()->user(); // 現在ログイン中のユーザーを取得
+        $address = $user->address;
 
-        // 1. AddressRequest を手動バリデーション
-        $addressValidator = app(AddressRequest::class);
-        $addressData = $this->validate($request, $addressValidator->rules(), $addressValidator->messages());
+        return view('profile_edit', compact('user', 'address'));
+    }
 
-        // 2. ProfileRequest を手動バリデーション
-        $profileValidator = app(ProfileRequest::class);
-        $profileData = $this->validate($request, $profileValidator->rules(), $profileValidator->messages());
 
-        
-        // プロフィール画像の保存
+      
+    
+       
+
+    public function editProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        // 1. AddressRequestのバリデーションを実行
+        $addressValidator = Validator::make($request->all(), (new AddressRequest)->rules(), (new AddressRequest)->messages());
+        if ($addressValidator->fails()) {
+            return back()->withErrors($addressValidator)->withInput();
+        }
+
+        // 2. ProfileRequestのバリデーションを実行
+        $profileValidator = Validator::make($request->all(), (new ProfileRequest)->rules(), (new ProfileRequest)->messages());
+        if ($profileValidator->fails()) {
+            return back()->withErrors($profileValidator)->withInput();
+        }
+
+        // バリデーション通過後、値を取得
+        $validated = array_merge($addressValidator->validated(), $profileValidator->validated());
+
+        // プロフィール画像の処理
         if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('public/profiles');
-            $filename = basename($path);
-
-            // プロフィール画像を保存
-            $user->profile()->updateOrCreate(
-                ['user_id' => $user->id],
-                ['profile_image' => $filename]
-            );
+            $filename = $request->file('profile_image')->store('public/profiles');
+            $profileImage = basename($filename);
+        } else {
+            $profileImage = $user->profile ? $user->profile->profile_image : 'default.png';
         }
 
-        // ユーザー名の更新（必要なら）
-        if ($request->filled('name')) {
-            $user->name = $request->input('name');
-            $user->save();
-        }
+      
 
-        // 住所の保存
-        $user->address()->updateOrCreate(
+        // プロフィール画像の保存または更新
+        $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
-            [
-                'postal_code' => $request->input('postal_code'),
-                'address' => $request->input('address'),
-                'building' => $request->input('building'),
-            ]
+            ['profile_image' => $profileImage]
         );
 
-        return redirect()->route('mypage')->with('success', 'プロフィール情報を保存しました。');
+        // 住所情報の保存または更新
+        $user->address()->updateOrCreate([], [
+            'postal_code' => $validated['postal_code'],
+            'address' => $validated['address'],
+            'building' => $validated['building'],
+        ]);
+
+        return redirect()->route('mypage')->with('success', 'プロフィールが更新されました');
     }
 }

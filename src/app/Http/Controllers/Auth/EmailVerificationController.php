@@ -26,7 +26,7 @@ class EmailVerificationController extends Controller
     {
         // ユーザーが既に認証されている場合
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->route('edit.Profile'); // プロフィール編集画面にリダイレクト（ルート名を確認）
+            return redirect()->route('edit'); // プロフィール編集画面にリダイレクト（ルート名を確認）
         }
 
         // メールを認証する
@@ -35,7 +35,7 @@ class EmailVerificationController extends Controller
         }
 
         // 認証後、プロフィール編集画面にリダイレクト
-        return redirect()->route('edit.Profile')->with('verified', true);
+        return redirect()->route('edit')->with('verified', true);
     }
 
 

@@ -24,14 +24,16 @@ class AddressRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => 'required|string', // お名前は必須、文字列
-            'postal_code' => 'required|regex:/^\d{3}-\d{4}$/', // 郵便番号は必須、ハイフンありの8文字（XXX-XXXX）
-            'address' => 'required|string', // 住所は必須、文字列
-            'building' => 'required|string', // 建物名は必須、文字列
+        $rules = [
+            'postal_code' => 'required|regex:/^\d{3}-\d{4}$/',
+            'address' => 'required|string',
+            'building' => 'required|string',
+          
         ];
-    }
 
+
+        return $rules;
+    }
     /**
      * バリデーションエラーメッセージをカスタマイズする。
      *

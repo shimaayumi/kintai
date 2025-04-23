@@ -45,6 +45,11 @@
         <!-- 商品詳細ページ -->
         <div class="item-details">
             <div class="item-image">
+                @if($item->purchases->isNotEmpty())
+                <!-- 購入済みの場合、SOLDラベルを表示 -->
+                <div class="sold-label"></div>
+                @endif
+
                 @foreach($images as $image)
                 <div>
                     <p>{{ $image->item_image }}</p> <!-- 画像ファイル名を出す -->
@@ -60,7 +65,7 @@
             <!-- 右側 商品情報 -->
             <div class="item-info">
                 <h1 class="item-title">{{ $item->item_name }}</h1>
-                <p class="brand-name">ブランド名{{ $item->brand_name }}</p>
+                <p class="brand-name">ブランド名 {{ $item->brand_name }}</p>
 
 
                 <div class="price">
@@ -96,8 +101,9 @@
 
 
 
-                <form action="{{ route('purchase.show', ['id' => $item->id]) }}" method="get">
-                    @csrf
+                <form action="{{ route('purchase.show', ['item_id' => $item->id]) }}" method="get">
+
+
                     <button type="submit" class="btn btn-primary">購入手続きへ</button>
                 </form>
 
@@ -108,10 +114,13 @@
                 <h3 class="section-title">商品の情報</h3>
                 <!-- カテゴリー表示 -->
                 <div class="item-container">
-                    <div class="category">カテゴリー
-                        @foreach($categories as $category)
-                        <span>{{ $category->category_name }}</span>
-                        @endforeach
+                    <div class="category-block">
+                        <span class="category-label">カテゴリー</span>
+                        <div class="category-items">
+                            @foreach($categories as $category)
+                            <span class="category-item">{{ $category->category_name }}</span>
+                            @endforeach
+                        </div>
                     </div>
                     <div class="item-status">商品の状態 <span>{{ $item->status }}</span></div>
                 </div>
@@ -162,7 +171,7 @@
                     @csrf
 
                     <h3 class="section-comment_title">商品へのコメント</h3>
-                    <textarea name="comment">{{ old('comment') }}</textarea>
+                    <textarea name="comment" class="form-control">{{ old('comment') }}</textarea>
                     @if ($errors->has('comment'))
                     <div class="alert-danger">
                         {{ $errors->first('comment') }}
@@ -189,7 +198,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         },
-                        body: JSON.stringify({}) // ← ここ正しい位置に！
+                        body: JSON.stringify({})
                     })
                     .then(response => response.json())
                     .then(data => {

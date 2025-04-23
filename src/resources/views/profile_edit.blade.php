@@ -44,8 +44,10 @@
         <h1 class="profile-header">プロフィール設定</h1>
 
 
-        <form action="{{ route('address.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('edit.Profile') }}" method="POST" enctype="multipart/form-data">
             @csrf
+
+
 
 
 

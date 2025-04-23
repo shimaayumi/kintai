@@ -93,8 +93,12 @@
                     <!-- 住所変更ボタン -->
                     <div class="address-method__button">
                         @if(isset($item))
-                        <a href="{{ route('address.change', ['item_id' => $item->id]) }}" class="btn-change-address">変更する</a>
+
+                        <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">住所を編集</a>
                         @endif
+
+
+                        </a>
                     </div>
                 </div>
 
@@ -226,7 +230,7 @@
                 });
         });
     </script>
-    
+
 </body>
 
 

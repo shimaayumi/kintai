@@ -41,25 +41,35 @@
         </div>
     </header>
 
+    @if ($errors->any())
+    <div class="error-messages">
+        <ul>
+            @foreach ($errors->all() as $error)
+            <li style="color:red">{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
     <div class="container">
         <h1>住所の変更</h1>
 
-        <form action="{{ route('edit.Profile') }}" method="POST">
+        <form method="POST" action="{{ route('address.update', ['item_id' => $item->id]) }}">
             @csrf
+             <input type="hidden" name="item_id" value="{{ $item->id ?? '' }}">
             <!-- 住所変更フォーム -->
             <div class="form-group">
                 <label for="postal_code">郵便番号</label>
-                <input type="text" name="postal_code" id="postal_code" class="form-control" value="{{ $userAddress->postal_code }}" required>
+                <input type="text" name="postal_code" id="postal_code" class="form-control" value="{{ $address->postal_code }}" required>
             </div>
 
             <div class="form-group">
                 <label for="address">住所</label>
-                <input type="text" name="address" id="address" class="form-control" value="{{ $userAddress->address }}" required>
+                <input type="text" name="address" id="address" class="form-control" value="{{ $address->address }}" required>
             </div>
 
             <div class="form-group">
                 <label for="building">建物名</label>
-                <input type="text" name="building" id="building" class="form-control" value="{{ $userAddress->building }}">
+                <input type="text" name="building" id="building" class="form-control" value="{{ $address->building }}">
             </div>
 
             <div class="button-container">

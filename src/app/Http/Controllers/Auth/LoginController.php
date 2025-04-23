@@ -30,7 +30,7 @@ class LoginController extends Controller
             return redirect()->intended('/');
         }
 
-        return back()->withErrors(['email' => 'ログイン情報が正しくありません。']);
+        return back()->withErrors(['email' => 'ログイン情報が登録されていません']);
     }
 
     public function logout()

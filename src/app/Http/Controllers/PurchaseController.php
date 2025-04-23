@@ -41,8 +41,8 @@ class PurchaseController extends Controller
 
             // 価格を作成
             $stripePrice = \Stripe\Price::create([
-                'unit_amount' => $item->price * 100,  // 商品価格（100倍して小数点を消す）
-                'currency' => 'jpy',                  // 通貨（日本円）
+                'unit_amount' => $item->price,
+                'currency' => 'jpy',            
                 'product' => $stripeProduct->id,      // 商品IDを指定
             ]);
 
@@ -107,7 +107,7 @@ class PurchaseController extends Controller
         try {
             // PaymentIntentを作成
             $paymentIntent = $stripe->paymentIntents->create([
-                'amount' => $item->price * 100,  // 価格を100倍して小数点を削除
+                'amount' => $item->price,
                 'currency' => 'jpy',
                 'payment_method' => $paymentMethod,
                 'confirmation_method' => 'manual',
@@ -129,83 +129,20 @@ class PurchaseController extends Controller
     // 購入失敗時の処理
     public function failed(Request $request)
     {
-        // エラーメッセージがある場合はそれを表示
+       
         $error = $request->session()->get('error', '購入処理中にエラーが発生しました。');
         return view('purchase', ['error' => $error]);
     }
 
-    // 住所変更ページの表示
-    public function changeAddress($id)
-    {
-        if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'ログインしてください。');
-        }
-
-        $user = auth()->user();
-        $item = Item::findOrFail($id);  // 商品IDでアイテムを取得
-        $userAddress = $user->address ?? null;
-
-        return view('address_edit', compact('item', 'userAddress'));
-    }
-
-    // 住所更新処理
-    public function updateAddress(Request $request, $id)
-    {
-        if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'ログインしてください。');
-        }
-
-        // 住所更新のためのバリデーション
-        $request->validate([
-            'postal_code' => 'required|string',
-            'address' => 'required|string',
-            'building' => 'nullable|string',
-        ]);
-
-        $user = auth()->user();
-        $item = Item::findOrFail($id);
-
-        // 住所がすでに存在する場合は更新、存在しない場合は新規作成
-        if ($user->address) {
-            $user->address()->update([
-                'postal_code' => $request->postal_code,
-                'address' => $request->address,
-
-                'building' => $request->building,
-            ]);
-        } else {
-            $user->address()->create([
-                'postal_code' => $request->postal_code,
-                'address' => $request->address,
-                'building' => $request->building,
-            ]);
-        }
-
-        return redirect()->route('purchase.show', ['id' => $id])->with('success', '住所を更新しました！');
-    }
-
-    // 購入ページの表示
-    public function purchase($itemId)
-    {
-        $item = Item::findOrFail($itemId);
-        $user = Auth::user(); // ログインユーザー情報を取得
-        return view('purchase', compact('item', 'user')); // item と user をビューに渡す
-    }
 
 
-
+    
     public function show($item_id)
     {
-        // 例: 現在ログイン中のユーザーを取得
         $user = auth()->user();
-
-        // ユーザーの住所情報を取得
         $address = $user->address;
-
-        // アイテム情報を取得
-        $item = Item::find($item_id);
-
-        // ビューに住所情報とアイテム情報を渡す
+        $item = Item::findOrFail($item_id);
+     
         return view('purchase', compact('item', 'address', 'user'));
     }
 
@@ -215,43 +152,8 @@ class PurchaseController extends Controller
         return view('purchase.cancel');
     }
 
-    // 商品購入
-    public function store(Request $request, $itemId)
-    {
-        // $request を利用して支払い方法を取得
-        $paymentMethod = $request->input('payment_method');
-
-        // 支払い方法が正しいか再確認
-        if ($paymentMethod !== 'convenience_store' && $paymentMethod !== 'credit_card') {
-
-            return redirect()->route('items.index')->with('error', '無効な支払い方法が選択されました。');
-        }
-
-        // 商品の情報を取得
-        $item = Item::findOrFail($itemId);
-
-        // すでに売り切れの場合、購入できないようにする
-        if ($item->sold_flag) {
-            return redirect()->route('items.index')->with('error', 'この商品はすでに売り切れています。');
-        }
-
-        // 購入処理を保存
-        $purchase = new Purchase();
-        $purchase->user_id = Auth::id();
-        $purchase->item_id = $item->id;
-        $purchase->price = $item->price;
-        $purchase->address_id = Auth::user()->address->id;
-        $purchase->payment_method = $paymentMethod; // 正しく取得した支払い方法を保存
-
-        $purchase->save();
-
-        // 商品の状態を「sold」に更新
-        $item->sold_flag = 1;
-        $item->save();
-
-        // 購入完了後、プロフィールページにリダイレクト
-        return redirect()->route('profile.purchases')->with('success', '購入が完了しました。');
-    }
+    
+    
 
     // 購入履歴ページの表示
     public function showPurchaseHistory($id)

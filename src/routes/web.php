@@ -5,6 +5,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Fortify;
 use App\Http\Controllers\LikeController;
@@ -37,7 +38,7 @@ Route::post('/email/verification-notification', [EmailVerificationController::cl
 Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('item.show'); // 商品詳細
 Route::match(['get', 'post'], '/', [ItemController::class, 'index'])->name('index');
 
-Route::post('/mylist', [ItemController::class, 'showMyList']);
+
 
 
 
@@ -51,11 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/{item_id}/delete', [ItemController::class, 'destroy'])->name('items.delete'); // 商品削除
     
     
-    
-    
 });
-
-
 
 
 Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -63,43 +60,30 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/', [LoginController::class, 'logout'])->name('logout');
 
 
+Route::middleware(['auth'])->group(
+    function () {
+        // マイページ表示
+        Route::get('/mypage', [UserController::class, 'mypage'])->name('mypage');
+
+        // プロフィール編集フォーム表示
+        Route::get('/mypage/profile', [UserController::class, 'edit'])->name('edit');
+
+        // プロフィール更新処理
+        Route::post('/mypage/profile', [UserController::class, 'editProfile'])->name('edit.Profile');
+
+       
+    }
+);
+
 Route::middleware(['auth'])->group(function () {
-    // マイページ表示
-    Route::get('/mypage', [UserController::class, 'mypage'])->name('mypage');
-
-    // プロフィール編集フォーム表示
-    Route::get('/mypage/profile', [UserController::class, 'edit'])->name('edit');
-
-    // プロフィール更新処理
-    Route::post('/mypage/profile', [UserController::class, 'editProfile'])->name('edit.Profile');
-
-    // 住所保存
-    Route::post('/address/store', [UserController::class, 'store'])->name('address.store');
-
-    // 住所編集フォーム
-    Route::get('/address/edit/{id}', [UserController::class, 'edit'])->name('address.edit');
-
-    // 新規住所作成フォーム
-    Route::get('/address/create', [UserController::class, 'create'])->name('address.create');
-   
-
-
-
-
-
     // 購入確認
     Route::post('purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('confirm');
+    
 
     // 購入完了ページ
     Route::get('purchase/complete', [PurchaseController::class, 'complete'])->name('complete');
-
-    
-});
-
-Route::middleware(['auth'])->group(function () {
     // 住所変更ページ
-    Route::get('/purchase/address/{item_id}', [PurchaseController::class, 'changeAddress'])->name('address.change');
-    Route::post('/address/{item_id}/update', [PurchaseController::class, 'updateAddress'])->name('Address.update');
+   
 
     // 購入成功・キャンセルページ
     Route::get('/purchase/success', [PurchaseController::class, 'success'])->name('purchase.success');
@@ -111,41 +95,22 @@ Route::middleware(['auth'])->group(function () {
 });
    
 
-   
-
     // 購入処理（POSTメソッド）
     Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
     Route::post('/purchase/{item_id}', [PurchaseController::class, 'confirmPurchase'])->name('confirmPurchase');
 
     // 購入詳細表示ページ
-    Route::get('/purchase/{item_id}', [PurchaseController::class, 'purchase'])->name('show');
-    Route::get('/purchase/{item_id}', [PurchaseController::class, 'failed'])->name('purchase.failed');
-    
-
   
-        
+    Route::get('/purchase/{item_id}', [PurchaseController::class, 'failed'])->name('purchase.failed');
+
+   Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Route::middleware('auth')->get('/mylist', [ItemController::class, 'showMyList'])->name('mylist');
 
 Route::post('/items/{id}/comment', [CommentController::class, 'store'])->name('items.comment');
 Route::get('/items/{item}/comment-count', [CommentController::class, 'count'])->name('items.comment.count');
-
-
 
 
 
@@ -163,6 +128,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/toggle-like/{item}', [LikeController::class, 'toggleLike'])->name('items.toggleLike');
 
   
+});
+
+Route::middleware(['auth'])->group(function () {
+    // 編集画面を表示
+    Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
+    // 編集結果を保存
+    Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
+
+   
 });
 
 
