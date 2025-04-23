@@ -10,14 +10,18 @@ use App\Models\Address;
 use App\Models\User;
 use App\Models\Purchase;
 use Stripe\Stripe;
-use Stripe\Checkout\Session;
+use App\Http\Requests\PurchaseRequest;
 
 class PurchaseController extends Controller
 {
-    public function purchaseConfirm(Request $request, $itemId)
+    public function purchaseConfirm(PurchaseRequest $request, $itemId)
     {
 
 
+        $validated = $request->validated();
+        if (!$validated) {
+            return back()->withErrors($request)->withInput();
+        }
         // 商品情報を取得
         $item = Item::findOrFail($itemId);
 
@@ -152,55 +156,10 @@ class PurchaseController extends Controller
         return view('purchase.cancel');
     }
 
-    
-    
-
-    // 購入履歴ページの表示
-    public function showPurchaseHistory($id)
-    {
-        $user = auth()->user();
-
-        if (!$user || $user->id != $id) {
-            return redirect()->route('login')->with('error', 'ログインしてください。');
-        }
-
-        // 購入履歴を取得
-        $purchases = Purchase::where('user_id', $user->id)->with('item')->get();
-
-        return view('purchase_history', compact('purchases'));
-    }
 
     public function success()
     {
         return view('purchase_success'); // 成功時に表示するビュー
     }
 
-    public function handleWebhook(Request $request)
-    {
-        $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-        $event = null;
-
-        try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload,
-                $sig_header,
-                env('STRIPE_WEBHOOK_SECRET')
-            );
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Webhook error: ' . $e->getMessage()], 400);
-        }
-
-        if ($event->type === 'checkout.session.completed') {
-            $session = $event->data->object;
-            // 購入情報を更新
-            $purchase = Purchase::where('stripe_session_id', $session->id)->first();
-            if ($purchase) {
-                $purchase->status = 'completed';
-                $purchase->save();
-            }
-        }
-
-        return response()->json(['status' => 'success']);
-    }
 }

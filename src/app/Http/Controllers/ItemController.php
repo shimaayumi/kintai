@@ -70,7 +70,7 @@ namespace App\Http\Controllers;
                     $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
                 }
 
-                // ✅ ビューに items を渡してる
+              
                 return view('index', [
                     'items' => $likedItems,
                     'categories' => $this->getCategories($request),
@@ -95,7 +95,7 @@ namespace App\Http\Controllers;
                     $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
                 }
 
-                // ✅ ビューに渡す
+            
                 return view('index', [
                     'items' => $items,
                     'categories' => $this->getCategories($request),

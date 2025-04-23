@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\UserController;
@@ -9,7 +8,6 @@ use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Fortify;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -19,6 +17,12 @@ use PHPUnit\Framework\Constraint\LogicalXor;
 
 Route::post('/register', [RegisterController::class, 'store']);
 // メール認証ページの表示
+
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
 Route::get('/email/verify', [EmailVerificationController::class, 'show'])->middleware('auth')->name('verification.notice');
 
 // メール認証処理
@@ -41,8 +45,6 @@ Route::match(['get', 'post'], '/', [ItemController::class, 'index'])->name('inde
 
 
 
-
-
 // 商品出品・編集・削除（認証ユーザー専用）
 Route::middleware('auth')->group(function () {
     Route::get('/sell', [ItemController::class, 'create'])->name('sell'); // 出品ページ
@@ -55,9 +57,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('/login', [LoginController::class, 'show'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/', [LoginController::class, 'logout'])->name('logout');
 
 
 Route::middleware(['auth'])->group(
@@ -78,11 +77,13 @@ Route::middleware(['auth'])->group(
 Route::middleware(['auth'])->group(function () {
     // 購入確認
     Route::post('purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('confirm');
-    
+
+    // 購入詳細表示ページ
+    Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
 
     // 購入完了ページ
     Route::get('purchase/complete', [PurchaseController::class, 'complete'])->name('complete');
-    // 住所変更ページ
+   
    
 
     // 購入成功・キャンセルページ
@@ -90,8 +91,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/cancel', [PurchaseController::class, 'cancel'])->name('purchase.cancel');
     Route::post('/purchase/{itemId}', [PurchaseController::class, 'purchaseConfirm'])->name('purchase.confirm');
 
-    // 購入詳細表示ページ
-    Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
+  
 });
    
 

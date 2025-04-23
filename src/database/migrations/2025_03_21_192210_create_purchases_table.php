@@ -19,13 +19,12 @@ class CreatePurchasesTable extends Migration
             $table->foreignId('item_id')->constrained('items');
             $table->foreignId('address_id')->constrained('addresses');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // usersテーブルの外部キーとしてuser_idを追加
-    
-            $table->enum('payment_method', ['credit_card', 'convenience_store']); // payment_method (enum)
+            $table->enum('payment_method', ['credit_card', 'convenience_store']); 
             $table->integer('price');
            
             $table->string('shipping_postal_code');
             $table->string('shipping_address');
-            $table->string('shipping_building')->nullable();
+            $table->string('shipping_building');
         
             $table->timestamps(); // created_at, updated_at
            

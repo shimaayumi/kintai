@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\LoginRequest;
 
@@ -36,7 +35,12 @@ class LoginController extends Controller
     public function logout()
     {
         Auth::logout();
-        return redirect()->route('index');
+
+        // セッションを無効化したい場合（任意）
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect('/'); // トップページにリダイレクト
     }
    
 }

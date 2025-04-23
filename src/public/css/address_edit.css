@@ -174,4 +174,10 @@ button[type="submit"]:hover {
     background-color: darkred;
 }
 
+.error-messages {
+    color:red;
+    margin-left: 28vw;
+   
+    text-align: left;
+}
 

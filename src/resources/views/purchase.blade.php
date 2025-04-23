@@ -44,6 +44,16 @@
         </div>
     </header>
 
+
+    @if($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
     <div class="container">
 
         <!-- 左側の商品情報・配送先情報 -->
@@ -75,7 +85,7 @@
             <!-- 支払い方法選択 -->
             <div class="form-group">
                 <label class="payment_method">支払い方法</label>
-                <select name="payment_method" id="payment_method" class="form-control custom-select" required onchange="displaySelectedPaymentMethod()">
+                <select name="payment_method" id="payment_method" class="form-control custom-select" onchange="displaySelectedPaymentMethod()">
                     <option value="" disabled selected>選択してください</option>
                     <option value="convenience_store">コンビニ支払い</option>
                     <option value="credit_card">カード支払い</option>
@@ -94,7 +104,7 @@
                     <div class="address-method__button">
                         @if(isset($item))
 
-                        <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">住所を編集</a>
+                        <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">変更する</a>
                         @endif
 
 

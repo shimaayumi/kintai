@@ -19,7 +19,7 @@ class CreateAddressesTable extends Migration
        
             $table->string('postal_code')->default('000-0000');
             $table->string('address');
-            $table->string('building')->nullable();
+            $table->string('building');
             $table->timestamps();
         });
     }

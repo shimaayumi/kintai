@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Address;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\AddressRequest;
 use Illuminate\Support\Facades\Validator;
@@ -19,18 +18,20 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
-    // 出品した商品一覧を表示するメソッド
-  
-    public function listingHistory()
+    // マイページの表示
+    public function mypage()
     {
-        // ログインしているユーザーが出品した商品を取得（画像も一緒に取得）
-        $items = Item::with('images')->where('user_id', Auth::id())->get();
+        $page = request()->get('page', 'sell');
+        $user = auth()->user();
 
-        // ビューに出品商品を渡す
-        return view('mypage', ['items' => $items]);
+        $sellItems = $user->items()->with('images')->get();
+        $purchasedItems = $user->purchasedItems()->with('images')->get();
+        $likedItems = $user->likes()->with('item')->get();
+
+        return view('profile', compact('page', 'user', 'sellItems', 'purchasedItems', 'likedItems'));
     }
 
-    
+
 
     public function showMyList()
     {
@@ -47,35 +48,6 @@ class UserController extends Controller
     }
 
 
-
-    // マイページの表示
-    public function mypage()
-    {
-        $page = request()->get('page', 'sell'); 
-        $user = auth()->user();
-
-        $sellItems = $user->items()->with('images')->get();
-        $purchasedItems = $user->purchasedItems()->with('images')->get();
-        $likedItems = $user->likes()->with('item')->get();
-
-        return view('profile', compact('page', 'user', 'sellItems', 'purchasedItems', 'likedItems'));
-    }
-
-
-
-    //プロフィール編集画面を表示
-    public function edit()
-    {
-        $user = auth()->user(); // 現在ログイン中のユーザーを取得
-        $address = $user->address;
-
-        return view('profile_edit', compact('user', 'address'));
-    }
-
-
-      
-    
-       
 
     public function editProfile(Request $request)
     {
@@ -120,5 +92,17 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('mypage')->with('success', 'プロフィールが更新されました');
+    }
+
+
+
+
+    //プロフィール編集画面を表示
+    public function edit()
+    {
+        $user = auth()->user(); // 現在ログイン中のユーザーを取得
+        $address = $user->address;
+
+        return view('profile_edit', compact('user', 'address'));
     }
 }
