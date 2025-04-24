@@ -25,21 +25,20 @@ class PurchaseRequest extends FormRequest
     public function rules()
     {
         return [
-            'payment_method' => 'required|string', // 支払い方法は必須、文字列
-            'shipping_address' => 'required|string', // 配送先は必須、文字列
+            'payment_method' => 'required|in:convenience_store,credit_card',
+            'address.postal_code' => 'required|string',
+            'address.address' => 'required|string',
+            'address.building' => 'required|string',
         ];
     }
 
-    /**
-     * バリデーションエラーメッセージをカスタマイズする。
-     *
-     * @return array
-     */
     public function messages()
     {
         return [
-            'payment_method.required' => '支払い方法は必須です。',
-            'shipping_address.required' => '配送先は必須です。',
+            'payment_method.required' => '支払い方法は必須です',
+            'address.postal_code.required' => '郵便番号は必須です',
+            'address.address.required' => '住所は必須です',
+            'address.building.required' => '建物名は必須です',
         ];
     }
 

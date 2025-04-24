@@ -52,8 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/items/{item_id}/edit', [ItemController::class, 'edit'])->name('items.edit'); // 商品編集ページ
     Route::post('/items/{item_id}/update', [ItemController::class, 'update'])->name('items.update'); // 商品更新
     Route::post('/items/{item_id}/delete', [ItemController::class, 'destroy'])->name('items.delete'); // 商品削除
-    
-    
+
+
 });
 
 
@@ -69,8 +69,6 @@ Route::middleware(['auth'])->group(
 
         // プロフィール更新処理
         Route::post('/mypage/profile', [UserController::class, 'editProfile'])->name('edit.Profile');
-
-       
     }
 );
 
@@ -79,32 +77,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('confirm');
 
     // 購入詳細表示ページ
-    Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
+    Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
 
     // 購入完了ページ
     Route::get('purchase/complete', [PurchaseController::class, 'complete'])->name('complete');
-   
-   
+
+
 
     // 購入成功・キャンセルページ
     Route::get('/purchase/success', [PurchaseController::class, 'success'])->name('purchase.success');
     Route::get('/purchase/cancel', [PurchaseController::class, 'cancel'])->name('purchase.cancel');
-    Route::post('/purchase/{itemId}', [PurchaseController::class, 'purchaseConfirm'])->name('purchase.confirm');
-
-  
+    Route::post('/purchase/{item_id}/checkout', [PurchaseController::class, 'checkout'])->name('purchase.checkout');
 });
-   
-
-    // 購入処理（POSTメソッド）
-    Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
-    Route::post('/purchase/{item_id}', [PurchaseController::class, 'confirmPurchase'])->name('confirmPurchase');
-
-    // 購入詳細表示ページ
-  
-    Route::get('/purchase/{item_id}', [PurchaseController::class, 'failed'])->name('purchase.failed');
-
-   Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
-
 
 
 
@@ -126,8 +110,6 @@ Route::middleware(['auth'])->group(function () {
 
     // ユーザーの「いいね」状態をトグルする
     Route::post('/toggle-like/{item}', [LikeController::class, 'toggleLike'])->name('items.toggleLike');
-
-  
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -135,8 +117,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
     // 編集結果を保存
     Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
-
-   
 });
-
-

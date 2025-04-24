@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>fleamarket</title>
     <link rel="stylesheet" href="{{ asset('css/sanitize.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/purchase.css') }}" />
@@ -45,15 +46,7 @@
     </header>
 
 
-    @if($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
+   
     <div class="container">
 
         <!-- 左側の商品情報・配送先情報 -->
@@ -92,6 +85,8 @@
 
 
                 </select>
+
+                <div id="payment_method_error" class="error-message"></div>
             </div>
             <!-- 配送先情報の表示 -->
 
@@ -125,6 +120,7 @@
                         {{ !empty($user->address) && !empty($user->address->building) ? $user->address->building : '未設定' }}
                     </p>
                 </div>
+                <div id="address_error" class="error-message"></div>
             </div>
 
         </div>
@@ -145,20 +141,15 @@
 
 
             <!-- 購入確認フォーム -->
-            <button id="checkout-button" class="btn btn-primary">購入する</button>
+
+            <button id="checkout-button" class="checkout-button" data-item-id="{{ $item->id }}">購入する</button>
 
         </div>
 
     </div>
 
-    <!-- 購入失敗時にエラーメッセージを表示 -->
-    @if(isset($error))
-    <div class="error-message">
-        <p>{{ $error }}</p>
-    </div>
-    @endif
-    </div>
-
+   
+    
 
 
 
@@ -186,15 +177,26 @@
         }
 
         // 購入ボタン押下時の処理
-        document.getElementById('checkout-button').addEventListener('click', function(event) {
+        document.querySelector('.checkout-button').addEventListener('click', function(event) {
             const paymentMethod = document.getElementById('payment_method').value;
 
+            // エラーボックス取得
+            const paymentErrorBox = document.getElementById('payment_method_error');
+            const addressErrorBox = document.getElementById('address_error');
+
+            // エラー内容初期化
+            paymentErrorBox.textContent = '';
+            addressErrorBox.textContent = '';
+
+            let hasError = false;
+
+            // 支払い方法のバリデーション
             if (!paymentMethod) {
-                alert('支払い方法を選択してください。');
-                event.preventDefault();
-                return;
+                paymentErrorBox.textContent = '支払い方法を選択してください';
+                hasError = true;
             }
 
+            // 配送先のバリデーション
             const address = {
                 postal_code: '{{ $user->address->postal_code ?? "" }}',
                 address: '{{ $user->address->address ?? "" }}',
@@ -202,41 +204,53 @@
             };
 
             if (!address.postal_code || !address.address || !address.building) {
-                alert('住所情報が不足しています。すべての項目を入力してください。');
+                addressErrorBox.textContent = '住所情報が不足しています';
+                hasError = true;
+            }
+
+            if (hasError) {
                 event.preventDefault();
                 return;
             }
 
             const dataToSend = {
                 payment_method: paymentMethod,
-                address: address,
-                name: '{{ $item->item_name }}'
+                address: address
             };
 
             const itemId = '{{ $item->id }}';
 
-            console.log('送信するデータ:', dataToSend);
-
-            fetch(`/purchase/${itemId}`, {
+            fetch(`/purchase/${itemId}/checkout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     },
                     body: JSON.stringify(dataToSend)
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.url) {
-                        window.location.href = data.url;
-                    } else {
-                        alert(data.error || 'エラーが発生しました');
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        });
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    window.location.href = data.url;
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('ネットワークエラーが発生しました。');
+                    // 通信エラーやAPI側のバリデーションエラー
+                    if (error.errors) {
+                        if (error.errors.payment_method) {
+                            paymentErrorBox.textContent = error.errors.payment_method.join(', ');
+                        }
+                        if (error.errors.address) {
+                            addressErrorBox.textContent = error.errors.address.join(', ');
+                        }
+                    } else {
+                        alert('エラーが発生しました: ' + (error.message || '不明なエラー'));
+                    }
                 });
         });
     </script>

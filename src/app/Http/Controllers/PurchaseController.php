@@ -14,16 +14,15 @@ use App\Http\Requests\PurchaseRequest;
 
 class PurchaseController extends Controller
 {
-    public function purchaseConfirm(PurchaseRequest $request, $itemId)
+    public function checkout(PurchaseRequest $request, $item_id)
     {
 
 
         $validated = $request->validated();
-        if (!$validated) {
-            return back()->withErrors($request)->withInput();
-        }
+       
+        
         // 商品情報を取得
-        $item = Item::findOrFail($itemId);
+        $item = Item::findOrFail($item_id);
 
         // 商品名が設定されていない場合はエラーを返す
         if (!$item->item_name) {
@@ -46,7 +45,7 @@ class PurchaseController extends Controller
             // 価格を作成
             $stripePrice = \Stripe\Price::create([
                 'unit_amount' => $item->price,
-                'currency' => 'jpy',            
+                'currency' => 'jpy',
                 'product' => $stripeProduct->id,      // 商品IDを指定
             ]);
 
@@ -133,20 +132,20 @@ class PurchaseController extends Controller
     // 購入失敗時の処理
     public function failed(Request $request)
     {
-       
+
         $error = $request->session()->get('error', '購入処理中にエラーが発生しました。');
         return view('purchase', ['error' => $error]);
     }
 
 
 
-    
+
     public function show($item_id)
     {
         $user = auth()->user();
         $address = $user->address;
         $item = Item::findOrFail($item_id);
-     
+
         return view('purchase', compact('item', 'address', 'user'));
     }
 
@@ -161,5 +160,4 @@ class PurchaseController extends Controller
     {
         return view('purchase_success'); // 成功時に表示するビュー
     }
-
 }

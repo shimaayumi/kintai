@@ -102,7 +102,7 @@
 
 
                 <form action="{{ route('purchase.show', ['item_id' => $item->id]) }}" method="get">
-
+                    
 
                     <button type="submit" class="btn btn-primary">購入手続きへ</button>
                 </form>

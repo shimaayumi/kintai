@@ -126,7 +126,7 @@ body {
 }
 
 .item-name {
-    font-size: 30px;
+    font-size: 28px;
     font-weight: bold;
 }
 
@@ -150,11 +150,23 @@ body {
     padding-top: 10px;
     border-top: 1px solid #656262;
     border-bottom: 1px solid#656262;
+   
 }
 
 .form-group label {
-    margin-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 30px;
     font-weight: bold;
+   
+    font-size: 18px;
+}
+
+.payment-method-block {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
 }
 
 /* セレクトボックスのスタイル */
@@ -180,19 +192,24 @@ body {
 
 .address-method {
     display: flex;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     justify-content: space-between;
+    margin-right: 20px;
 }
 
 .address-method_ttl {
     font-weight: bold;
     width: 100px;
+    font-size: 18px;
 }
 
-.address-method__button {
+.address-method__button a{
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    font-size: 18px;
+    text-decoration: none;
+    color: blue;
   
 
     
@@ -213,7 +230,7 @@ body {
 
 
 .address-postal-code {
-    font-size: 18px;
+    font-size: 16px;
     margin-left: 40px;
     margin-top: 16px;
     margin-bottom: 0;
@@ -221,16 +238,18 @@ body {
 }
 
 .address-detail {
-    font-size: 18px;
+    font-size: 16px;
     margin-bottom: 10px;
     margin-left: 40px;
     font-weight: bold;
+    margin-top: 5px;
 }
 
 .address-building {
-    font-size: 18px;
-    margin-bottom: 40px;
+    font-size: 16px;
+    margin-bottom: 20px;
     font-weight: bold;
+    margin-top: 5px;
 }
 
 .address-wrapper {
@@ -295,7 +314,7 @@ body {
     margin: 20px;
 }
 
-.btn-primary {
+.checkout-button {
     background-color: red;
     color: white;
     border: none;
@@ -336,8 +355,9 @@ body {
 /* エラーメッセージ */
 .error-message {
     color: red;
- 
     margin-bottom: 20px;
+    font-size: 16px;
+    margin-left: 40px;
 }
 
 .custom-select {
@@ -349,7 +369,7 @@ body {
     padding-right: 30px;
     border: 1px solid #656262;
     border-radius: 4px;
-    height: 40px;
+    height: 30px;
 }
 .custom-select:hover,
 .custom-select:focus {
@@ -407,6 +427,7 @@ body {
         border-radius: 5px;
         margin: 10px auto;
         margin-bottom: 20px;
+        height: 40px;
     }
 
     .payment-method-label {

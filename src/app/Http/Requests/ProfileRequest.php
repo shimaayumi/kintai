@@ -16,8 +16,8 @@ class ProfileRequest extends FormRequest
     public function messages()
     {
         return [
-            'profile_image.mimes' => 'プロフィール画像はJPEGまたはPNG形式である必要があります。',
-            'profile_image.max' => 'プロフィール画像は2MB以下でなければなりません。',
+            'profile_image.mimes' => 'プロフィール画像はJPEGまたはPNG形式である必要があります',
+            'profile_image.max' => 'プロフィール画像は2MB以下でなければなりません',
         ];
     }
 }
