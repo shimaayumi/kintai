@@ -27,15 +27,26 @@
 
             <!-- 🛠️ ヘッダーメニュー -->
 
-            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            @auth
+            <!-- ログイン中の表示（ログアウト） -->
+            <a href="{{ route('logout') }}" class="btn"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                ログアウト
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
+            @endauth
+
+            @guest
+            <!-- 未ログインの表示（ログイン） -->
+            <a href="{{ route('login') }}" class="btn">ログイン</a>
+            @endguest
             <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+
             <a href="{{ route('sell') }}" class="btn btn-outlet">
                 <span class="btn-text">出品</span>
             </a>
-
 
         </div>
     </header>
@@ -65,11 +76,9 @@
 
         <!-- タブの切り替え -->
         <div class="tabs">
-            <a href="{{ url('/mypage?page=sell') }}" class="btn {{ ($page ?? '') === 'sell' ? 'active' : '' }}">出品した商品</a>
-
-            <a href="{{ url('/mypage?page=buy') }}" class="btn {{ ($page ?? '') === 'buy' ? 'active' : '' }}">購入した商品</a>
+            <a href="{{ url('/mypage?page=sell') }}" class="btn {{ request('page') === 'sell' ? 'active' : '' }}">出品した商品</a>
+            <a href="{{ url('/mypage?page=buy') }}" class="btn {{ request('page') === 'buy' ? 'active' : '' }}">購入した商品</a>
         </div>
-
         <div class="item-list">
             @if(($page ?? '') === 'sell')
             @forelse(($page === 'sell' ? $sellItems : $purchasedItems) as $item)

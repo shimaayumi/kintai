@@ -124,10 +124,21 @@ body {
     font-weight: bold;
     color: rgb(73, 72, 72);
 }
+.tab.active {
+    color: red;
+ 
+    /* 任意で下線などの装飾も */
+}
+
+.tab.inactive {
+    color: rgb(73, 72, 72);
+    
+}
+
 
 .tab-mylist{
     text-decoration: none;
-    color: red;
+    color: rgb(73, 72, 72);
     font-size: 20px;
     padding: 10px 20px;
     white-space: nowrap;
@@ -213,6 +224,7 @@ body {
 
 /* Sold表示 */
 .sold-label {
+    color: transparent;
     position: absolute;
     top: 0;
     left: 0;

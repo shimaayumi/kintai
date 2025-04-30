@@ -30,31 +30,32 @@ namespace App\Http\Controllers;
             return $categories;
         }
 
-        public function index(Request $request)
-        {
-            
-            $keyword = $request->input('keyword');
-            $tab = $request->input('page', 'all');
+    public function index(Request $request)
+    {
+        $query = Item::query();
+        $items = $query->with('images')->get();
+        $keyword = $request->input('keyword');
+        $tab = $request->input('page', 'all');
 
-            if ($tab === 'mylist') {
-                if (!Auth::check()) {
-                    return view('index', [
-                        'items' => collect(),
-                        'categories' => $this->getCategories($request),
-                        'tab' => $tab,
-                        'keyword' => $keyword,
-                    ]);
-                }
+        if ($tab === 'mylist') {
+            if (!Auth::check()) {
+                return view('index', [
+                    'items' => collect(),
+                    'categories' => $this->getCategories($request),
+                    'tab' => $tab,
+                    'keyword' => $keyword,
+                ]);
+            }
 
-                $user = Auth::user();
-
-
+            $user = Auth::user();
 
             $likedItems = $user->likes()
                 ->with('item.images')
                 ->get()
                 ->pluck('item')
-                ->filter(fn($item) => !is_null($item)) // null除外
+                ->filter(function ($item) use ($user) {
+                    return $item && $item->user_id !== $user->id; // null除外 ＋ 自分が出品した商品を除外
+                })
                 ->groupBy('id') // item_id でグルーピング
                 ->map(fn($group) => $group->first()) // 最初の1つだけ使う
                 ->values(); // 再インデックス化
@@ -66,44 +67,44 @@ namespace App\Http\Controllers;
                 })->values();
             }
 
-                foreach ($likedItems as $item) {
-                    $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
-                }
-
-              
-                return view('index', [
-                    'items' => $likedItems,
-                    'categories' => $this->getCategories($request),
-                    'tab' => $tab,
-                    'keyword' => $keyword,
-                ]);
-            } else {
-              
-                $query = Item::query();
-
-                if ($keyword) {
-                    $query->where('item_name', 'like', "%{$keyword}%");
-                }
-            
-                if (Auth::check()) {
-                    $query->where('user_id', '!=', Auth::id());
-                }
-
-                $items = $query->with('images')->get();
-
-                foreach ($items as $item) {
-                    $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
-                }
-
-            
-                return view('index', [
-                    'items' => $items,
-                    'categories' => $this->getCategories($request),
-                    'tab' => $tab,
-                    'keyword' => $keyword,
-                ]);
+            foreach ($likedItems as $item) {
+                $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
             }
+
+            return view('index', [
+                'items' => $likedItems,
+                'categories' => $this->getCategories($request),
+                'tab' => $tab,
+                'keyword' => $keyword,
+            ]);
+        } else {
+            // 'mylist' 以外の場合、すべての商品を表示
+            $query = Item::query();
+
+            // キーワードでフィルタ
+            if ($keyword) {
+                $query->where('item_name', 'like', "%{$keyword}%");
+            }
+
+            // ログインユーザーが出品した商品を除外
+            if (Auth::check()) {
+                $query->where('user_id', '!=', Auth::id());
+            }
+
+            $items = $query->with('images')->get();
+
+            foreach ($items as $item) {
+                $item->sold_image = $item->sold_flag ? asset('images/sold.png') : asset('images/available.png');
+            }
+
+            return view('index', [
+                'items' => $items,
+                'categories' => $this->getCategories($request),
+                'tab' => $tab,
+                'keyword' => $keyword,
+            ]);
         }
+    }
 
         // --- 商品詳細表示 ---
 
@@ -145,9 +146,7 @@ namespace App\Http\Controllers;
         public function store(ExhibitionRequest $request)
         {
             // リクエストのバリデーション
-            $validated = $request->validate([
-            
-            ]);
+            $validated = $request->validated();
 
             DB::transaction(function () use ($request) {
                 // 商品を作成
@@ -159,6 +158,7 @@ namespace App\Http\Controllers;
                 $item->brand_name = $request->brand_name;
                 $item->sold_flag = 0; // 出品時は未販売
                 $item->categories = json_encode($request->category_id); // 複数カテゴリ選択の場合はJSONで保存
+                
                 $item->save();
 
                 // 画像保存
@@ -181,6 +181,18 @@ namespace App\Http\Controllers;
 
             return redirect()->route('sell')->with('success', '商品が出品されました！');
         }
+
+    public function mypage(Request $request)
+    {
+        $page = $request->query('page', 'sell'); // 'sell' or 'buy'
+
+        // 必要に応じて売買商品データ取得などの処理も追加
+        return view('mypage.index', [
+            'page' => $page,
+            // 'sellItems' => ...,
+            // 'buyItems' => ...,
+        ]);
+    }
 
 
 

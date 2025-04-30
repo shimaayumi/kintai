@@ -11,8 +11,10 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use Illuminate\Http\Request;
-use PHPUnit\Framework\Constraint\LogicalXor;
+use App\Http\Controllers\TestPurchaseController;
+use App\Models\Item;
+
+
 
 
 Route::post('/register', [RegisterController::class, 'store']);
@@ -116,5 +118,16 @@ Route::middleware(['auth'])->group(function () {
     // 編集画面を表示
     Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
     // 編集結果を保存
-    Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
+    Route::put('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
 });
+
+Route::post('/test/purchase/{item}', TestPurchaseController::class)->name('test.purchase');
+
+if (app()->environment('testing')) {
+    Route::post('/test/purchase/{item}', function (Item $item) {
+        $item->sold_flag = 1;
+        $item->save();
+        return response()->json(['message' => '購入完了']);
+    })->name('test.purchase');
+}
+

@@ -134,6 +134,7 @@ body {
     font-size: 26px;
     color: #333;
     margin-top: 10px;
+    text-align: left;
 }
 
 .currency {
@@ -377,6 +378,39 @@ body {
     /* 黒い枠線 */
     outline: none;
     /* デフォルトの青い枠線を消す */
+}
+
+
+.item {
+    position: relative;
+   
+}
+
+/* Sold表示 */
+.sold-label {
+    color: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 80px solid rgba(255, 0, 0, 0.8);
+    border-right: 80px solid transparent;
+    z-index: 10;
+}
+
+.sold-label::after {
+    content: "SOLD";
+    position: absolute;
+    top: -63px;
+    /* 位置調整 */
+    left: 5px;
+    /* 位置調整 */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transform: rotate(-45deg);
+    white-space: nowrap;
 }
 /* タブレットサイズのレスポンシブデザイン */
 @media screen and (max-width: 850px) {

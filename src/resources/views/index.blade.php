@@ -28,10 +28,21 @@
 
             <!-- 🛠️ ヘッダーメニュー -->
 
-            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            @auth
+            <!-- ログイン中の表示（ログアウト） -->
+            <a href="{{ route('logout') }}" class="btn"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                ログアウト
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
+            @endauth
+
+            @guest
+            <!-- 未ログインの表示（ログイン） -->
+            <a href="{{ route('login') }}" class="btn">ログイン</a>
+            @endguest
             <a href="{{ route('mypage') }}" class="btn">マイページ</a>
 
             <a href="{{ route('sell') }}" class="btn btn-outlet">
@@ -44,8 +55,15 @@
 
     <!-- 🛠️ ページタイトル -->
     <div class="title-links">
-        <a href="{{ route('index') }}" class="tab tab-recommended {{ request()->is('/') ? 'active' : '' }}">おすすめ</a>
-        <a href="{{ url('/?page=mylist' . (request('keyword') ? '&keyword=' . request('keyword') : '')) }}" class="tab tab-mylist {{ request()->get('page') === 'mylist' ? 'active' : '' }}">マイリスト</a>
+        <a href="{{ route('index') }}"
+            class="tab tab-recommended {{ !request()->has('page') ? 'active' : '' }}">
+            おすすめ
+        </a>
+
+        <a href="{{ url('/?page=mylist' . (request('keyword') ? '&keyword=' . request('keyword') : '')) }}"
+            class="tab tab-mylist {{ request()->get('page') === 'mylist' ? 'active' : '' }}">
+            マイリスト
+        </a>
     </div>
 
 
@@ -61,15 +79,18 @@
                     @else
                     <div class="no-image">商品画像</div>
                     @endif
+
+
                     @if ($item->sold_flag)
-                    <div class="sold-label"></div>
+                    <div class="sold-label">SOLD</div>
                     @endif
+
                 </div>
                 <h3 class="item-name">{{ $item->item_name }}</h3>
             </a>
         </div>
         @empty
-        <p>マイリストに商品がありません。</p>
+        <p></p>
         @endforelse
     </div>
     @else

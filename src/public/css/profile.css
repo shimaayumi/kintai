@@ -188,13 +188,23 @@ body {
     
 }
 
+.tabs .btn {
+    color: rgb(73, 72, 72);
+    font-size: 18px;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-weight: bold;
+}
 
+.tabs .btn.active {
+    color: red;
+}
 
 .tabs a:first-child {
     margin-left: 100px;
     text-decoration: none;
     font-weight: bold;
-    color: red;
+    
     font-size: 20px;
 }
 
@@ -202,7 +212,7 @@ body {
     margin-left: 50px;
     text-decoration: none;
     font-weight: bold;
-    color: #625e5e;
+
     font-size: 20px;
 }
 

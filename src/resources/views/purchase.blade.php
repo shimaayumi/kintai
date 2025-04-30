@@ -31,22 +31,31 @@
 
             <!-- 🛠️ ヘッダーメニュー -->
 
-            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            @auth
+            <!-- ログイン中の表示（ログアウト） -->
+            <a href="{{ route('logout') }}" class="btn"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                ログアウト
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
+            @endauth
+
+            @guest
+            <!-- 未ログインの表示（ログイン） -->
+            <a href="{{ route('login') }}" class="btn">ログイン</a>
+            @endguest
             <a href="{{ route('mypage') }}" class="btn">マイページ</a>
 
             <a href="{{ route('sell') }}" class="btn btn-outlet">
                 <span class="btn-text">出品</span>
             </a>
-
-
         </div>
     </header>
 
 
-   
+
     <div class="container">
 
         <!-- 左側の商品情報・配送先情報 -->
@@ -55,12 +64,16 @@
                 <div class="col-md-12">
                     <div class="item">
 
+                        @if($item->sold_flag)
+                        <div class="sold-label"></div>
+                        @endif
                         @if(isset($item))
 
                         <img src="{{ asset('storage/images/' . $item->images->first()->item_image) }}" alt="{{ $item->name }}">
                         @else
                         <div class="no-image">商品画像がありません</div>
                         @endif
+
                         <div class="item-info">
                             <div class="item-name">
                                 {{ $item->item_name ?? '商品名がありません' }}
@@ -109,15 +122,14 @@
 
 
                 <p class="address-postal-code"><strong>〒</strong>
-                    {{ !empty($user->address) && !empty($user->address->postal_code) ? $user->address->postal_code : '未設定' }}
+                    {{ $purchase->shipping_postal_code ?? $user->address->postal_code ?? '未設定' }}
                 </p>
 
                 <div class="address-wrapper">
                     <p class="address-detail"><strong></strong>
-                        {{ !empty($user->address) && !empty($user->address->address) ? $user->address->address : '未設定' }}
-                    </p>
+                        {{ $purchase->shipping_address ?? $user->address->address ?? '未設定' }}
                     <p class="address-building"><strong></strong>
-                        {{ !empty($user->address) && !empty($user->address->building) ? $user->address->building : '未設定' }}
+                        {{ $purchase->shipping_building ?? $user->address->building ?? '未設定' }}
                     </p>
                 </div>
                 <div id="address_error" class="error-message"></div>
@@ -148,8 +160,8 @@
 
     </div>
 
-   
-    
+
+
 
 
 
@@ -219,6 +231,7 @@
             };
 
             const itemId = '{{ $item->id }}';
+            console.log(itemId);
 
             fetch(`/purchase/${itemId}/checkout`, {
                     method: 'POST',

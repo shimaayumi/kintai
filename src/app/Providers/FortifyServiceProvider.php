@@ -6,20 +6,14 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use App\Models\User;
-use Illuminate\Auth\Events\Authenticated;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+
+
 
 
 

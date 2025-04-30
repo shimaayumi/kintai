@@ -21,12 +21,13 @@ class Item extends Model
         'description',
         'price',
         'status',
-        'sold_flag' 
+        'sold_flag',
+        'categories'
     ];
 
     protected $casts = [
         'sold_flag' => 'boolean',
-        'categories' => 'array', // categoriesカラムを配列としてキャスト
+        
     ];
 
     // ユーザーとのリレーション
@@ -43,10 +44,9 @@ class Item extends Model
 
 
 
-    // カテゴリとのリレーション
-    public function categories()
+    public function getCategoryListAttribute()
     {
-        return $this->belongsToMany(Category::class);
+        return explode('/', $this->categories); // / で区切って配列にする
     }
 
 

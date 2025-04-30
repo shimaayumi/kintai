@@ -27,11 +27,23 @@
 
             <!-- 🛠️ ヘッダーメニュー -->
 
-            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            @auth
+            <!-- ログイン中の表示（ログアウト） -->
+            <a href="{{ route('logout') }}" class="btn"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                ログアウト
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
+            @endauth
+
+            @guest
+            <!-- 未ログインの表示（ログイン） -->
+            <a href="{{ route('login') }}" class="btn">ログイン</a>
+            @endguest
             <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+
             <a href="{{ route('sell') }}" class="btn btn-outlet">
                 <span class="btn-text">出品</span>
             </a>
@@ -45,8 +57,7 @@
         <!-- 商品詳細ページ -->
         <div class="item-details">
             <div class="item-image">
-                @if($item->purchases->isNotEmpty())
-                <!-- 購入済みの場合、SOLDラベルを表示 -->
+                @if($item->sold_flag)
                 <div class="sold-label"></div>
                 @endif
 
@@ -102,7 +113,7 @@
 
 
                 <form action="{{ route('purchase.show', ['item_id' => $item->id]) }}" method="get">
-                    
+
 
                     <button type="submit" class="btn btn-primary">購入手続きへ</button>
                 </form>

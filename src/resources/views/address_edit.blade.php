@@ -27,17 +27,26 @@
 
             <!-- 🛠️ ヘッダーメニュー -->
 
-            <a href="{{ route('logout') }}" class="btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">ログアウト</a>
+            @auth
+            <!-- ログイン中の表示（ログアウト） -->
+            <a href="{{ route('logout') }}" class="btn"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                ログアウト
+            </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
+            @endauth
+
+            @guest
+            <!-- 未ログインの表示（ログイン） -->
+            <a href="{{ route('login') }}" class="btn">ログイン</a>
+            @endguest
             <a href="{{ route('mypage') }}" class="btn">マイページ</a>
 
             <a href="{{ route('sell') }}" class="btn btn-outlet">
                 <span class="btn-text">出品</span>
             </a>
-
-
         </div>
     </header>
 
@@ -47,11 +56,14 @@
 
         <form method="POST" action="{{ route('address.update', ['item_id' => $item->id]) }}">
             @csrf
+            @method('PUT')
             <input type="hidden" name="item_id" value="{{ $item->id ?? '' }}">
+
             <!-- 住所変更フォーム -->
+
             <div class="form-group">
                 <label for="postal_code">郵便番号</label>
-                <input type="text" name="postal_code" id="postal_code" class="form-control" value="{{ $address->postal_code }}">
+                <input type="text" name="postal_code" id="postal_code" class="form-control" value="{{ old('postal_code', $postal_code) }}">
                 @error('postal_code')
                 <div class="error-messages">{{ $message }}</div>
                 @enderror
@@ -59,16 +71,15 @@
 
             <div class="form-group">
                 <label for="address">住所</label>
-                <input type="text" name="address" id="address" class="form-control" value="{{ $address->address }}">
+                <input type="text" name="address" id="address" class="form-control" value="{{ old('address', $address_detail) }}">
                 @error('address')
                 <div class="error-messages">{{ $message }}</div>
                 @enderror
             </div>
 
-
             <div class="form-group">
                 <label for="building">建物名</label>
-                <input type="text" name="building" id="building" class="form-control" value="{{ $address->building }}">
+                <input type="text" name="building" id="building" class="form-control" value="{{ old('building', $building) }}">
                 @error('building')
                 <div class="error-messages">{{ $message }}</div>
                 @enderror

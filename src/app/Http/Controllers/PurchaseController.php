@@ -11,16 +11,21 @@ use App\Models\User;
 use App\Models\Purchase;
 use Stripe\Stripe;
 use App\Http\Requests\PurchaseRequest;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
     public function checkout(PurchaseRequest $request, $item_id)
+    
     {
-
-
-        $validated = $request->validated();
-       
         
+        $validated = $request->validated();
+
+        // 支払い方法を取得
+        $paymentMethod = $request->input('payment_method');  // POSTデータから支払い方法を取得
+
+        
+
         // 商品情報を取得
         $item = Item::findOrFail($item_id);
 
@@ -31,9 +36,12 @@ class PurchaseController extends Controller
 
         // ユーザー情報を取得（ログインしているユーザー）
         $user = Auth::user();
+        
 
         // StripeのAPIキーを設定
         Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        DB::beginTransaction();
 
         try {
             // 商品をStripeで作成
@@ -64,31 +72,28 @@ class PurchaseController extends Controller
                 ],
             ]);
 
-            // 購入情報をDBに登録する
-            $addressId = $user->address->id;
-            $address = $user->address;
+            
 
-            Purchase::create([
-                'user_id' => $user->id,
-                'item_id' => $item->id,
-                'stripe_session_id' => $session->id,
-                'amount' => $item->price,
-                'status' => 'pending',
-                'address_id' => $addressId,
-                'price' => $item->price,
-                'shipping_postal_code' => $address->postal_code,
-                'shipping_address' => $address->address,
-                'shipping_building' => $address->building,
+          
 
-            ]);
+            // 商品を売却済みに更新
+            $item->sold_flag = 1;
+            $item->save();
+
+            // トランザクションをコミット
+            DB::commit();
 
             // セッションURLをJSONで返す
             return response()->json(['url' => $session->url]);
         } catch (\Exception $e) {
+            // トランザクションをロールバック
+            DB::rollBack();
             return response()->json(['error' => 'エラーが発生しました: ' . $e->getMessage()], 500);
         }
-    }
 
+      
+        
+    }
 
     // 購入確定後の処理（Stripe PaymentIntent）
     public function confirmPurchase(Request $request, $id)
@@ -103,6 +108,11 @@ class PurchaseController extends Controller
 
         $shippingAddress = $user->profile->address;
         $paymentMethod = $request->input('payment_method');
+      
+
+        if (!$paymentMethod) {
+            return redirect()->route('purchase.failed')->with('error', '支払い方法が選択されていません');
+        }
 
         // Stripeクライアントを初期化
         $stripe = new StripeClient(env('STRIPE_SECRET'));
@@ -120,6 +130,9 @@ class PurchaseController extends Controller
             // 支払いが成功した場合の処理
             if ($paymentIntent->status === 'succeeded') {
                 $user->purchase()->attach($item->id);  // 購入アイテムをユーザーに関連付け
+
+
+               
                 return redirect()->route('purchase.complete');
             } else {
                 return redirect()->route('purchase.failed')->with('error', '支払いが失敗しました。');
@@ -143,10 +156,13 @@ class PurchaseController extends Controller
     public function show($item_id)
     {
         $user = auth()->user();
-        $address = $user->address;
         $item = Item::findOrFail($item_id);
 
-        return view('purchase', compact('item', 'address', 'user'));
+        $purchase = Purchase::where('user_id', $user->id)
+            ->where('item_id', $item_id)
+            ->first();
+
+        return view('purchase', compact('item', 'user', 'purchase'));
     }
 
 
@@ -160,4 +176,6 @@ class PurchaseController extends Controller
     {
         return view('purchase_success'); // 成功時に表示するビュー
     }
+
+    
 }

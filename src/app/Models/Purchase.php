@@ -18,6 +18,7 @@ class Purchase extends Model
         'shipping_postal_code',
         'shipping_address',
         'shipping_building',
+        
     ];
 
     /**
