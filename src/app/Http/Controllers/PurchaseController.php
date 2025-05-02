@@ -12,88 +12,81 @@ use App\Models\Purchase;
 use Stripe\Stripe;
 use App\Http\Requests\PurchaseRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 
 class PurchaseController extends Controller
 {
     public function checkout(PurchaseRequest $request, $item_id)
-    
     {
-        
+        Log::info('リクエストデータ: ', $request->all());
+
         $validated = $request->validated();
-
-        // 支払い方法を取得
-        $paymentMethod = $request->input('payment_method');  // POSTデータから支払い方法を取得
-
-        
-
-        // 商品情報を取得
         $item = Item::findOrFail($item_id);
-
-        // 商品名が設定されていない場合はエラーを返す
-        if (!$item->item_name) {
-            return response()->json(['error' => '商品名が設定されていません。'], 400);
-        }
-
-        // ユーザー情報を取得（ログインしているユーザー）
         $user = Auth::user();
-        
 
-        // StripeのAPIキーを設定
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         DB::beginTransaction();
 
         try {
-            // 商品をStripeで作成
-            $stripeProduct = \Stripe\Product::create([
-                'name' => $item->item_name,
-                'description' => $item->description,
+            $addressId = $user->profile->address->id;
+            $temporaryAddress = session('temporary_address');
+            // ✅ まず Purchase を作成（ステータスは pending）
+            $purchase = Purchase::create([
+                'user_id' => $user->id,
+                'item_id' => $item->id,
+                'address_id' => $addressId,
+                'payment_method' => $validated['payment_method'],
+                'price' => $item->price,
+                'status' => 'pending',
+                'shipping_postal_code' => $temporaryAddress['postal_code'] ?? $user->profile->address->postal_code,
+                'shipping_address' => $temporaryAddress['address'] ?? $user->profile->address->address,
+                'shipping_building' => $temporaryAddress['building'] ?? $user->profile->address->building,
             ]);
 
-            // 価格を作成
-            $stripePrice = \Stripe\Price::create([
-                'unit_amount' => $item->price,
-                'currency' => 'jpy',
-                'product' => $stripeProduct->id,      // 商品IDを指定
-            ]);
+            $paymentMethodMap = [
+                'credit_card' => 'card',
+                'convenience_store' => 'konbini',
+            ];
 
-            // Stripe Checkout セッションの作成
+            $stripePaymentMethod = $paymentMethodMap[$validated['payment_method']] ?? 'card';
+
             $session = \Stripe\Checkout\Session::create([
-                'payment_method_types' => ['card'],
+                'payment_method_types' => [$stripePaymentMethod],
                 'line_items' => [[
-                    'price' => $stripePrice->id,
+                    'price_data' => [
+                        'currency' => 'jpy',
+                        'product_data' => [
+                            'name' => $item->item_name,
+                            'description' => $item->description,
+                        ],
+                        'unit_amount' => $item->price,
+                    ],
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => route('purchase.success'),
+                'success_url' => route('purchase.success') . '?session_id={CHECKOUT_SESSION_ID}&item_id=' . $item->id,
                 'cancel_url' => route('purchase.cancel'),
-                'shipping_address_collection' => [
-                    'allowed_countries' => ['JP'],
+                'metadata' => [
+                    'purchase_id' => $purchase->id,
                 ],
             ]);
 
-            
+            // ✅ セッションIDを保存（任意）
+            $purchase->stripe_session_id = $session->id;
+            $purchase->save();
 
-          
-
-            // 商品を売却済みに更新
-            $item->sold_flag = 1;
-            $item->save();
-
-            // トランザクションをコミット
             DB::commit();
 
-            // セッションURLをJSONで返す
             return response()->json(['url' => $session->url]);
         } catch (\Exception $e) {
-            // トランザクションをロールバック
             DB::rollBack();
             return response()->json(['error' => 'エラーが発生しました: ' . $e->getMessage()], 500);
         }
-
-      
-        
     }
+
+
 
     // 購入確定後の処理（Stripe PaymentIntent）
     public function confirmPurchase(Request $request, $id)
@@ -103,12 +96,12 @@ class PurchaseController extends Controller
 
         // プロフィールが作成されていない場合、プロフィール作成ページへ遷移
         if (!$user->profile) {
-            return redirect()->route('user.editProfile')->with('error', 'プロフィールを作成してください。');
+            return redirect()->route('edit')->with('error', 'プロフィールを作成してください。');
         }
 
         $shippingAddress = $user->profile->address;
         $paymentMethod = $request->input('payment_method');
-      
+
 
         if (!$paymentMethod) {
             return redirect()->route('purchase.failed')->with('error', '支払い方法が選択されていません');
@@ -132,7 +125,7 @@ class PurchaseController extends Controller
                 $user->purchase()->attach($item->id);  // 購入アイテムをユーザーに関連付け
 
 
-               
+
                 return redirect()->route('purchase.complete');
             } else {
                 return redirect()->route('purchase.failed')->with('error', '支払いが失敗しました。');
@@ -168,14 +161,44 @@ class PurchaseController extends Controller
 
     public function cancel()
     {
-        return view('purchase.cancel');
+        return view('index');
     }
 
 
-    public function success()
+    public function success(Request $request)
     {
-        return view('purchase_success'); // 成功時に表示するビュー
-    }
 
-    
-}
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $session_id = $request->input('session_id');
+        $item_id = $request->input('item_id');
+
+      
+            $session = \Stripe\Checkout\Session::retrieve($session_id);
+
+            if ($session->payment_status === 'paid') {
+                $purchase = Purchase::where('stripe_session_id', $session_id)
+                    ->where('item_id', $item_id)
+                    ->first();
+                 session()->forget('temporary_address');
+                if ($purchase) {
+                    DB::beginTransaction();
+
+                    // ステータスを確定に更新
+                    $purchase->update(['status' => 'confirmed']);
+
+                    // 該当商品のソールドフラグを1に更新
+                    $item = Item::find($item_id);
+                    if ($item) {
+                        $item->sold_flag = 1;
+                        $item->save();
+                    }
+
+                    DB::commit();
+
+                return redirect()->route('index')->with('message', '購入が完了しました。ありがとうございました！');
+                }
+          
+        } 
+    }
+ }
+

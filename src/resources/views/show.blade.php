@@ -92,7 +92,7 @@
                 <div class="interaction-section">
                     <!-- いいねアイコン -->
                     <div class="like-section">
-                        <span id="like-icon-{{ $item->id }}" class="like-icon" onclick="toggleLike({{ $item->id }})">
+                        <span id="like-icon-{{ $item->id }}" class="like-icon" onclick="toggleLike(@json($item->id))">
                             @auth
                             {{ auth()->user()->likes()->where('item_id', $item->id)->exists() ? '★' : '☆' }}
                             @else

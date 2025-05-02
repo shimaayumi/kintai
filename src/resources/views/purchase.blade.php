@@ -101,6 +101,9 @@
 
                 <div id="payment_method_error" class="error-message"></div>
             </div>
+
+
+
             <!-- 配送先情報の表示 -->
 
             <div class="form-address">
@@ -121,15 +124,20 @@
                 </div>
 
 
+                @php
+                $tempAddress = session('temporary_address');
+                @endphp
+
                 <p class="address-postal-code"><strong>〒</strong>
-                    {{ $purchase->shipping_postal_code ?? $user->address->postal_code ?? '未設定' }}
+                    {{ $tempAddress['postal_code'] ?? $purchase->shipping_postal_code ?? $user->address->postal_code ?? '未設定' }}
                 </p>
 
                 <div class="address-wrapper">
-                    <p class="address-detail"><strong></strong>
-                        {{ $purchase->shipping_address ?? $user->address->address ?? '未設定' }}
-                    <p class="address-building"><strong></strong>
-                        {{ $purchase->shipping_building ?? $user->address->building ?? '未設定' }}
+                    <p class="address-detail">
+                        {{ $tempAddress['address'] ?? $purchase->shipping_address ?? $user->address->address ?? '未設定' }}
+                    </p>
+                    <p class="address-building">
+                        {{ $tempAddress['building'] ?? $purchase->shipping_building ?? $user->address->building ?? '未設定' }}
                     </p>
                 </div>
                 <div id="address_error" class="error-message"></div>
@@ -153,120 +161,149 @@
 
 
             <!-- 購入確認フォーム -->
-
             <button id="checkout-button" class="checkout-button" data-item-id="{{ $item->id }}">購入する</button>
 
-        </div>
-
-    </div>
-
-
-
-
+            @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
 
 
 
-    <script>
-        // 支払い方法表示用関数
-        function displaySelectedPaymentMethod() {
-            const select = document.getElementById('payment_method');
-            const selectedValue = select.value;
-            let displayText = '';
 
-            if (selectedValue === 'convenience_store') {
-                displayText = 'コンビニ支払い';
-            } else if (selectedValue === 'credit_card') {
-                displayText = 'カード支払い';
-            }
 
-            // 選択された支払い方法を表示
-            const displayElement = document.getElementById('payment_method_display');
-            if (displayElement) {
-                displayElement.textContent = displayText;
-            }
 
-            console.log('選択された支払い方法:', displayText);
-        }
+            <script src="https://js.stripe.com/v3/"></script>
+            <script>
+                // 支払い方法表示用関数
+                function displaySelectedPaymentMethod() {
+                    const select = document.getElementById('payment_method');
+                    const selectedValue = select.value;
+                    let displayText = '';
 
-        // 購入ボタン押下時の処理
-        document.querySelector('.checkout-button').addEventListener('click', function(event) {
-            const paymentMethod = document.getElementById('payment_method').value;
+                    if (selectedValue === 'convenience_store') {
+                        displayText = 'コンビニ支払い';
+                    } else if (selectedValue === 'credit_card') {
+                        displayText = 'カード支払い';
+                    }
 
-            // エラーボックス取得
-            const paymentErrorBox = document.getElementById('payment_method_error');
-            const addressErrorBox = document.getElementById('address_error');
+                    const displayElement = document.getElementById('payment_method_display');
+                    if (displayElement) {
+                        displayElement.textContent = displayText;
+                    }
 
-            // エラー内容初期化
-            paymentErrorBox.textContent = '';
-            addressErrorBox.textContent = '';
+                    console.log('選択された支払い方法:', displayText);
+                }
 
-            let hasError = false;
+                // Stripe初期化
+                const stripe = Stripe("{{ env('STRIPE_PUBLIC') }}");
 
-            // 支払い方法のバリデーション
-            if (!paymentMethod) {
-                paymentErrorBox.textContent = '支払い方法を選択してください';
-                hasError = true;
-            }
+                document.querySelector('.checkout-button').addEventListener('click', function(event) {
+                    const paymentMethod = document.getElementById('payment_method').value;
+                    const paymentErrorBox = document.getElementById('payment_method_error');
+                    const addressErrorBox = document.getElementById('address_error');
 
-            // 配送先のバリデーション
-            const address = {
-                postal_code: '{{ $user->address->postal_code ?? "" }}',
-                address: '{{ $user->address->address ?? "" }}',
-                building: '{{ $user->address->building ?? "" }}',
-            };
+                    paymentErrorBox.textContent = '';
+                    addressErrorBox.textContent = '';
 
-            if (!address.postal_code || !address.address || !address.building) {
-                addressErrorBox.textContent = '住所情報が不足しています';
-                hasError = true;
-            }
+                    let hasError = false;
 
-            if (hasError) {
-                event.preventDefault();
-                return;
-            }
+                    const address = {
+                        postal_code: '{{ $user->address->postal_code ?? "" }}',
+                        address: '{{ $user->address->address ?? "" }}',
+                        building: '{{ $user->address->building ?? "" }}',
+                    };
 
-            const dataToSend = {
-                payment_method: paymentMethod,
-                address: address
-            };
+                    // エラーチェック
+                    if (!paymentMethod) {
+                        paymentErrorBox.textContent = '支払い方法を選択してください';
+                        hasError = true;
+                    }
 
-            const itemId = '{{ $item->id }}';
-            console.log(itemId);
+                    if (!address.postal_code || !address.address || !address.building) {
+                        addressErrorBox.textContent = '住所情報が不足しています';
+                        hasError = true;
+                    }
 
-            fetch(`/purchase/${itemId}/checkout`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                    body: JSON.stringify(dataToSend)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw err;
+                    if (hasError) {
+                        event.preventDefault();
+                        return;
+                    }
+
+                    const address_id = '{{ $user->address->id ?? '
+                    ' }}'; // ユーザーの住所IDが存在する場合、それを取得
+
+                    const dataToSend = {
+                        payment_method: paymentMethod,
+                        address: address,
+                        address_id: address_id // 住所IDを追加
+                    };
+
+                    // データ確認
+                    console.log('送信データ:', dataToSend);
+                    const itemId = '{{ $item->id }}';
+
+                    fetch(`/purchase/${itemId}/checkout`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            },
+                            body: JSON.stringify(dataToSend)
+                        })
+                        .then(async response => {
+                            const contentType = response.headers.get('content-type');
+
+                            if (!response.ok) {
+                                if (contentType && contentType.includes('application/json')) {
+                                    const err = await response.json();
+                                    throw err;
+                                } else {
+                                    const text = await response.text();
+                                    console.error('HTMLエラー内容:', text);
+                                    throw new Error('サーバーエラーが発生しました（HTML形式）');
+                                }
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.url) {
+                                window.location.href = data.url;
+                            } else if (data.payment_method === 'convenience_store') {
+                                stripe.confirmKonbiniPayment(data.payment_intent_client_secret, {
+                                    payment_method: {
+                                        billing_details: {
+                                            name: '{{ $user->name }}',
+                                            email: '{{ $user->email }}',
+                                        },
+                                    },
+                                    return_url: '{{ route("purchase.success") }}'
+                                }).then(function(result) {
+                                    if (result.error) {
+                                        alert('支払いエラー: ' + result.error.message);
+                                    }
+                                });
+                            } else {
+                                alert('不明な応答形式です。');
+                            }
+                        })
+                        .catch(error => {
+                            if (error.errors) {
+                                if (error.errors.payment_method) {
+                                    paymentErrorBox.textContent = error.errors.payment_method.join(', ');
+                                }
+                                if (error.errors.address) {
+                                    addressErrorBox.textContent = error.errors.address.join(', ');
+                                }
+                            } else {
+                                alert('エラーが発生しました: ' + (error.message || '不明なエラー'));
+                            }
                         });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    window.location.href = data.url;
-                })
-                .catch(error => {
-                    // 通信エラーやAPI側のバリデーションエラー
-                    if (error.errors) {
-                        if (error.errors.payment_method) {
-                            paymentErrorBox.textContent = error.errors.payment_method.join(', ');
-                        }
-                        if (error.errors.address) {
-                            addressErrorBox.textContent = error.errors.address.join(', ');
-                        }
-                    } else {
-                        alert('エラーが発生しました: ' + (error.message || '不明なエラー'));
-                    }
                 });
-        });
-    </script>
+            </script>
 
 </body>
 

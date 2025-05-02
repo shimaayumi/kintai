@@ -113,7 +113,7 @@ body {
     
 }
 
-.tab-recommended {
+.page-recommended {
     margin: 0;
     text-decoration: none;
     font-size: 20px;
@@ -124,19 +124,19 @@ body {
     font-weight: bold;
     color: rgb(73, 72, 72);
 }
-.tab.active {
+.page.active {
     color: red;
  
     /* 任意で下線などの装飾も */
 }
 
-.tab.inactive {
+.page.inactive {
     color: rgb(73, 72, 72);
     
 }
 
 
-.tab-mylist{
+.page-mylist{
     text-decoration: none;
     color: rgb(73, 72, 72);
     font-size: 20px;

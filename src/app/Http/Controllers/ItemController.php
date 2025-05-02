@@ -35,14 +35,15 @@ namespace App\Http\Controllers;
         $query = Item::query();
         $items = $query->with('images')->get();
         $keyword = $request->input('keyword');
-        $tab = $request->input('page', 'all');
+        $page = $request->input('page', 'all');
+      
 
-        if ($tab === 'mylist') {
+        if ($page === 'mylist') {
             if (!Auth::check()) {
                 return view('index', [
                     'items' => collect(),
                     'categories' => $this->getCategories($request),
-                    'tab' => $tab,
+                    'page' => $page,
                     'keyword' => $keyword,
                 ]);
             }
@@ -74,7 +75,7 @@ namespace App\Http\Controllers;
             return view('index', [
                 'items' => $likedItems,
                 'categories' => $this->getCategories($request),
-                'tab' => $tab,
+                'page' => $page,
                 'keyword' => $keyword,
             ]);
         } else {
@@ -100,7 +101,7 @@ namespace App\Http\Controllers;
             return view('index', [
                 'items' => $items,
                 'categories' => $this->getCategories($request),
-                'tab' => $tab,
+                'page' => $page,
                 'keyword' => $keyword,
             ]);
         }

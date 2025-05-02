@@ -6,13 +6,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Fortify;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\TestPurchaseController;
-use App\Models\Item;
+
+
+
 
 
 
@@ -75,21 +75,16 @@ Route::middleware(['auth'])->group(
 );
 
 Route::middleware(['auth'])->group(function () {
-    // 購入確認
-    Route::post('purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('confirm');
-
-    // 購入詳細表示ページ
-    Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
-
-    // 購入完了ページ
-    Route::get('purchase/complete', [PurchaseController::class, 'complete'])->name('complete');
-
-
-
-    // 購入成功・キャンセルページ
     Route::get('/purchase/success', [PurchaseController::class, 'success'])->name('purchase.success');
     Route::get('/purchase/cancel', [PurchaseController::class, 'cancel'])->name('purchase.cancel');
+    Route::get('/purchase/complete', [PurchaseController::class, 'complete'])->name('purchase.complete');
+    Route::get('purchase/failed', [PurchaseController::class, 'failed'])->name('purchase.failed');
+    Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
+    Route::post('/purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('purchase.confirm');
     Route::post('/purchase/{item_id}/checkout', [PurchaseController::class, 'checkout'])->name('purchase.checkout');
+    
+   
+    
 });
 
 
@@ -118,16 +113,8 @@ Route::middleware(['auth'])->group(function () {
     // 編集画面を表示
     Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
     // 編集結果を保存
+   
     Route::put('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
 });
 
-Route::post('/test/purchase/{item}', TestPurchaseController::class)->name('test.purchase');
-
-if (app()->environment('testing')) {
-    Route::post('/test/purchase/{item}', function (Item $item) {
-        $item->sold_flag = 1;
-        $item->save();
-        return response()->json(['message' => '購入完了']);
-    })->name('test.purchase');
-}
 

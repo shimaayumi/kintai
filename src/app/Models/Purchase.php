@@ -9,16 +9,19 @@ class Purchase extends Model
 {
     use HasFactory;
 
+    
+        
     protected $fillable = [
-        'user_id',    // ユーザーID
-        'item_id',    // 商品ID
-        'address_id', // 住所ID
-        'payment_method', // 支払い方法
-        'price', // 合計金額
+        'user_id',
+        'item_id',
+        'address_id',
+        'payment_method',
+        'price',
+        'status',
+        'stripe_session_id',
         'shipping_postal_code',
         'shipping_address',
         'shipping_building',
-        
     ];
 
     /**

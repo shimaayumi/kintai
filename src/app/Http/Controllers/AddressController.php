@@ -16,57 +16,31 @@ class AddressController extends Controller
 
     public function edit($item_id)
     {
-        $item = Item::find($item_id);
-        if (!$item) {
-            return redirect()->route('index')->with('error', '商品が見つかりません');
-        }
-
         $user = Auth::user();
+        $item = Item::findOrFail($item_id);
 
-        // 最新のpurchaseを取得
-        $purchase = Purchase::where('user_id', $user->id)
-            ->where('item_id', $item_id)
-            ->first();
-
-        // 購入情報があればそれを使用、なければユーザーの住所を使用
-        $postal_code = $purchase->shipping_postal_code ?? $user->address->postal_code ?? '';
-        $address_detail = $purchase->shipping_address ?? $user->address->address ?? '';
-        $building = $purchase->shipping_building ?? $user->address->building ?? '';
-
-        return view('address_edit', compact('item', 'user', 'postal_code', 'address_detail', 'building', 'purchase'));
+        return view('address_edit', [
+            'item' => $item,
+            'postal_code' => $user->address->postal_code ?? '',
+            'address_detail' => $user->address->address ?? '',
+            'building' => $user->address->building ?? '',
+        ]);
     }
+
+
 
     public function update(AddressRequest $request, $item_id)
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'ログインしてください');
-        }
-
-        $user = Auth::user();
-
-        $address = $user->address;
-
-        if (!$address) {
-            return redirect()->back()->with('error', '住所が登録されていません');
-        }
-
-        $item = Item::findOrFail($item_id); // ←ここで商品取得！
-
-        $purchase = Purchase::firstOrNew([
-            'user_id' => $user->id,
-            'item_id' => $item_id,
+        $validated = $request->validate([
+            'postal_code' => 'required|string|max:10',
+            'address' => 'required|string|max:255',
+            'building' => 'nullable|string|max:255',
         ]);
 
-    
+        // セッションに一時住所を保存
+        session()->put('temporary_address', $validated);
 
-        $purchase->address_id = $address->id;
-        $purchase->shipping_postal_code = $request->input('postal_code');
-        $purchase->shipping_address = $request->input('address');
-        $purchase->shipping_building = $request->input('building');
-        $purchase->price = $item->price; // ←ここ！！
-
-        $purchase->save();
-
-        return redirect()->route('purchase.show', ['item_id' => $item_id])->with('success', '送り先住所を更新しました');
+        return redirect()->route('purchase.show', ['item_id' => $item_id])
+            ->with('success', '配送先を一時的に更新しました');
     }
 }

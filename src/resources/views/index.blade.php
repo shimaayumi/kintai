@@ -56,21 +56,21 @@
     <!-- 🛠️ ページタイトル -->
     <div class="title-links">
         <a href="{{ route('index') }}"
-            class="tab tab-recommended {{ !request()->has('page') ? 'active' : '' }}">
+            class="page page-recommended {{ !request()->has('page') ? 'active' : '' }}">
             おすすめ
         </a>
 
         <a href="{{ url('/?page=mylist' . (request('keyword') ? '&keyword=' . request('keyword') : '')) }}"
-            class="tab tab-mylist {{ request()->get('page') === 'mylist' ? 'active' : '' }}">
+            class="page page-mylist {{ request()->get('page') === 'mylist' ? 'active' : '' }}">
             マイリスト
         </a>
     </div>
 
 
     {{-- 🛠️ 商品リスト表示（マイリストの場合はログイン中のみ表示） --}}
-    @if($tab !== 'mylist' || Auth::check())
+    @if(($page ?? 'all') !== 'mylist' || Auth::check())
     <div class="item-list">
-        @forelse($items as $item)
+        @forelse($items ?? collect() as $item)
         <div class="item">
             <a href="{{ route('item.show', ['item_id' => $item->id]) }}" class="item-link">
                 <div class="item-image">

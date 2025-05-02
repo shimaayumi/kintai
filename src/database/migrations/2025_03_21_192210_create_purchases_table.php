@@ -15,19 +15,23 @@ class CreatePurchasesTable extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-          
+
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('item_id')->constrained('items');
-            $table->foreignId('address_id')->constrained('addresses');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // usersテーブルの外部キーとしてuser_idを追加
+            $table->foreignId('address_id')->constrained('addresses')->default(0);
+
             $table->enum('payment_method', ['credit_card', 'convenience_store']); 
             $table->integer('price');
            
+
             $table->string('shipping_postal_code');
             $table->string('shipping_address');
             $table->string('shipping_building');
-        
-            $table->timestamps(); // created_at, updated_at
-           
+            $table->string('stripe_session_id')->nullable();
+            $table->enum('status', ['pending', 'confirmed'])->default('pending'); // 例: pending = 仮, confirmed = 確定
+            $table->timestamps();
+
+            $table->unique(['user_id', 'item_id']); // ← すべての定義のあとに書く
         });
     }
 
