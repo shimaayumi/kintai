@@ -10,7 +10,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-
+use App\Http\Controllers\WebhookController;
 
 
 
@@ -117,4 +117,4 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
 });
 
-
+Route::post('/stripe/webhook', [WebhookController::class, 'handle']);

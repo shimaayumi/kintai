@@ -67,11 +67,19 @@ class PurchaseController extends Controller
                 ]],
                 'mode' => 'payment',
                 'success_url' => route('purchase.success') . '?session_id={CHECKOUT_SESSION_ID}&item_id=' . $item->id,
-                'cancel_url' => route('purchase.cancel'),
+               
+                // ← この中に入れること
+                'payment_intent_data' => [
+                    'metadata' => [
+                        'purchase_id' => $purchase->id,
+                    ],
+                ],
+                // ← checkout.session.completed 用
                 'metadata' => [
                     'purchase_id' => $purchase->id,
                 ],
             ]);
+
 
             // ✅ セッションIDを保存（任意）
             $purchase->stripe_session_id = $session->id;
@@ -88,7 +96,7 @@ class PurchaseController extends Controller
 
 
 
-    // 購入確定後の処理（Stripe PaymentIntent）
+    // 購入確定後の処理
     public function confirmPurchase(Request $request, $id)
     {
         $item = Item::findOrFail($id);
@@ -126,7 +134,7 @@ class PurchaseController extends Controller
 
 
 
-                return redirect()->route('purchase.complete');
+                return redirect()->route('index');
             } else {
                 return redirect()->route('purchase.failed')->with('error', '支払いが失敗しました。');
             }
