@@ -11,3 +11,6 @@ RUN curl -sS https://getcomposer.org/installer | php \
   && composer self-update
 
 WORKDIR /var/www
+
+# Laravelアプリケーションの中身をコピー（src にある前提）
+COPY ./src /var/www
