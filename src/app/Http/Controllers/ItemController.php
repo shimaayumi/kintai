@@ -180,7 +180,8 @@ namespace App\Http\Controllers;
                 }
             });
 
-            return redirect()->route('sell')->with('success', '商品が出品されました！');
+        return redirect()->route('mypage', ['page' => 'sell'])
+            ->with('success', '商品が出品されました！');
         }
 
     public function mypage(Request $request)

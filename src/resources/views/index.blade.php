@@ -43,7 +43,7 @@
             <!-- 未ログインの表示（ログイン） -->
             <a href="{{ route('login') }}" class="btn">ログイン</a>
             @endguest
-            <a href="{{ route('mypage') }}" class="btn">マイページ</a>
+            <a href="{{ route('mypage', ['page' => 'sell']) }}" class="btn">マイページ</a>
 
             <a href="{{ route('sell') }}" class="btn btn-outlet">
                 <span class="btn-text">出品</span>

@@ -5,8 +5,10 @@ services:
     region: oregon
     plan: free
     dockerfilePath: ./docker/php/Dockerfile
-    buildCommand: "composer install && php artisan config:cache"
-    startCommand: "php-fpm"
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php artisan config:cache
+    startCommand: php-fpm
     envVars:
       - key: APP_ENV
         value: production
@@ -15,7 +17,7 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        value: your-db-host
+        value: mysql  # MySQLサービス名に変更（Renderでのホスト名）
       - key: DB_PORT
         value: 3306
       - key: DB_DATABASE
