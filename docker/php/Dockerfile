@@ -20,3 +20,5 @@ WORKDIR /var/www
 
 # Laravelアプリケーションの中身をコピー
 COPY ./src /var/www
+
+

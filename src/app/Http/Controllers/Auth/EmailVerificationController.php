@@ -34,7 +34,7 @@ class EmailVerificationController extends Controller
         }
 
         // 認証後、プロフィール編集画面にリダイレクト
-        return redirect()->route('edit')->with('verified', true);
+        return redirect()->to('/mypage?page=sell')->with('verified', true);
     }
 
 

@@ -29,6 +29,7 @@ class CreatePurchasesTable extends Migration
             $table->string('shipping_building');
             $table->string('stripe_session_id')->nullable();
             $table->enum('status', ['pending', 'confirmed'])->default('pending'); // 例: pending = 仮, confirmed = 確定
+            $table->string('payment_intent_id')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'item_id']); // ← すべての定義のあとに書く

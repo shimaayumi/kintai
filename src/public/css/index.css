@@ -248,3 +248,11 @@ body {
     transform: rotate(-45deg);
     white-space: nowrap;
 }
+
+@media (max-width: 850px) {
+    .item-list {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+        margin: 30px !important;
+    }
+}

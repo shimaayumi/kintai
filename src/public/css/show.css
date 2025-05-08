@@ -519,66 +519,25 @@ textarea:focus {
         padding-top: 20px;
     }
 
-    .item-detail .btn {
-        font-size: 18px;
-    }
-
-    .section-title {
-        font-size: 24px;
-    }
-
-    .section-comment_title {
-        font-size: 20px;
-        margin-top: 30px;
-    }
-
-    .brand-name {
-        font-size: 16px;
-    }
-
-    .price {
-        font-size: 30px;
-    }
-
-    .category,
-    .item-status {
-        font-size: 18px;
-    }
+  
 
     .category span,
     .item-status span {
         margin-left: 10px;
-        font-size: 16px;
+   
     }
 
-    /* コメント欄 */
-    .comment-form textarea {
-        height: 120px;
-    }
-
-    .comment-title,
-    .comment-count {
-        font-size: 24px;
-    }
-
-    .seller-image {
-        width: 60px;
-        height: 60px;
-    }
-
-    .seller-name {
-        font-size: 18px;
-    }
+ 
 
     .like-icon,
     .comment-icon {
-        font-size: 24px !important;
+       
         margin-left: 10px;
     }
 
     .like-count,
     .icon-comment-count {
-        font-size: 12px !important;
+      
         margin-left: 10px;
     }
 }

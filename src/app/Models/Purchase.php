@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as StripeSession;
+use Stripe\PaymentIntent;
 
 class Purchase extends Model
 {
@@ -22,6 +25,7 @@ class Purchase extends Model
         'shipping_postal_code',
         'shipping_address',
         'shipping_building',
+        'stripe_payment_intent_id',
     ];
 
     /**
@@ -48,5 +52,30 @@ class Purchase extends Model
         return $this->belongsTo(Address::class);
     }
 
+    public function getStripeStatus()
+    {
+        if (!$this->stripe_session_id) {
+            return '未決済';
+        }
 
+        try {
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            $session = StripeSession::retrieve([
+                'id' => $this->stripe_session_id,
+                'expand' => ['payment_intent'],
+            ]);
+
+            // セッションから PaymentIntent ID を取得
+            if (!empty($session->payment_intent)) {
+                $paymentIntent = PaymentIntent::retrieve($session->payment_intent);
+                return $paymentIntent->status; // 例: 'succeeded', 'requires_payment_method', etc.
+            } else {
+                return '支払い情報なし';
+            }
+        } catch (\Exception $e) {
+            \Log::error('Stripe API エラー: ' . $e->getMessage());
+            return '取得失敗';
+        }
+    }
 }

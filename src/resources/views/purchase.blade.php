@@ -176,6 +176,50 @@
 
             <script src="https://js.stripe.com/v3/"></script>
             <script>
+                document.addEventListener('DOMContentLoaded', async () => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const paymentIntentClientSecret = urlParams.get('payment_intent_client_secret');
+                    const itemId = '{{ $item->id }}'; // ここはコントローラで渡しておく必要があります
+
+                    if (!paymentIntentClientSecret) {
+                        return;
+                    }
+
+                    try {
+                        const {
+                            paymentIntent
+                        } = await stripe.retrievePaymentIntent(paymentIntentClientSecret);
+
+                        if (paymentIntent.status === 'succeeded') {
+                            // Laravel に購入確定処理を送る
+                            const response = await fetch(`/purchase/confirm/${itemId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                },
+                                body: JSON.stringify({
+                                    payment_intent_id: paymentIntent.id,
+                                }),
+                            });
+
+                            const data = await response.json();
+                            if (response.ok) {
+                                alert('購入が確定されました！');
+                                window.location.href = '/mypage'; // または任意のリダイレクト先
+                            } else {
+                                alert('確定処理に失敗しました: ' + data.error);
+                            }
+                        } else {
+                            alert('支払いがまだ完了していません（ステータス: ' + paymentIntent.status + '）');
+                        }
+                    } catch (error) {
+                        console.error('支払い確認エラー:', error);
+                        alert('購入の確認中にエラーが発生しました。');
+                    }
+                });
+
+
                 // 支払い方法表示用関数
                 function displaySelectedPaymentMethod() {
                     const select = document.getElementById('payment_method');
@@ -231,8 +275,7 @@
                         return;
                     }
 
-                    const address_id = '{{ $user->address->id ?? '
-                    ' }}'; // ユーザーの住所IDが存在する場合、それを取得
+                    const address_id = '{{ $user->address->id ?? "" }}'; // ユーザーの住所IDが存在する場合、それを取得
 
                     const dataToSend = {
                         payment_method: paymentMethod,
@@ -272,7 +315,7 @@
                         .then(data => {
                             if (data.url) {
                                 window.location.href = data.url;
-                            } else if (data.payment_method === 'convenience_store') {
+                            } else if (data.payment_method === 'convenience_store' && data.payment_intent_client_secret) {
                                 stripe.confirmKonbiniPayment(data.payment_intent_client_secret, {
                                     payment_method: {
                                         billing_details: {
@@ -291,6 +334,8 @@
                             }
                         })
                         .catch(error => {
+                            console.error('エラー詳細:', error);
+
                             if (error.errors) {
                                 if (error.errors.payment_method) {
                                     paymentErrorBox.textContent = error.errors.payment_method.join(', ');
@@ -298,6 +343,9 @@
                                 if (error.errors.address) {
                                     addressErrorBox.textContent = error.errors.address.join(', ');
                                 }
+                            } else if (error.error) {
+                                // Laravelから返された { error: "xxx" } を拾う
+                                alert('エラーが発生しました: ' + error.error);
                             } else {
                                 alert('エラーが発生しました: ' + (error.message || '不明なエラー'));
                             }

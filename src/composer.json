@@ -12,6 +12,7 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
+        "psy/psysh": "^0.12.8",
         "stripe/stripe-php": "^17.1"
     },
     "require-dev": {

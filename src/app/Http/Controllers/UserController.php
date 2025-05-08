@@ -91,7 +91,7 @@ class UserController extends Controller
             'building' => $validated['building'],
         ]);
 
-        return redirect()->route('mypage')->with('success', 'プロフィールが更新されました');
+        return redirect()->route('mypage', ['page' => 'sell'])->with('success', 'プロフィールが更新されました');
     }
 
 

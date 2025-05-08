@@ -117,4 +117,5 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
 });
 
-Route::post('/stripe/webhook', [WebhookController::class, 'handle']);
+Route::post('/purchase/confirm/{item}', [PurchaseController::class, 'confirmPurchaseClient'])
+    ->name('purchase.confirm.client');
