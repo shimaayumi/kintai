@@ -31,11 +31,7 @@ class AddressController extends Controller
 
     public function update(AddressRequest $request, $item_id)
     {
-        $validated = $request->validate([
-            'postal_code' => 'required|string|max:10',
-            'address' => 'required|string|max:255',
-            'building' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         // セッションに一時住所を保存
         session()->put('temporary_address', $validated);

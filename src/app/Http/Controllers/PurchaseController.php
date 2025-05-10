@@ -5,17 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Stripe\StripeClient;
-use App\Models\Address;
-use App\Models\User;
 use App\Models\Purchase;
 use Stripe\Stripe;
 use App\Http\Requests\PurchaseRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Jobs\CheckPaymentStatus;
-
-
 
 
 

@@ -7,10 +7,7 @@ namespace App\Http\Controllers;
     use App\Models\Item;
     use App\Models\Category;
     use App\Models\ItemImage;
-    use App\Models\Comment;
-    use App\Models\Purchase; 
     use Illuminate\Support\Facades\Auth;
-    use Illuminate\Support\Facades\Log; 
     use App\Http\Requests\ExhibitionRequest;
     use Illuminate\Support\Facades\DB;
 
@@ -32,8 +29,7 @@ namespace App\Http\Controllers;
 
     public function index(Request $request)
     {
-        $query = Item::query();
-        $items = $query->with('images')->get();
+       
         $keyword = $request->input('keyword');
         $page = $request->input('page', 'all');
       

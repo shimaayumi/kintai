@@ -14,9 +14,9 @@
 - php artisan db:seed
 
 ## 開発環境
-  - 商品一覧画面：http://localhost/  
-  - 会員登録画面: http://localhost/register  
-  - phpMyAdmin：http://localhost:8080/
+- 商品一覧画面：http://localhost/  
+- 会員登録画面: http://localhost/register  
+- phpMyAdmin：http://localhost:8080/
 
 ## 使用技術(実行環境)
 - PHP 8.2.11
