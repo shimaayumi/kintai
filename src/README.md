@@ -25,4 +25,8 @@
 - nginx 1.21.1
 
 ## ER図
-[ER図](./images/er_repo.png)
+- [ER図](./images/er_repo.png)
+
+ ## stripeの設定 .envに追加
+ - STRIPE_PUBLIC 公開可能キー
+ - STRIPE_SECRET シークレットキー

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB; // DBファサードをインポート
 use App\Models\Item; // Itemモデルをインポート
 use App\Models\User; // Userモデルをインポート
 use App\Models\Category; // Categoryモデルをインポート
+use Illuminate\Support\Facades\Storage; // Storageファサードをインポート
 
 class ItemsSeeder extends Seeder
 {
@@ -108,6 +109,37 @@ class ItemsSeeder extends Seeder
             DB::table('item_images')->insert([
                 'item_id' => $item->id, // 商品IDを関連付け
                 'item_image' => $itemData['item_image'], // 商品画像URL
+            ]);
+        }
+
+        // 画像URLのリスト
+        $imageUrls = [
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Armani+Mens+Clock.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/HDD+Hard+Disk.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/iLoveIMG+d.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Leather+Shoes+Product+Photo.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Living+Room+Laptop.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Music+Mic+4632231.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Purse+fashion+pocket.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Tumbler+souvenir.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Waitress+with+Coffee+Grinder.jpg',
+            'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/%E5%A4%96%E5%87%BA%E3%83%A1%E3%82%A4%E3%82%AF%E3%82%A2%E3%83%83%E3%83%95%E3%82%9A%E3%82%BB%E3%83%83%E3%83%88.jpg',
+        ];
+
+        foreach ($imageUrls as $imageUrl) {
+            $imageContents = file_get_contents($imageUrl);
+            $imagePath = parse_url($imageUrl, PHP_URL_PATH); // パス部分のみ取得
+            $imageName = urldecode(basename($imagePath));    // URLデコードして正しいファイル名に
+
+            // `public/images` ディレクトリに保存
+            Storage::disk('public')->put('images/' . $imageName, $imageContents);
+
+            // DBにはファイル名だけを保存（または 'images/ファイル名'）
+            DB::table('item_images')->insert([
+                'item_id' => $item->id,
+                'item_image' => $imageName, // ビューで 'images/' を付けて表示する想定
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }
