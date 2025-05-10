@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Item;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ItemFactory extends Factory
@@ -12,13 +13,13 @@ class ItemFactory extends Factory
     public function definition()
     {
         return [
-            'item_name' => $this->faker->word,
-            'price' => $this->faker->numberBetween(100, 10000),
-            'description' => $this->faker->sentence,
+            'user_id' => User::factory(),
+            'item_name' => $this->faker->word(),
+            'brand_name' => $this->faker->company(),
+            'description' => $this->faker->paragraph(),
+            'price' => $this->faker->numberBetween(1000, 10000),
             'status' => $this->faker->randomElement(['良好', '目立った傷や汚れなし', 'やや傷や汚れあり', '状態が悪い']),
-            'user_id' => \App\Models\User::factory(), // 関連ユーザーも一緒に生成
-            'categories' => json_encode([1]), // とりあえずカテゴリID 1を仮で入れておく
-            
+            'categories' => json_encode(['レディース', 'バッグ']),
         ];
     }
 }

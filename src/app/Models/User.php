@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 
+
 class User extends Authenticatable implements MustVerifyEmail // MustVerifyEmailインターフェースを実装
 {
     use HasFactory;
@@ -79,6 +80,6 @@ class User extends Authenticatable implements MustVerifyEmail // MustVerifyEmail
         // 他のページの場合の処理（必要であれば）
         return view('mypage');
     }
-    
-  
+
+
 }

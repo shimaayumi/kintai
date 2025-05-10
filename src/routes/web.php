@@ -10,7 +10,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\WebhookController;
+
 
 
 
@@ -80,7 +80,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/complete', [PurchaseController::class, 'complete'])->name('purchase.complete');
     Route::get('purchase/failed', [PurchaseController::class, 'failed'])->name('purchase.failed');
     Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
-    Route::post('/purchase/{item_id}/confirm', [PurchaseController::class, 'confirmPurchase'])->name('purchase.confirm');
     Route::post('/purchase/{item_id}/checkout', [PurchaseController::class, 'checkout'])->name('purchase.checkout');
     
    

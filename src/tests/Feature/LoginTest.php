@@ -10,7 +10,7 @@ class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    //2.ログイン機能 メールアドレスが入力されていない場合、バリデーションメッセージが表示される
     public function it_requires_email_to_login()
     {
         $response = $this->post('/login', [
@@ -20,7 +20,7 @@ class LoginTest extends TestCase
         $response->assertSessionHasErrors('email');
     }
 
-    /** @test */
+    //2.ログイン機能 パスワードが入力されていない場合、バリデーションメッセージが表示される
     public function it_requires_password_to_login()
     {
         $response = $this->post('/login', [
@@ -30,6 +30,8 @@ class LoginTest extends TestCase
         $response->assertSessionHasErrors('password');
     }
 
+
+    //2.ログイン機能 入力情報が間違っている場合、バリデーションメッセージが表示される
     public function testLoginWithInvalidCredentials()
     {
         // ログインページを開く
@@ -47,6 +49,8 @@ class LoginTest extends TestCase
         ]);
     }
 
+
+    //2.ログイン機能 正しい情報が入力された場合、ログイン処理が実行される
     public function testLoginWithCorrectCredentials()
     {
         // テスト用ユーザーを作成（必要に応じて事前にデータベースにユーザーを作成）
@@ -70,6 +74,8 @@ class LoginTest extends TestCase
         $this->assertAuthenticatedAs($user);  // ログインが成功し、認証されていることを確認
     }
 
+
+    //3.ログアウト機能　ログアウトができる
     public function testLogout()
     {
         // テスト用ユーザーを作成

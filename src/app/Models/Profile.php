@@ -12,7 +12,7 @@ class Profile extends Model
     // プロフィールのフィルター可能なカラム
     protected $fillable = [
         'user_id',
-        'bio',
+        
         'profile_image',  // ここを追加
     ];
 

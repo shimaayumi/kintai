@@ -10,7 +10,7 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',  // カテゴリ名
+        'category_name',  // カテゴリ名
         'description' // カテゴリ説明
     ];
 
