@@ -12,6 +12,7 @@
 - php artisan key:generate
 - php artisan migrate
 - php artisan db:seed
+- php artisan storage:link
 
 ## 開発環境
   - 商品一覧画面：http://localhost/  
@@ -27,6 +28,9 @@
 ## ER図
 - [ER図](./images/er_repo.png)
 
- ## stripeの設定 .envに追加
+## stripeの.env設定
  - STRIPE_PUBLIC 公開可能キー
  - STRIPE_SECRET シークレットキー
+
+## mailhogの.env設定
+ - MAIL_FROM_ADDRESS=no-reply@example.com

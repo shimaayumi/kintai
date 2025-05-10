@@ -127,20 +127,42 @@ class ItemsSeeder extends Seeder
         ];
 
         foreach ($imageUrls as $imageUrl) {
-            $imageContents = file_get_contents($imageUrl);
-            $imagePath = parse_url($imageUrl, PHP_URL_PATH); // パス部分のみ取得
-            $imageName = urldecode(basename($imagePath));    // URLデコードして正しいファイル名に
+            try {
+                logger()->info("取得中: $imageUrl");
 
-            // `public/images` ディレクトリに保存
-            Storage::disk('public')->put('images/' . $imageName, $imageContents);
+                // curlで取得（file_get_contentsは403になるケースがある）
+                $ch = curl_init($imageUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
 
-            // DBにはファイル名だけを保存（または 'images/ファイル名'）
-            DB::table('item_images')->insert([
-                'item_id' => $item->id,
-                'item_image' => $imageName, // ビューで 'images/' を付けて表示する想定
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+                $imageContents = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($httpCode !== 200 || $imageContents === false) {
+                    throw new \Exception("HTTP $httpCode で失敗");
+                }
+
+                // URLからファイル名を取得し、エンコードを戻す（+ → 空白 → + に再変換）
+                $rawName = basename(parse_url($imageUrl, PHP_URL_PATH));
+                $imageName = urldecode($rawName);
+                $imageName = str_replace(' ', '+', $imageName); // + がスペースになる問題の補正
+
+                // 保存
+                Storage::disk('public')->put("images/" . $imageName, $imageContents);
+
+                DB::table('item_images')->insert([
+                    'item_id' => $item->id,
+                    'item_image' => 'images/' . $imageName,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                logger()->info("保存完了: $imageName");
+            } catch (\Exception $e) {
+                logger()->error("画像の保存に失敗: {$imageUrl} - {$e->getMessage()}");
+            }
         }
     }
 }
