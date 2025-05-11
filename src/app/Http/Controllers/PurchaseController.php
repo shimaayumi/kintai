@@ -101,7 +101,7 @@ class PurchaseController extends Controller
                     ],
                 ]);
 
-                $purchase->payment_intent_id = $paymentIntent->id;
+                
 
                 // ✅ 購入を「確定」にする
                 $purchase->status = 'confirmed';
