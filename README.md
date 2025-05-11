@@ -2,7 +2,7 @@
 
 ## 環境構築
 ### Dockerビルド
-- git clone https://github.com/shimaayumi/fleamarket.git
+- git clone git@github.com:shimaayumi/fleamarket.git
 - docker-compose up -d --build
 
 ### Laravel環境構築
