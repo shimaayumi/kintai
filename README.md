@@ -25,5 +25,11 @@
 - nginx 1.21.1
 
 ## ER図
-[ER図](./images/er_fleamarket.png)
+- [ER図](./images/er_fleamarket.png)
 
+## mailhogの.env設定
+- MAIL_FROM_ADDRESS=no-reply@example.com
+
+## stripeの.env設定
+- STRIPE_PUBLIC=公開キー
+- STRIPE_SECRET=秘密キー
