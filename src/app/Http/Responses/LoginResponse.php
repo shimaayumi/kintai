@@ -12,10 +12,10 @@ class LoginResponse implements LoginResponseContract
 {
     public function toResponse($request)
     {
-        // メール認証が完了していれば/mypageにリダイレクト
+        
         if ($request->user()->hasVerifiedEmail()) {
-            dd('Redirecting to /mypage');
-            return redirect('/mypage');
+            
+            return redirect('/attendance');
         }
 
         // メール認証前の場合

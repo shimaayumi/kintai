@@ -159,7 +159,7 @@ return [
     ],
 
     'redirects' => [
-        'register' => '/email/verify',
+        'login' => '/email/verify',
     ],
 
 ];

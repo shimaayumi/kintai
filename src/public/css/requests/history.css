@@ -1,0 +1,192 @@
+
+
+
+/* ===========================
+   🔝 ヘッダー
+   =========================== */
+.header {
+    background: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.header__logo img {
+    width: 23vw;
+    height: auto;
+    margin-left: 10px;
+    margin-right: 30px;
+}
+
+.header__menu {
+    display: flex;
+    
+    /* 各リンク間の等間隔 */
+    align-items: center;
+    margin-left: auto;
+    /* ヘッダー右寄せにしたい場合 */
+}
+
+.header__menu-link {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    padding: 8px 18px;
+    font-size: 1.4vw;
+    
+}
+
+
+.btn {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    padding: 8px 12px;
+    font-size: 1.4vw;
+}
+
+ 
+
+
+.btn-outlet {
+    background-color: white;
+    color: black;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.btn-text {
+    font-size: 1.4vw;
+
+}
+
+
+.header__menu {
+    display: flex;
+    gap: 3px;
+
+
+}
+
+/* 基本的なレイアウト設定 */
+
+/* 背景色 */
+main {
+    background-color: #f6f3f3;
+}
+
+
+
+
+.container {
+    max-width: 70%;
+    margin: 0 auto;
+    background-color: #f6f3f3;
+    padding: 40px;
+    border-radius: 12px;
+    height: 100vh;
+  
+    
+}
+
+.page-title {
+    text-align: left;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-left: 6px solid #000;
+    padding-left: 12px;
+    background-color: #f6f3f3;
+}
+
+.month-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 5px 20px;
+}
+
+.month-nav {
+    text-decoration: none;
+    color: #645e5e;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.current-month {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 5px;
+    color: #645e5e;
+}
+
+
+.attendance-table th,
+.attendance-table td {
+    border-top: 1px solid #ddd;
+    /* 上だけ線を残す */
+    border-bottom: 1px solid #ddd;
+    border-left: none;
+    /* ← 縦線を消す */
+    border-right: none;
+    /* ← 縦線を消す */
+    text-align: center;
+    padding: 12px 8px;
+    font-size: 16px;
+}
+
+
+
+.details-link {
+    color:black;
+    text-decoration: none;
+}
+
+.details-link:hover {
+    text-decoration: underline;
+}
+
+.tab-menu {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    margin-right: 20px;
+    text-decoration: none;
+    color: #645e5e;
+    font-weight: bold;
+    border-bottom: 3px solid transparent;
+}
+
+.tab.active {
+   
+    color: #000;
+}
+
+.page-title {
+    border-left: 5px solid #000;
+    padding-left: 10px;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}

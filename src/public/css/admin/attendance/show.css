@@ -1,0 +1,307 @@
+
+
+
+/* ===========================
+   🔝 ヘッダー
+   =========================== */
+.header {
+    background: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.header__logo img {
+    width: 23vw;
+    height: auto;
+    margin-left: 10px;
+    margin-right: 30px;
+}
+
+.header__menu {
+    display: flex;
+    
+    /* 各リンク間の等間隔 */
+    align-items: center;
+    margin-left: auto;
+    /* ヘッダー右寄せにしたい場合 */
+}
+
+.header__menu-link {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    padding: 8px 18px;
+    font-size: 1.4vw;
+    
+}
+
+
+.btn {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    padding: 8px 12px;
+    font-size: 1.4vw;
+}
+
+ 
+
+
+.btn-outlet {
+    background-color: white;
+    color: black;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.btn-text {
+    font-size: 1.4vw;
+
+}
+
+
+.header__menu {
+    display: flex;
+    gap: 3px;
+
+
+}
+
+/* 基本的なレイアウト設定 */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f6f3f3;
+    
+}
+
+
+.container {
+ 
+    background-color: white;
+    border-radius: 8px;
+    margin: 0 auto;
+    
+ 
+}
+.attendance-form{
+    width: 70%;
+    margin: auto;
+}
+/* フォームのリスト */
+ul.attendance-form-list {
+    width: 100%;
+    list-style-type: none;
+    padding: 0;
+}
+
+/* 各項目を横並びに */
+li.attendance-item {
+    display: flex;
+
+    align-items: center;
+  
+
+    text-align: left;
+}
+
+/* ラベル */
+label.label {
+    font-weight: bold;
+    color: #555;
+    width: 360px;
+    /* ラベルの幅を固定 */
+    text-align: left;
+   
+    /* ラベルと入力フィールドの間隔 */
+    padding-left: 60px;
+}
+
+.time-input[type="time"] {
+    width: 100px;
+    padding: 5px;
+    font-size: 16px;
+    
+    text-align: center;
+    /* ← テキストを中央に */
+    appearance: none;
+    /* クロスブラウザ対応 */
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+
+    /* 必要に応じて枠線など */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    display: none;
+}
+
+textarea {
+  width: 350px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+
+
+/* 提出ボタン */
+button.submit-button {
+    background-color: black;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    display: block;
+    margin-top: 50px ;
+    margin-left: auto;
+    transition: background-color 0.3s ease;
+    margin-bottom: 50px;
+    
+}
+
+.date-display{
+    margin-left: 30px;
+    gap:200px;
+    display: flex;
+}
+
+.name{
+    margin-left: 30px;
+    
+}
+
+button.submit-button:focus {
+    outline: none;
+}
+
+.attendance-details-title {
+    font-size: 24px;
+   
+    font-weight: bold;
+    color: #222;
+    border-left: 5px solid #000;
+    padding-left: 10px;
+    width: 70%;
+   margin: 120px auto 50px auto;
+  
+  
+    
+}
+
+
+
+.attendance-item span {
+    font-size: 16px;
+   
+}
+
+.attendance-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+
+.time-box {
+    display: inline-block;
+   
+    border: 1px solid #c3c0c0;
+    border-radius: 3px;
+    width: 100px;
+    text-align: center;
+    
+}
+
+.time-range {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    /* ← ここで入力欄と「〜」の間のスペースを調整 */
+}
+.form-row {
+    display: flex;
+    align-items: center;
+    /* 垂直方向の中央揃え */
+   
+}
+
+.label {
+    width: 100px;
+    /* ラベルの幅を固定 */
+    font-weight: bold;
+    /* 必要に応じて右余白も */
+    margin-right: 1rem;
+}
+
+.input-field {
+    flex: 1;
+    /* 残り幅を入力欄が使う */
+}
+
+
+
+.input-time {
+    width: 100px;
+    padding: 0.3rem;
+    border: #c0b9b9 1px solid;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.range-separator {
+    margin: 0 0.5rem;
+}
+
+
+
+.error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+   
+}
+
+.btn-primary{
+   
+    color: black;
+    padding: 10px 20px;
+    border: 1px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.attendance-table th,
+.attendance-table td {
+    padding: 0.5em 1em;
+    text-align: left;
+    vertical-align: middle;
+}
+
+
+
+.attendance-table .date-year {
+    display: inline-flex;
+    margin-right: 190px;
+    margin-left: 30px;
+}

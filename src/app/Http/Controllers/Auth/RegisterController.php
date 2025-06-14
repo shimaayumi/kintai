@@ -13,7 +13,7 @@ class RegisterController extends Controller
 {
     public function store(RegisterRequest $request)
     {
-       
+
         // バリデーション済みデータの取得
         $validated = $request->validated();
 
@@ -29,6 +29,4 @@ class RegisterController extends Controller
 
         return redirect()->route('verification.notice');
     }
-
-    
 }

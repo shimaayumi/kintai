@@ -4,7 +4,6 @@ namespace App\Models;
 
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
@@ -19,6 +18,11 @@ class User extends Authenticatable implements MustVerifyEmail // MustVerifyEmail
         'name',
         'email',
         'password',
+        'admin',
+    ];
+
+    protected $casts = [
+        'admin' => 'boolean',
     ];
 
     protected $hidden = [
@@ -68,18 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail // MustVerifyEmail
         return $this->belongsToMany(Item::class, 'favorites');
     }
 
-    // マイページの表示
-    public function showMypage(Request $request)
-    {
-        // 'page' パラメータが 'buy' の場合、購入した商品一覧を表示
-        if ($request->get('page') === 'buy') {
-            $purchases = Purchase::where('user_id', auth()->id())->get();
-            return view('mypage', compact('purchases'));
-        }
-
-        // 他のページの場合の処理（必要であれば）
-        return view('mypage');
-    }
+   
 
 
 }

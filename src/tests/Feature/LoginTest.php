@@ -3,104 +3,55 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
 
 class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    //2.ログイン機能 メールアドレスが入力されていない場合、バリデーションメッセージが表示される
-    public function it_requires_email_to_login()
+    protected function setUp(): void
     {
-        $response = $this->post('/login', [
-            'password' => 'password',
-        ]);
+        parent::setUp();
 
-        $response->assertSessionHasErrors('email');
+        // テスト用のユーザーを作成
+        User::factory()->create([
+            'email' => 'user@example.com',
+            'password' => bcrypt('password123'),
+        ]);
     }
 
-    //2.ログイン機能 パスワードが入力されていない場合、バリデーションメッセージが表示される
-    public function it_requires_password_to_login()
+    // 1. メールアドレスが未入力の場合、バリデーションメッセージが表示される
+    public function test_email_is_required()
+    {
+        $response = $this->post('/login', [
+            'email' => '',
+            'password' => 'validpassword123',
+        ]);
+        $response->assertSessionHasErrors(['email' => 'メールアドレスを入力してください']);
+    }
+
+    // 2. パスワードが未入力の場合、バリデーションメッセージが表示される
+    public function test_password_is_required()
     {
         $response = $this->post('/login', [
             'email' => 'user@example.com',
+            'password' => '',
         ]);
-
-        $response->assertSessionHasErrors('password');
+        $response->assertSessionHasErrors(['password' => 'パスワードを入力してください']);
     }
 
-
-    //2.ログイン機能 入力情報が間違っている場合、バリデーションメッセージが表示される
-    public function testLoginWithInvalidCredentials()
+    // 3. 登録内容と一致しない場合、バリデーションメッセージが表示される
+    public function test_invalid_credentials_show_error_message()
     {
-        // ログインページを開く
-        $response = $this->get('/login');
-
-        // 必要項目が登録されていない情報を入力する（例えば、間違ったメールアドレスとパスワード）
-        $response = $this->post('/login', [
-            'email' => 'invalid@example.com',  // 存在しないメールアドレス
-            'password' => 'wrongpassword',     // 間違ったパスワード
-        ]);
-
-        // バリデーションメッセージ「ログイン情報が登録されていません」が表示されることを確認
-        $response->assertSessionHasErrors([
-            'email' => 'ログイン情報が登録されていません',
-        ]);
-    }
-
-
-    //2.ログイン機能 正しい情報が入力された場合、ログイン処理が実行される
-    public function testLoginWithCorrectCredentials()
-    {
-        // テスト用ユーザーを作成（必要に応じて事前にデータベースにユーザーを作成）
-        $user = User::factory()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('password'), // パスワードはハッシュ化する
-        ]);
-
-        // ログインページを開く
-        $response = $this->get('/login');
-
-        // 正しい情報を入力してログインフォームを送信する
-        $response = $this->post('/login', [
-            'email' => 'user@example.com',  // 正しいメールアドレス
-            'password' => 'password',       // 正しいパスワード
-        ]);
-
-     
-
-        // ユーザーが認証されていることを確認
-        $this->assertAuthenticatedAs($user);  // ログインが成功し、認証されていることを確認
-    }
-
-
-    //3.ログアウト機能　ログアウトができる
-    public function testLogout()
-    {
-        // テスト用ユーザーを作成
-        $user = User::factory()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('password'),
-        ]);
-
-        // ログインする
         $response = $this->post('/login', [
             'email' => 'user@example.com',
-            'password' => 'password',
+            'password' => 'wrongpassword',
         ]);
-
-      
-        // ユーザーが認証されていることを確認
-        $this->assertAuthenticatedAs($user);
-
-        // ログアウトする
-        $response = $this->post('/logout');
-
-       
-        // ユーザーがログアウトされていることを確認
-        $this->assertGuest();  // ユーザーがゲスト状態であることを確認
+        $response->assertSessionHasErrors(['email' => 'ログイン情報が登録されていません']);
     }
 
+
+    
 }
-

@@ -36,7 +36,7 @@ body {
 
 .register-form {
   max-width: 46%;
-  margin: 50px auto;
+  margin: 100px auto;
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -79,7 +79,7 @@ body {
 .register-form__btn {
   width: 100%;
   padding:7px;
-  background-color: red;
+  background-color: black;
   color: white;
   border: none;
   border-radius: 4px;
@@ -88,9 +88,7 @@ body {
   margin-top: 40px;
 }
 
-.register-form__btn:hover {
-  background-color: rgb(239, 75, 75);
-}
+
 
 /* エラーメッセージ */
 .register-form__error-message {

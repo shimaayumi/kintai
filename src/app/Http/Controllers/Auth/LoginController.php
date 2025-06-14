@@ -20,17 +20,23 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
+            // 管理者がログインしていたらログアウトさせる
+            auth('admin')->logout();
+
             // メール認証されていなければ認証ページへ
             if (!$user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
 
             // 元のページにリダイレクト
-            return redirect()->intended('/');
+            return redirect()->intended('attendance');
         }
 
-        return back()->withErrors(['email' => 'ログイン情報が登録されていません']);
+        return back()->withErrors([
+            'email' => 'ログイン情報が登録されていません',
+        ])->withInput($request->except('password'));
     }
+
 
     public function logout()
     {
@@ -40,8 +46,8 @@ class LoginController extends Controller
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect('/'); // トップページにリダイレクト
+        return redirect('/login'); // トップページにリダイレクト
     }
-   
-}
 
+    
+}

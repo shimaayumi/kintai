@@ -25,7 +25,7 @@ class EmailVerificationController extends Controller
     {
         // ユーザーが既に認証されている場合
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->route('edit'); // プロフィール編集画面にリダイレクト（ルート名を確認）
+            return redirect()->route('login'); 
         }
 
         // メールを認証する
@@ -33,8 +33,8 @@ class EmailVerificationController extends Controller
             event(new Verified($request->user())); // 認証イベントを発火
         }
 
-        // 認証後、プロフィール編集画面にリダイレクト
-        return redirect()->to('/mypage?page=sell')->with('verified', true);
+        // 認証後、
+        return redirect()->route('login');
     }
 
 
