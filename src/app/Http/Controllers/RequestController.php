@@ -109,7 +109,7 @@ class RequestController extends Controller
             'attendance_id' => $attendance->id,
             'user_id' => auth()->guard('web')->id(), // ✅ 明示
             'requester_type' => CorrectionRequest::REQUESTER_USER,
-            'status' => CorrectionRequest::STATUS_OFF,
+            'status' => CorrectionRequest::STATUS_ENDED,
             'approval_status' => CorrectionRequest::APPROVAL_PENDING,
             'started_at' => $startedAt,
             'ended_at' => $endedAt,

@@ -131,7 +131,7 @@ class AdminAttendanceController extends Controller
     
         $correctionRequest = CorrectionRequest::create([
             'attendance_id' => $attendance->id,
-            'user_id' => auth()->id(),
+            'user_id' => $attendance->user_id, // ← 勤怠の本人のIDを使う
             'requester_type' => $requesterType,  
             'started_at' => $workDate->copy()->setTimeFrom($start),
             'ended_at' => $workDate->copy()->setTimeFrom($end),
