@@ -41,21 +41,23 @@ class RequestController extends Controller
 
 
 
-    public function store(Request $request ,$id)
+    public function store(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
 
-            // 申請本体を保存
-            $correctionRequest = CorrectionRequest::create([
-                'attendance_id' => $attendance->id,
-                'user_id' => auth()->id(),
-                'requester_type' => CorrectionRequest::REQUESTER_USER, // 'user'の定数や文字列
-                'status' => CorrectionRequest::STATUS_OFF,             // 'off'の定数や文字列
-                'approval_status' => CorrectionRequest::APPROVAL_PENDING, // 'pending'など
-                'started_at' => Carbon::parse($request->started_at), // 例：2025-06-12 09:00:00 の形にする
-                'ended_at' => Carbon::parse($request->ended_at),
-                'note' => $request->note,
-            ]);
+        $userId = auth()->guard('web')->id();
+        
+
+        $correctionRequest = CorrectionRequest::create([
+            'attendance_id' => $attendance->id,
+            'user_id' => $userId,
+            'requester_type' => CorrectionRequest::REQUESTER_USER,
+            'status' => CorrectionRequest::STATUS_OFF,
+            'approval_status' => CorrectionRequest::APPROVAL_PENDING,
+            'started_at' => Carbon::parse($request->started_at),
+            'ended_at' => Carbon::parse($request->ended_at),
+            'note' => $request->note,
+        ]);
 
         // 休憩時間を複数保存（複数休憩がある場合）
         foreach ($request->input('breaks', []) as $break) {
@@ -68,6 +70,7 @@ class RequestController extends Controller
                 ]);
             }
         }
+        
 
         return redirect()->back()->with('success', '修正申請を保存しました。');
     }
@@ -77,8 +80,9 @@ class RequestController extends Controller
     public function update(AttendanceRequest $request, $id)
     {
         
+      
         $attendance = Attendance::findOrFail($id);
-
+       
         Attendance::where('id', $attendance->id)->update(['approval_status' => 'pending']);
 
         // 承認待ちの修正申請が既に存在するかチェック
@@ -103,7 +107,7 @@ class RequestController extends Controller
         // CorrectionRequest を保存（休憩時間は別テーブルにするため削除）
         $correctionRequest = CorrectionRequest::create([
             'attendance_id' => $attendance->id,
-            'user_id' => auth()->id(),
+            'user_id' => auth()->guard('web')->id(), // ✅ 明示
             'requester_type' => CorrectionRequest::REQUESTER_USER,
             'status' => CorrectionRequest::STATUS_OFF,
             'approval_status' => CorrectionRequest::APPROVAL_PENDING,

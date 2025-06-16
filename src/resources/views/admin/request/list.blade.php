@@ -77,16 +77,16 @@
                         $requests = $tab === 'approved' ? $approvedRequests : $pendingRequests;
                         @endphp
 
-                        @forelse ($requests as $request)
+                        @forelse ($requests as $correctionRequest)
                         <tr>
                             <td>{{ $tab === 'approved' ? '承認済み' : '承認待ち' }}</td>
-                            <td>{{ $request->user->name ?? '未設定' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($request->started_at)->format('Y/m/d') }}</td>
-                            <td>{{ $request->note }}</td>
-                            <td>{{ $request->created_at->format('Y/m/d') }}</td>
+                            <td>{{ optional($correctionRequest->user)->name ?? '未設定' }}</td>
+                            <td>{{ \Carbon\Carbon::parse($correctionRequest->started_at)->format('Y/m/d') }}</td>
+                            <td>{{ $correctionRequest->note }}</td>
+                            <td>{{ $correctionRequest->created_at->format('Y/m/d') }}</td>
                             <td>
-                                @if ($request->attendance)
-                                <a href="{{ route('admin.stamp_correction_request.approve', $request->attendance->id) }}" class="request-detail-link">詳細</a>
+                                @if ($correctionRequest->attendance)
+                                <a href="{{ route('admin.stamp_correction_request.approve', $correctionRequest->attendance->id) }}" class="request-detail-link">詳細</a>
                                 @else
                                 N/A
                                 @endif
@@ -97,7 +97,7 @@
                             <td colspan="6">データがありません</td>
                         </tr>
                         @endforelse
-                       
+
                     </tbody>
                 </table>
             </div>

@@ -50,7 +50,7 @@
             <table class="attendance-table">
                 <tr>
                     <th>名前</th>
-                    <td>{{ $correctionRequest->user->name ?? '未設定' }}</td>
+                    <td>{{ $correctionRequest->attendance->user->name ?? '未設定' }}</td>
                 </tr>
                 <tr>
                     @php

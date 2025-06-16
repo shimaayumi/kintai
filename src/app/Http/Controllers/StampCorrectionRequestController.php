@@ -29,15 +29,14 @@ class StampCorrectionRequestController extends Controller
 
             $pendingRequests = CorrectionRequest::with(['user', 'attendance'])
                 ->whereIn('id', function ($query) {
-                    // attendance_idごとに最新の申請idを取得
                     $query->selectRaw('MAX(id)')
                         ->from('correction_requests')
                         ->groupBy('attendance_id');
                 })
-                ->where('approval_status', 'pending')  // 最新申請が承認待ちのみ抽出
+                ->where('approval_status', 'pending')
                 ->latest()
                 ->get();
-
+                
             $approvedRequests = CorrectionRequest::with(['user', 'attendance'])
                 ->where('approval_status', CorrectionRequest::APPROVAL_APPROVED)
                 ->orderByDesc('created_at')
@@ -77,6 +76,7 @@ class StampCorrectionRequestController extends Controller
             $correctionRequest->update([
                 'approval_status' => 'approved',
                 'approved_at' => now(),
+                'status' => 'ended',
             ]);
 
             $attendance = $correctionRequest->attendance;
@@ -94,11 +94,16 @@ class StampCorrectionRequestController extends Controller
         return redirect()->back()->with('success', '承認しました');
     }
 
-    
+
     public function show($id)
     {
-        $correctionRequest = CorrectionRequest::with('attendance.breakTimes')
-            ->findOrFail($id);
+        // 勤怠単位で最新の申請を取得
+        $correctionRequest = CorrectionRequest::with(['user', 'attendance.breakTimes'])
+            ->where('id', $id)
+            ->latest('updated_at')
+            ->firstOrFail();
+
+      
 
         return view('admin.request.show', [
             'correctionRequest' => $correctionRequest,
