@@ -23,16 +23,16 @@ class AdminStaffController extends Controller
         $month = $request->input('month', now()->month);
         $date = \Carbon\Carbon::createFromDate($year, $month, 1);
 
-       
-        $attendances = Attendance::with('breakTimes') // ← Eager load
-            ->where('user_id', $user->id)
-            ->whereYear('started_at', $year)
-            ->whereMonth('started_at', $month)
-            ->orderBy('started_at')
-            ->get()
-            ->keyBy(function ($attendance) {
-                return \Carbon\Carbon::parse($attendance->started_at)->toDateString();
-            });
+
+        $attendances = Attendance::with(['breakTimes', 'correctionRequest.correctionBreaks'])
+        ->where('user_id', $user->id)
+        ->whereYear('started_at', $year)
+        ->whereMonth('started_at', $month)
+        ->orderBy('started_at')
+        ->get()
+        ->keyBy(function ($attendance) {
+            return \Carbon\Carbon::parse($attendance->started_at)->toDateString();
+        });
 
         // 月の日数分ループして、「06/01(木)」形式の文字列を配列で作成
         $daysWithWeekday = [];

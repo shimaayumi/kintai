@@ -305,3 +305,12 @@ button.submit-button:focus {
     margin-right: 190px;
     margin-left: 30px;
 }
+.approved-message{
+    color: red;
+  
+    margin: 20px;
+    text-align: right;
+   
+ 
+    margin: 20px auto;
+}

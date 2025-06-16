@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\CorrectionRequest;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 \Illuminate\Support\Facades\DB::enableQueryLog();
 
 use Illuminate\Support\Facades\DB;
@@ -15,6 +15,7 @@ class StampCorrectionRequestController extends Controller
 {
     public function index()
     {
+        
         $monthStr = request()->input('month') ?? now()->format('Y-m');
         $month = Carbon::createFromFormat('Y-m', $monthStr);
         $dates = CarbonPeriod::create($month->startOfMonth(), $month->endOfMonth())->toArray();
@@ -23,26 +24,35 @@ class StampCorrectionRequestController extends Controller
         $adminCheck = auth('admin')->check();
         $webCheck = auth('web')->check();
 
-        // 管理者ログインのみの場合
         if ($adminCheck && !$webCheck) {
             $tab = request()->input('tab', 'pending');
 
-            $pendingRequests = CorrectionRequest::with('user')
-                ->where('approval_status', 'pending')
+            $pendingRequests = CorrectionRequest::with(['user', 'attendance'])
+                ->whereIn('id', function ($query) {
+                    // attendance_idごとに最新の申請idを取得
+                    $query->selectRaw('MAX(id)')
+                        ->from('correction_requests')
+                        ->groupBy('attendance_id');
+                })
+                ->where('approval_status', 'pending')  // 最新申請が承認待ちのみ抽出
                 ->latest()
-                ->take(1)
                 ->get();
 
-            $approvedRequests = CorrectionRequest::with('user')
-                ->where('approval_status', 'approved')
-                ->latest()
-                ->take(1)
+            $approvedRequests = CorrectionRequest::with(['user', 'attendance'])
+                ->where('approval_status', CorrectionRequest::APPROVAL_APPROVED)
+                ->orderByDesc('created_at')
                 ->get();
 
-            return view('admin.request.list', compact('pendingRequests', 'approvedRequests', 'month', 'dates', 'tab', 'routeName'));
+            return view('admin.request.list', compact(
+                'pendingRequests',
+                'approvedRequests',
+                'month',
+                'dates',
+                'tab',
+                'routeName'
+            ));
         }
 
-        // 一般ユーザーのみログインの場合
         if ($webCheck && !$adminCheck) {
             $user = auth('web')->user();
             $status = request()->input('status', 'pending');
@@ -53,17 +63,10 @@ class StampCorrectionRequestController extends Controller
                 ->latest()
                 ->paginate(10);
 
+           
             return view('request.history', compact('requests', 'status', 'month', 'dates'));
         }
-
-        // 両方ログイン、またはどちらもログインしていない状態は異常として403
-        logger()->warning('認証状態異常', [
-            'admin_check' => $adminCheck,
-            'web_check' => $webCheck,
-            'admin_id' => auth('admin')->id(),
-            'web_id' => auth('web')->id(),
-        ]);
-        abort(403, 'Unauthorized');
+      
     }
 
     public function approve(Request $request, $id)
@@ -91,12 +94,11 @@ class StampCorrectionRequestController extends Controller
         return redirect()->back()->with('success', '承認しました');
     }
 
+    
     public function show($id)
     {
-        $correctionRequest = CorrectionRequest::with('attendance.breakTimes')->find($id);
-        if (!$correctionRequest) {
-            abort(404, 'データが見つかりません');
-        }
+        $correctionRequest = CorrectionRequest::with('attendance.breakTimes')
+            ->findOrFail($id);
 
         return view('admin.request.show', [
             'correctionRequest' => $correctionRequest,

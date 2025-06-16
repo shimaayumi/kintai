@@ -143,7 +143,11 @@
                     </li>
                 </ul>
             </div>
+            @if (optional($correctionRequest)->approval_status === \App\Models\CorrectionRequest::APPROVAL_APPROVED)
+            <p class="approved-message">承認済みのため修正できません。</p>
+            @else
             <button type="submit" class="submit-button">修正</button>
+            @endif
         </form>
 
     </main>

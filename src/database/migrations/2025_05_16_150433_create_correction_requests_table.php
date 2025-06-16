@@ -23,7 +23,7 @@ class CreateCorrectionRequestsTable extends Migration
             $table->timestamp('ended_at')->nullable();
             $table->text('note')->nullable();
             $table->enum('status', ['off', 'working', 'on_break', 'ended'])->default('off');
-            $table->enum('approval_status', ['Unsubmitted', 'pending', 'approved'])->default('Unsubmitted');
+            $table->enum('approval_status', ['unsubmitted', 'pending', 'approved'])->default('Unsubmitted');
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
         });

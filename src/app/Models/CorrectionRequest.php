@@ -41,7 +41,7 @@ class CorrectionRequest extends Model
     const STATUS_ENDED = 'ended';
 
     // 申請承認状態（approval_status）
-    const APPROVAL_UNSUBMITTED = 'Unsubmitted';
+    const APPROVAL_UNSUBMITTED = 'unsubmitted';
     const APPROVAL_PENDING = 'pending';
     const APPROVAL_APPROVED = 'approved';
 
@@ -89,8 +89,6 @@ class CorrectionRequest extends Model
     {
         return $this->hasMany(CorrectionBreak::class);
     }
-
-   
 
     // アクセサ例（時間をH:i形式で返す）
     public function getWorkStartTimeAttribute()

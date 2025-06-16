@@ -81,7 +81,7 @@ Route::prefix('admin')->group(function () {
 
 // 一般ユーザー用
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
-    Route::put('/attendance/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
+    Route::put('/attendance/{id}', [AttendanceController::class, 'approve'])->name('attendance.approve');
 });
 // 管理者用
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {

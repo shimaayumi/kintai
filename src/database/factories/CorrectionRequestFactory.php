@@ -23,14 +23,14 @@ class CorrectionRequestFactory extends Factory
     }
 
     // 承認済み状態を作るメソッド
-   public function approved()
+    public function approved()
     {
         return $this->state(function (array $attributes) {
             return [
                 'approval_status' => CorrectionRequest::APPROVAL_APPROVED,
                 'approved_at' => now(),
-                'note' => 'Saepe totam assumenda eius aut aut.', // ← テスト期待文言をここでセット
-                'status' => CorrectionRequest::STATUS_OFF,
+                'note' => 'Saepe totam assumenda eius aut aut.',
+              
             ];
         });
     }

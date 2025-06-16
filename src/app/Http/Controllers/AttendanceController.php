@@ -108,9 +108,12 @@ class AttendanceController extends Controller
 
         $attendance->ended_at = $now;
         $attendance->status = 'ended';
-        $attendance->save();
 
-        return redirect()->route('attendance.index')->with('success', '退勤を打刻しました。');
+        if ($attendance->save()) {
+            return redirect()->route('attendance.index')->with('success', '退勤を打刻しました。');
+        } else {
+            return redirect()->route('attendance.index')->with('error', '退勤の打刻に失敗しました。');
+        }
     }
 
     // 休憩開始
@@ -179,6 +182,7 @@ class AttendanceController extends Controller
     public function list(Request $request)
     {
         $user = auth()->user();
+
         $monthInput = $request->input('month');
 
         $month = $monthInput
@@ -187,25 +191,44 @@ class AttendanceController extends Controller
 
         $startOfMonth = $month->copy()->startOfMonth();
         $endOfMonth = $month->copy()->endOfMonth();
-        $dates = [];
 
+        // 全日付の配列を生成
+        $dates = [];
         for ($dateIter = $startOfMonth->copy(); $dateIter->lte($endOfMonth); $dateIter->addDay()) {
             $dates[] = $dateIter->copy();
         }
 
+        // DBから勤怠データ取得
         $attendancesRaw = Attendance::with(['breakTimes', 'correctionRequest.correctionBreaks'])
             ->where('user_id', $user->id)
-            ->whereBetween('started_at', [$startOfMonth, $endOfMonth])
+            ->whereBetween('started_at', [
+                $startOfMonth->format('Y-m-d 00:00:00'),
+                $endOfMonth->format('Y-m-d 23:59:59'),
+            ])
             ->get();
 
         $attendances = [];
         $totalWorkMinutes = 0;
 
+        // 初期化: すべての日付分の配列を作っておく（空データ）
+        foreach ($dates as $date) {
+            $key = $date->format('Y-m-d');
+            $attendances[$key] = [
+                'id' => null,
+                'date' => $date->format('m/d') . '(' . ['日', '月', '火', '水', '木', '金', '土'][$date->dayOfWeek] . ')',
+                'started_at' => '',
+                'ended_at' => '',
+                'break' => '',
+                'work_time' => '',
+            ];
+        }
+
+        // 勤怠がある日付だけ上書き
         foreach ($attendancesRaw as $attendance) {
             $dateKey = Carbon::parse($attendance->started_at)->format('Y-m-d');
             $correction = $attendance->correctionRequest;
-
-            // 出退勤時刻
+            \Log::info("Attendance ID: {$attendance->id}");
+            \Log::info("Correction: ", $correction ? $correction->toArray() : ['none']);
             $start = $correction && $correction->started_at
                 ? Carbon::parse($correction->started_at)
                 : ($attendance->started_at ? Carbon::parse($attendance->started_at) : null);
@@ -214,7 +237,6 @@ class AttendanceController extends Controller
                 ? Carbon::parse($correction->ended_at)
                 : ($attendance->ended_at ? Carbon::parse($attendance->ended_at) : null);
 
-            // 休憩時間
             $breaks = $correction && $correction->correctionBreaks->isNotEmpty()
                 ? $correction->correctionBreaks
                 : $attendance->breakTimes;
@@ -228,13 +250,13 @@ class AttendanceController extends Controller
                 }
             }
 
-            // 勤務時間
             $workMinutes = 0;
             if ($start && $end) {
                 $workMinutes = $start->diffInMinutes($end) - $totalBreakMinutes;
                 $totalWorkMinutes += max(0, $workMinutes);
             }
 
+            // 該当日を上書き
             $attendances[$dateKey] = [
                 'id' => $attendance->id,
                 'date' => $start ? $start->format('m/d') . '(' . ['日', '月', '火', '水', '木', '金', '土'][$start->dayOfWeek] . ')' : '',
@@ -257,27 +279,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    //修正申請
-    public function update(AttendanceRequest $request, $id)
-    {
-        $attendance = Attendance::findOrFail($id);
-        $user = auth()->guard('web')->user(); // 一般ユーザー用
-
-        $correction = CorrectionRequest::create([
-            'attendance_id' => $attendance->id,
-            'user_id' => $user->id,
-            'requester_type' => 'user',
-            'started_at' => $request->input('started_at'),
-            'ended_at' => $request->input('ended_at'),
-            'note' => $request->input('note'),
-            'status' => 'ended',
-            'approval_status' => 'pending',
-        ]);
-
-        // 休憩時間などの処理もここで
-
-        return redirect()->route('attendance.show', $attendance->id)->with('success', '修正申請を送信しました。');
-    }
+    
 
     //ステータスの更新
     public function approve(Request $request, $id)

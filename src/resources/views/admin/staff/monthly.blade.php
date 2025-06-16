@@ -115,46 +115,68 @@
 
                             {{-- 出勤時間 --}}
                             <td>
-                                {{ $attendance?->started_at ? $attendance->started_at->format('H:i') : '' }}
+                                @php
+                                $start = $attendance?->correctionRequest?->started_at ?? $attendance?->started_at;
+                                @endphp
+                                {{ $start ? \Carbon\Carbon::parse($start)->format('H:i') : '' }}
                             </td>
 
                             {{-- 退勤時間 --}}
                             <td>
-                                {{ $attendance?->ended_at ? $attendance->ended_at->format('H:i') : '' }}
+                                @php
+                                $end = $attendance?->correctionRequest?->ended_at ?? $attendance?->ended_at;
+                                @endphp
+                                {{ $end ? \Carbon\Carbon::parse($end)->format('H:i') : '' }}
                             </td>
 
                             {{-- 休憩時間 --}}
                             <td>
-                                @if (!empty($attendance) && $attendance->breakTimes->isNotEmpty())
                                 @php
-                                $totalBreakMinutes = $attendance->breakTimes->sum(function ($break) {
-                                return $break->break_started_at && $break->break_ended_at
-                                ? $break->break_started_at->diffInMinutes($break->break_ended_at)
-                                : 0;
+                                $breakTimes = $attendance?->correctionRequest?->correctionBreaks ?? $attendance?->breakTimes;
+                                $totalBreakMinutes = 0;
+                                if ($breakTimes && $breakTimes->isNotEmpty()) {
+                                $totalBreakMinutes = $breakTimes->sum(function ($break) {
+                                // break_started_at と break_ended_at はCarbonインスタンスか文字列かに応じて調整
+                                $start = \Carbon\Carbon::parse($break->break_started_at);
+                                $end = \Carbon\Carbon::parse($break->break_ended_at);
+                                return $start && $end ? $start->diffInMinutes($end) : 0;
                                 });
+                                }
                                 $hours = floor($totalBreakMinutes / 60);
                                 $minutes = $totalBreakMinutes % 60;
                                 @endphp
-                                {{ sprintf('%d:%02d', $hours, $minutes) }}
-                                @else
-                                {{-- 空欄 --}}
-                                @endif
+
+                                {{ $totalBreakMinutes > 0 ? sprintf('%d:%02d', $hours, $minutes) : '' }}
                             </td>
 
                             {{-- 実働時間 --}}
                             <td>
-                                @if ($attendance?->started_at && $attendance?->ended_at)
                                 @php
-                                $workMinutes = $attendance->started_at->diffInMinutes($attendance->ended_at);
-                                $workHours = floor($workMinutes / 60);
-                                $workRemainingMinutes = $workMinutes % 60;
+                                $workMinutes = null;
+
+                                if ($start && $end) {
+                                $startTime = \Carbon\Carbon::parse($start);
+                                $endTime = \Carbon\Carbon::parse($end);
+                                $workMinutes = $startTime->diffInMinutes($endTime);
+
+                                // ここで休憩時間をセット（先に計算済みの$totalBreakMinutesを使う）
+                                $breakMinutes = $totalBreakMinutes ?? 0;
+
+                                // 実働から休憩時間を引く（マイナスにならないようにmaxで制御）
+                                $actualWorkMinutes = max(0, $workMinutes - $breakMinutes);
+
+                                $workHours = floor($actualWorkMinutes / 60);
+                                $workRemainingMinutes = $actualWorkMinutes % 60;
+                                }
                                 @endphp
+
+                                @if ($start && $end && isset($actualWorkMinutes))
                                 {{ sprintf('%d:%02d', $workHours, $workRemainingMinutes) }}
                                 @else
                                 {{-- 空欄 --}}
                                 @endif
                             </td>
-
+                            
                             {{-- 詳細リンク --}}
                             <td>
                                 @if (!empty($attendance))
@@ -166,7 +188,7 @@
                 </tbody>
             </table>
             <div class="csv-export">
-                <a href="{{ route('admin.staff.exportCsv', ['user' => $user->id]) . '?' . http_build_query(['year' => $date->year, 'month' => $date->month]) }}" class="csv-btn">CSV出力</a>
+                <a href="{{ route('admin.staff.exportCsv', ['user' => $user->id, 'year' => $date->year, 'month' => $date->month]) }}" class="csv-btn">CSV出力</a>
             </div>
         </div>
     </main>

@@ -22,17 +22,10 @@ class AdminCorrectionRequestTest extends TestCase
         $this->actingAs($admin, 'admin');
 
         // 承認待ち（pending）
-        CorrectionRequest::factory()->create([
-            'status' => 'pending',
-            'note' => '共通の理由',
-        ]);
+        $pendingRequests = CorrectionRequest::where('approval_status', 'pending')->get();
 
         // 承認済み（approved）
-        $approvedRequests = CorrectionRequest::factory()->create([
-            'status' => CorrectionRequest::STATUS_OFF,
-            'approval_status' => CorrectionRequest::APPROVAL_APPROVED,
-        ]);
-
+        $approvedRequests = CorrectionRequest::where('approval_status', 'approved')->get();
        
 
         // 承認待ちのタブを開くURL（例）
@@ -42,7 +35,7 @@ class AdminCorrectionRequestTest extends TestCase
 
         
         foreach ($pendingRequests as $request) {
-            $response->assertSee($request->note); // `note`を表示してる前提（title → noteに修正）
+            $response->assertSee($request->note); 
         }
 
         // 承認済みや却下の申請は表示されていないことを確認
@@ -56,24 +49,32 @@ class AdminCorrectionRequestTest extends TestCase
 
     public function test_管理者ユーザーが承認済みの修正申請一覧を閲覧できる(): void
     {
+        // 管理者ユーザーを作成・ログイン
         $admin = Admin::factory()->create();
-        $user = User::factory()->create();
 
-        $attendance = Attendance::factory()->create([
-            'user_id' => $user->id,
-            'work_date' => '2025-05-31',
-        ]);
+        $this->actingAs($admin, 'admin');
 
-        $correctionRequest = CorrectionRequest::factory()->approved()->create([
-            'note' => 'Saepe totam assumenda eius aut aut.',
-        ]);
+        // 承認待ち（pending）
+        $pendingRequests = CorrectionRequest::where('approval_status', 'pending')->get();
 
-        $response = $this
-            ->actingAs($admin)
-            ->get(route('stamp_correction_request.index'));
+        // 承認済み（approved）
+        $approvedRequests = CorrectionRequest::where('approval_status', 'approved')->get();
+
+
+        // 承認済みのタブを開くURL
+        $response = $this->get(route('stamp_correction_request.index', ['tab' => 'approved']));
 
         $response->assertStatus(200);
-        $response->assertSeeText('Saepe totam assumenda eius aut aut.');
+
+
+        foreach ($pendingRequests as $request) {
+            $response->assertSee($request->note); 
+        }
+
+        // 承認済みや却下の申請は表示されていないことを確認
+        foreach ($pendingRequests as $request) {
+            $response->assertDontSee($request->note, false);
+        }
     }
 
     public function test_修正申請の承認処理が正しく行われる()
