@@ -7,6 +7,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\BreakTime;
+use App\Models\Admin;
+use Carbon\Carbon;
 
 class AdminAttendanceDetailTest extends TestCase
 {
@@ -18,15 +20,17 @@ class AdminAttendanceDetailTest extends TestCase
     {
         parent::setUp(); // これが必須！
 
-        $this->admin = User::factory()->create([
-            'admin' => true,
-        ]);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
     }
 
     public function test管理者は勤怠詳細画面で正しい情報を確認できる()
     {
         // 管理者ユーザー作成
-        $admin = User::factory()->create(['admin' => true]);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
 
         // 一般ユーザー作成
         $user = User::factory()->create();
@@ -35,8 +39,8 @@ class AdminAttendanceDetailTest extends TestCase
         $attendance = Attendance::factory()->create([
             'user_id' => $user->id,
             'work_date' => now()->toDateString(),
-            'started_at' => now()->setTime(9, 0),
-            'ended_at' => now()->setTime(18, 0),
+            'started_at' => '09:00',
+            'ended_at' => '18:00',
         ]);
 
         // 休憩データ作成
@@ -48,7 +52,7 @@ class AdminAttendanceDetailTest extends TestCase
 
         // 管理者として勤怠詳細ページにアクセス
         $response = $this->actingAs($admin)
-            ->get(route('admin.attendance.show', $attendance->id));
+            ->get(route('attendance.show', $attendance->id));
 
         $response->assertStatus(200);
 
@@ -56,12 +60,12 @@ class AdminAttendanceDetailTest extends TestCase
         $response->assertSeeText($user->name);
 
         // 出勤時間・退勤時間の表示確認
-        $response->assertSeeText('09:00');
-        $response->assertSeeText('18:00');
+        $response->assertSee('value="09:00"', false);
+        $response->assertSee('value="18:00"', false);
 
         // 休憩時間の表示（開始・終了時刻）
-        $response->assertSeeText('12:00');
-        $response->assertSeeText('13:00');
+        $response->assertSee('value="12:00"', false); // 休憩開始時間
+        $response->assertSee('value="13:00"', false); // 休憩終了時間など
 
         // 必要に応じて他の詳細情報もassertSeeTextで確認可能
     }
@@ -72,7 +76,9 @@ class AdminAttendanceDetailTest extends TestCase
 
     public function test_出勤時間が退勤時間より後の場合にエラーメッセージが表示される()
     {
-        $this->actingAs($this->admin);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
 
         $attendance = Attendance::factory()->create();
 
@@ -88,14 +94,16 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors([
-            'ended_at' => '退勤時間は出勤時間より後である必要があります',
+            'ended_at' => '出勤時間もしくは退勤時間が不適切な値です',
         ]);
     }
 
 
     public function test_休憩開始時間が退勤時間より後の場合にエラーメッセージが表示される()
     {
-        $this->actingAs($this->admin);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
 
         $attendance = Attendance::factory()->create();
 
@@ -111,14 +119,16 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors([
-            'breaks.0.break_started_at' => '出勤時間もしくは退勤時間が不適切な値です',
+            'breaks.0.break_started_at' => '休憩時間が勤務時間外です。',
         ]);
     }
 
     public function test_備考欄が未入力の場合にエラーメッセージが表示される()
     {
         // 管理者としてログイン
-        $this->actingAs($this->admin);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
 
         // 勤怠データ作成（もしくは用意）
         $attendance = Attendance::factory()->create();
@@ -135,33 +145,50 @@ class AdminAttendanceDetailTest extends TestCase
             'note' => '備考を記入してください',
         ]);
     }
-    public function test_管理者ユーザーが全一般ユーザーの氏名とメールアドレスを確認できる()
+
+
+    
+    public function test_管理者ユーザーが全一般ユーザーの氏名とメールアドレスを確認できる(): void
     {
-        // 管理者ユーザーを用意してログイン
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
 
-        // 一般ユーザーを複数作成
-        $users = User::factory()->count(3)->create(['admin' => false]);
+        // 一般ユーザーを複数作成し、$users に代入
+        $users = User::factory()->count(3)->sequence(
+            ['email' => 'testuser1@example.com'],
+            ['email' => 'testuser2@example.com'],
+            ['email' => 'testuser3@example.com']
+        )->create();
 
-        // スタッフ一覧ページへアクセス（ルート名を修正）
-        $response = $this->get(route('admin.staff.list'));
+        // 出勤データなど必要なセットアップ
+        foreach ($users as $user) {
+            Attendance::factory()->create([
+                'user_id' => $user->id,
+                'work_date' => Carbon::create(2025, 6, 15),
+                'started_at' => '09:00',
+                'ended_at' => '18:00',
+            ]);
+        }
+
+        $response = $this
+            ->actingAs($admin)
+            ->get(route('admin.staff.list'));
 
         $response->assertStatus(200);
 
-        // 一般ユーザーの氏名・メールアドレスが画面に表示されているか確認
+        // $users の各ユーザーの名前とメールが表示されているかをチェック
         foreach ($users as $user) {
-            $response->assertSee(e($user->name));
-            $response->assertSee(e($user->email));
+            $response->assertSee($user->name);
+            $response->assertSee($user->email);
         }
     }
 
     public function test_ユーザーの勤怠情報が正しく表示される()
     {
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
 
-        $user = User::factory()->create(['admin' => false]);
+        $this->actingAs($admin, 'admin');
+
+        $user = User::factory()->create();
 
         // ここで必ず $attendances を作成しているか
         $attendances = Attendance::factory()->count(3)->sequence(
@@ -172,7 +199,7 @@ class AdminAttendanceDetailTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->get(route('admin.staff.monthly', ['user' => $user->id]));
+        $response = $this->get(route('admin.staff.monthly', ['id' => $user->id]));
 
         $response->assertStatus(200);
 
@@ -183,10 +210,11 @@ class AdminAttendanceDetailTest extends TestCase
 
     public function test_「前月」を押下した時に表示月の前月の情報が表示される()
     {
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
 
-        $user = User::factory()->create(['admin' => false]);
+        $this->actingAs($admin, 'admin');
+
+        $user = User::factory()->create();
 
         // 表示したい「前月」の年月を取得（例：今月の1日から1ヶ月前）
         $targetDate = now()->startOfMonth()->subMonth();
@@ -200,7 +228,7 @@ class AdminAttendanceDetailTest extends TestCase
 
         // 勤怠一覧ページを、前月の年月をパラメータにしてGET
         $response = $this->get(route('admin.staff.monthly', [
-            'user' => $user->id,
+            'id' => $user->id,
             'year' => $targetDate->year,
             'month' => $targetDate->month,
         ]));
@@ -222,10 +250,11 @@ class AdminAttendanceDetailTest extends TestCase
 
     public function test_「翌月」を押下した時に表示月の前月の情報が表示される()
     {
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
 
-        $user = User::factory()->create(['admin' => false]);
+        $this->actingAs($admin, 'admin');
+
+        $user = User::factory()->create();
 
         // 表示したい「翌月」の年月を取得（例：今月の1日から1ヶ月後）
         $targetDate = now()->startOfMonth()->addMonth();
@@ -239,7 +268,7 @@ class AdminAttendanceDetailTest extends TestCase
 
         // 勤怠一覧ページを、翌月の年月をパラメータにしてGET
         $response = $this->get(route('admin.staff.monthly', [
-            'user' => $user->id,
+            'id' => $user->id,
             'year' => $targetDate->year,
             'month' => $targetDate->month,
         ]));
@@ -260,10 +289,11 @@ class AdminAttendanceDetailTest extends TestCase
 
     public function test_「詳細」を押下すると、その日の勤怠詳細画面に遷移する()
     {
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
 
-        $user = User::factory()->create(['admin' => false]);
+        $this->actingAs($admin, 'admin');
+
+        $user = User::factory()->create();
 
         $attendance = Attendance::factory()->create([
             'user_id' => $user->id,
@@ -273,14 +303,14 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->get(route('admin.staff.monthly', [
-            'user' => $user->id,
+            'id' => $user->id,
             'year' => now()->year,
             'month' => now()->month,
         ]));
 
         $response->assertStatus(200);
 
-        $detailUrl = route('admin.attendance.show', ['attendance' => $attendance->id]);
+        $detailUrl = route('attendance.show', ['id' => $attendance->id]);
         $response->assertSee($detailUrl);
 
         $detailResponse = $this->get($detailUrl);

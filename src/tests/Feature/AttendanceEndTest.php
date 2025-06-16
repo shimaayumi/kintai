@@ -6,7 +6,8 @@ use App\Models\User;
 use App\Models\Attendance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
+use App\Models\Admin;
+
 
 class AttendanceEndTest extends TestCase
 {
@@ -46,9 +47,20 @@ class AttendanceEndTest extends TestCase
     //退勤時刻が管理画面で確認できる
     public function test退勤時刻が管理画面で確認できる()
     {
-        $adminUser = User::factory()->create(['admin' => true]);
+        // 管理者ユーザー（Adminモデル）作成
+        $admin = Admin::factory()->create();
+
+        // 管理者としてログイン
+        $this->actingAs($admin, 'admin');
+
+        // 管理画面アクセス
+        $response = $this->get(route('admin.attendance.list', ['date' => today()->toDateString()]));
+        $response->assertStatus(200);
+
+        // 一般ユーザー作成
         $generalUser = User::factory()->create();
 
+        // 出勤データ作成
         $attendance = Attendance::factory()->create([
             'user_id' => $generalUser->id,
             'work_date' => today()->toDateString(),
@@ -68,12 +80,15 @@ class AttendanceEndTest extends TestCase
         // ended_at が null でないことを確認
         $this->assertNotNull($attendance->ended_at, '退勤時刻が null のままです');
 
+        // 管理者として再度ログイン（省略可）
+        $this->actingAs($admin, 'admin');
+
         // 管理画面に退勤時刻が表示されるか確認
-        $this->actingAs($adminUser);
         $response = $this->get(route('admin.attendance.list', ['date' => today()->toDateString()]));
         $response->assertStatus(200);
 
         $formattedTime = $attendance->ended_at->format('H:i');
         $response->assertSee($formattedTime);
-    }
+}
+
 }

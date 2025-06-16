@@ -1,8 +1,9 @@
-# coachtechフリマ
+# KINTAI
 
 ## 環境構築
 ### Dockerビルド
-- git clone https://github.com/shimaayumi/fleamarket.git
+- git clone https://github.com/shimaayumi/kintai.git
+
 - docker-compose up -d --build
 
 ### Laravel環境構築
@@ -12,7 +13,7 @@
 - php artisan key:generate
 - php artisan migrate
 - php artisan db:seed
-- php artisan storage:link
+
 
 ## 開発環境
   - 商品一覧画面：http://localhost/  
@@ -26,11 +27,9 @@
 - nginx 1.21.1
 
 ## ER図
-- [ER図](./images/er_repo.png)
+- ![ER図](public/images/KINTAI.png)
 
-## stripeの.env設定
- - STRIPE_PUBLIC 公開可能キー
- - STRIPE_SECRET シークレットキー
 
 ## mailhogの.env設定
  - MAIL_FROM_ADDRESS=no-reply@example.com
+

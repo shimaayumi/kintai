@@ -66,9 +66,9 @@ class StampCorrectionRequestController extends Controller
         abort(403, 'Unauthorized');
     }
 
-    public function approve(Request $request, $attendance_correct_request)
+    public function approve(Request $request, $id)
     {
-        $correctionRequest = CorrectionRequest::findOrFail($attendance_correct_request);
+        $correctionRequest = CorrectionRequest::findOrFail($id);
 
         \DB::transaction(function () use ($correctionRequest) {
             $correctionRequest->update([

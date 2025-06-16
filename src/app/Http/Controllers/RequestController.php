@@ -41,9 +41,9 @@ class RequestController extends Controller
 
 
 
-    public function store(Request $request)
+    public function store(Request $request ,$id)
     {
-        $attendance = // 勤怠データを取得する処理
+        $attendance = Attendance::findOrFail($id);
 
             // 申請本体を保存
             $correctionRequest = CorrectionRequest::create([

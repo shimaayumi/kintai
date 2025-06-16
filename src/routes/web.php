@@ -41,7 +41,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance', [AttendanceController::class, 'handleAction'])->name('attendance.action');
     Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.list');
-    
     Route::get('/attendance/{id}/pending', [AttendanceController::class, 'pendingShow'])->name('attendance.pending');
     Route::post('/attendance/{id}/approve', [AttendanceController::class, 'approve'])->name('attendance.approve');
     
@@ -56,16 +55,17 @@ Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show'])
 ->middleware(['auth.any:web,admin']) // 両方認証可
     ->name('attendance.show');
 
+
 Route::get('/stamp_correction_request/list', [StampCorrectionRequestController::class, 'index'])
     ->middleware(['auth.any:web,admin']) // 両方認証可
     ->name('stamp_correction_request.index');
 
 
 // ✅ 詳細表示 → GET（ブラウザで開くもの）
-Route::get('/stamp_correction_request/approve/{attendance_correct_request}', [StampCorrectionRequestController::class, 'show'])
+Route::get('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'show'])
     ->name('admin.stamp_correction_request.show');
 // ✅ 承認処理 → POST（ボタンやフォームから送信するもの）
-Route::post('/stamp_correction_request/approve/{attendance_correct_request}', [StampCorrectionRequestController::class, 'approve'])
+Route::post('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'approve'])
     ->name('admin.stamp_correction_request.approve');
 
 
@@ -87,7 +87,6 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::put('/attendance/{id}', [AdminAttendanceController::class, 'update'])->name('attendance.update');
 });
-
 Route::prefix('admin')->middleware(['auth:admin', 'admin'])->name('admin.')->group(function () {
     //勤怠一覧画面（管理者）  
     Route::get('/attendance/list', [AdminAttendanceController::class, 'dailyAll'])->name('attendance.list');

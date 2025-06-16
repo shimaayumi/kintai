@@ -49,16 +49,17 @@ class AttendanceDetailTest extends TestCase
         // 氏名の表示を確認（例：山田 太郎）
         $response->assertSee('山田 太郎');
 
-        // 日付の表示を確認（例：2025/05/01 や 05/01 等、実際の Blade 表示形式に合わせて調整）
+     
       
-        $response->assertSee('2025-05-01');
-       
+        $response->assertSee('2025年');
+        $response->assertSee('5月1日');
+
         // 出勤・退勤時刻
         $response->assertSee('09:00');
         $response->assertSee('18:00');
 
         // 休憩時間（例：1:00）
-        $response->assertSee('03:00');
-        $response->assertSee('04:00');
+        $response->assertSee('12:00');
+        $response->assertSee('13:00');
     }
 }

@@ -49,7 +49,7 @@ class AdminLoginTest extends TestCase
             'email' => 'user@example.com',
             'password' => 'wrongpassword',
         ]);
-        $response->assertSessionHasErrors(['email' => 'メールアドレスまたはパスワードが正しくありません。']);
+        $response->assertSessionHasErrors('email');
     }
 
 

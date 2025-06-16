@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use App\Models\CorrectionRequest;
+use App\Http\Requests\AttendanceRequest;
 
 
 
@@ -256,10 +257,29 @@ class AttendanceController extends Controller
         ]);
     }
 
+    //修正申請
+    public function update(AttendanceRequest $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+        $user = auth()->guard('web')->user(); // 一般ユーザー用
 
-    
+        $correction = CorrectionRequest::create([
+            'attendance_id' => $attendance->id,
+            'user_id' => $user->id,
+            'requester_type' => 'user',
+            'started_at' => $request->input('started_at'),
+            'ended_at' => $request->input('ended_at'),
+            'note' => $request->input('note'),
+            'status' => 'ended',
+            'approval_status' => 'pending',
+        ]);
 
-   
+        // 休憩時間などの処理もここで
+
+        return redirect()->route('attendance.show', $attendance->id)->with('success', '修正申請を送信しました。');
+    }
+
+    //ステータスの更新
     public function approve(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
@@ -291,24 +311,5 @@ class AttendanceController extends Controller
         };
     }
 
-    public function update(Request $request, $id)
-    {
-        $attendance = Attendance::findOrFail($id);
-        $user = auth()->guard('web')->user(); // 一般ユーザー用
-
-        $correction = CorrectionRequest::create([
-            'attendance_id' => $attendance->id,
-            'user_id' => $user->id,
-            'requester_type' => 'user',
-            'started_at' => $request->input('started_at'),
-            'ended_at' => $request->input('ended_at'),
-            'note' => $request->input('note'),
-            'status' => 'ended',
-            'approval_status' => 'pending',
-        ]);
-
-        // 休憩時間などの処理もここで
-
-        return redirect()->route('attendance.show', $attendance->id)->with('success', '修正申請を送信しました。');
-    }
+    
 }

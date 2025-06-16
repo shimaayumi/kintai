@@ -8,6 +8,8 @@ use App\Models\BreakTime;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Carbon\Carbon;
+use App\Models\Admin;
+
 
 class AdminAttendanceListTest extends TestCase
 {
@@ -21,9 +23,7 @@ class AdminAttendanceListTest extends TestCase
         parent::setUp();
 
         // 管理者ユーザー作成（adminなどのフラグが必要であれば調整）
-        $this->admin = User::factory()->create([
-            'admin' => true,
-        ]);
+        $admin = Admin::factory()->create();
 
         // 一般ユーザーとその勤怠データ作成
         $this->users = User::factory()->count(3)->create();
@@ -44,13 +44,12 @@ class AdminAttendanceListTest extends TestCase
     /** @test */
     public function 管理者はその日の全ユーザーの勤怠情報を正確に確認できる()
 {
-    // 管理者ユーザーを作成
-    $admin = User::factory()->create([
-        'admin' => true,
-    ]);
+        $admin = Admin::factory()->create();
 
-    // 一般ユーザー3人と当日の勤怠データを作成
-    $users = User::factory()->count(3)->create();
+        $this->actingAs($admin, 'admin');
+
+        // 一般ユーザー3人と当日の勤怠データを作成
+        $users = User::factory()->count(3)->create();
     $today = Carbon::today()->toDateString();
 
     foreach ($users as $user) {
@@ -95,10 +94,8 @@ class AdminAttendanceListTest extends TestCase
     public function test_勤怠一覧画面に現在の日付が表示される()
     {
         // 管理者ユーザーを作成＆ログイン
-        $admin = User::factory()->create([
-            'admin' => true,
-        ]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
+        $this->actingAs($admin, 'admin');
 
         $today = now();
         $todayFormatted = $today->format('Y年n月j日'); // ビュー表示に合わせる
@@ -115,11 +112,9 @@ class AdminAttendanceListTest extends TestCase
     /** @test */
     public function test_前日ボタンで前日の勤怠情報が表示される()
     {
-        $admin = User::factory()->create([
-            'admin' => true,
-        ]);
+        $admin = Admin::factory()->create();
 
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         // 今日ではなく「前日」の日付をセット
         $yesterday = now()->subDay()->startOfDay();
@@ -157,11 +152,10 @@ class AdminAttendanceListTest extends TestCase
 
     public function test_翌日ボタンで翌日の勤怠情報が表示される()
     {
-        $admin = User::factory()->create([
-            'admin' => true,
-        ]);
+        $admin = Admin::factory()->create();
 
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
+       
 
         // 今日ではなく「翌日」の日付をセット
         $tomorrow = now()->addDay()->startOfDay();

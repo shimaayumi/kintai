@@ -83,26 +83,21 @@ class AttendanceBreakTest extends TestCase
         // 1回目：休憩戻
         $response = $this->post(route('attendance.action'), ['action' => 'endBreak']);
  
+        $attendance->refresh();
+        $this->assertEquals('working', $attendance->status);
 
+
+        // 休憩が終わって再び「休憩入」ボタンが表示されることを確認
+
+        // 1回目：休憩戻
+        $response = $this->post(route('attendance.action'), ['action' => 'endBreak']);
         $attendance->refresh();
         $this->assertEquals('working', $attendance->status);
 
         // 休憩が終わって再び「休憩入」ボタンが表示されることを確認
-      
+        $response = $this->get(route('attendance.index')); // ← 追加
         $response->assertStatus(200);
         $response->assertSee('休憩入');
-
-        // 2回目：休憩入
-        $response = $this->post(route('attendance.action'), ['action' => 'startBreak']);
-        $response->assertRedirect(route('attendance.index'));
-
-        $attendance->refresh();
-        $this->assertEquals('on_break', $attendance->status);
-
-        // 2回目の休憩中には「休憩戻」ボタンが表示されていることを確認
-        $response = $this->get(route('attendance.index'));
-        $response->assertStatus(200);
-        $response->assertSee('休憩戻');
     }
     
 

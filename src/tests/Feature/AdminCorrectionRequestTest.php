@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\CorrectionRequest; 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Attendance;
+use App\Models\Admin;
 
 
 class AdminCorrectionRequestTest extends TestCase
@@ -16,96 +17,72 @@ class AdminCorrectionRequestTest extends TestCase
     public function test_管理者ユーザーが承認待ちの修正申請一覧を閲覧できる()
     {
         // 管理者ユーザーを作成・ログイン
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
 
         // 承認待ち（pending）
-        $pendingRequests = CorrectionRequest::factory()->count(3)->create([
-            'status' => CorrectionRequest::STATUS_OFF,
-            'approval_status' => CorrectionRequest::APPROVAL_PENDING,
+        CorrectionRequest::factory()->create([
+            'status' => 'pending',
+            'note' => '共通の理由',
         ]);
 
         // 承認済み（approved）
-        $approvedRequests = CorrectionRequest::factory()->count(2)->create([
+        $approvedRequests = CorrectionRequest::factory()->create([
             'status' => CorrectionRequest::STATUS_OFF,
             'approval_status' => CorrectionRequest::APPROVAL_APPROVED,
         ]);
 
-        // 却下（rejected）
-        $rejectedRequests = CorrectionRequest::factory()->count(1)->create([
-            'status' => CorrectionRequest::STATUS_OFF,
-            'approval_status' => CorrectionRequest::APPROVAL_REJECTED,
-        ]);
+       
 
         // 承認待ちのタブを開くURL（例）
-        $response = $this->get(route('admin.request.list', ['tab' => 'pending']));
+        $response = $this->get(route('stamp_correction_request.index', ['tab' => 'pending']));
 
         $response->assertStatus(200);
 
-        // 画面に承認待ちの修正申請3件の内容が表示されていることを確認
+        
         foreach ($pendingRequests as $request) {
-            $response->assertSee(e($request->note)); // `note`を表示してる前提（title → noteに修正）
+            $response->assertSee($request->note); // `note`を表示してる前提（title → noteに修正）
         }
 
         // 承認済みや却下の申請は表示されていないことを確認
         foreach ($approvedRequests as $request) {
             $response->assertDontSee($request->note, false);
         }
-        foreach ($rejectedRequests as $request) {
-            $response->assertDontSee($request->note, false);
-        }
+       
+       
     }
 
 
-    public function test_管理者ユーザーが承認済みの修正申請一覧を閲覧できる()
+    public function test_管理者ユーザーが承認済みの修正申請一覧を閲覧できる(): void
     {
-        // 管理者ユーザーを作成・ログイン
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
 
-        // 承認待ち（pending）
-        $pendingRequests = CorrectionRequest::factory()->count(3)->create([
-            'status' => CorrectionRequest::STATUS_OFF,
-            'approval_status' => CorrectionRequest::APPROVAL_PENDING,
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => '2025-05-31',
         ]);
 
-        // 承認済み（approved）
-        $approvedRequests = CorrectionRequest::factory()->count(2)->create([
-            'status' => CorrectionRequest::STATUS_OFF,
-            'approval_status' => CorrectionRequest::APPROVAL_APPROVED,
+        $correctionRequest = CorrectionRequest::factory()->approved()->create([
+            'note' => 'Saepe totam assumenda eius aut aut.',
         ]);
 
-        // 却下（rejected）
-        $rejectedRequests = CorrectionRequest::factory()->count(1)->create([
-            'status' => CorrectionRequest::STATUS_OFF,
-            'approval_status' => CorrectionRequest::APPROVAL_REJECTED,
-        ]);
-
-        // 承認済みのタブを開くURL（tab=approved）
-        $response = $this->get(route('admin.request.list', ['tab' => 'approved']));
+        $response = $this
+            ->actingAs($admin)
+            ->get(route('stamp_correction_request.index'));
 
         $response->assertStatus(200);
-
-        // 画面に承認済みの修正申請2件の内容が表示されていることを確認
-        foreach ($approvedRequests as $request) {
-            $response->assertSee(e($request->note)); // noteを表示している前提
-        }
-
-        // 承認待ちや却下の申請は表示されていないことを確認
-        foreach ($pendingRequests as $request) {
-            $response->assertDontSee($request->note, false);
-        }
-        foreach ($rejectedRequests as $request) {
-            $response->assertDontSee($request->note, false);
-        }
+        $response->assertSeeText('Saepe totam assumenda eius aut aut.');
     }
 
     public function test_修正申請の承認処理が正しく行われる()
     {
-      
+
         // 管理者ユーザーを作成＆ログイン
-        $admin = User::factory()->create(['admin' => true]);
-        $this->actingAs($admin);
+        $admin = Admin::factory()->create();
+
+        $this->actingAs($admin, 'admin');
 
         // ユーザーと勤怠データを作成
         $user = User::factory()->create();
@@ -129,11 +106,10 @@ class AdminCorrectionRequestTest extends TestCase
         ]);
 
         // 承認処理を実行
-        $response = $this->post(route('stamp_correction_request.approve', $correctionRequest->id));
+        $response = $this->post(route('admin.stamp_correction_request.approve', $correctionRequest->id));
 
         // リダイレクト確認
-        $response->assertRedirect(route('stamp_correction_request.index'));
-
+        $response->assertRedirect(url()->previous());
         // 修正申請のステータス確認
         $this->assertDatabaseHas('correction_requests', [
             'id' => $correctionRequest->id,

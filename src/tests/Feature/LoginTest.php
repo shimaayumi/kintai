@@ -45,11 +45,19 @@ class LoginTest extends TestCase
     // 3. 登録内容と一致しない場合、バリデーションメッセージが表示される
     public function test_invalid_credentials_show_error_message()
     {
-        $response = $this->post('/login', [
+        $response = $this->post('/admin/login', [
             'email' => 'user@example.com',
             'password' => 'wrongpassword',
         ]);
-        $response->assertSessionHasErrors(['email' => 'ログイン情報が登録されていません']);
+
+        // キーだけチェック（おすすめ）
+        $response->assertSessionHasErrors('email');
+
+        // 必要ならメッセージ内容まで検証
+        $this->assertEquals(
+            'ログイン情報が登録されていません',
+            session('errors')->first('email')
+        );
     }
 
 

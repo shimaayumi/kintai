@@ -105,7 +105,7 @@
             @if ($correctionRequest->approval_status === \App\Models\CorrectionRequest::APPROVAL_APPROVED)
             <span class="approved-label">承認済み</span>
             @else
-            <form action="{{ route('admin.stamp_correction_request.approve', ['attendance_correct_request' => $correctionRequest->id]) }}" method="POST">
+            <form action="{{ route('admin.stamp_correction_request.approve', ['id' => $correctionRequest->id]) }}" method="POST">
                 @csrf
                 <button type="submit" class="btn-primary">承認</button>
             </form>

@@ -7,7 +7,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use App\Http\Requests\AttendanceRequest;
 use App\Models\CorrectionRequest;
-use Illuminate\Support\Facades\Auth;
+
 
 class AdminAttendanceController extends Controller
 {
@@ -159,7 +159,7 @@ class AdminAttendanceController extends Controller
             }
         }
 
-        return redirect()->route('attendance.show', $attendance->id)->with('success', '修正申請を送信しました。管理者の承認をお待ちください。');
+        return redirect()->route('admin.attendance.list', $attendance->id);
     }
 
     public function show($id)
